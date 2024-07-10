@@ -46,6 +46,719 @@
       </tags>
   </entry>
   <entry>
+    <title>SQL-日期时间转换问题</title>
+    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
+<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
+<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
+<span id="more"></span>
+
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
+<p>查看上游的数据，交易时间为：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
+
+<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
+
+<p>然后再将利用<code>to_date</code> 进行转换</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
+
+<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
+
+
+
+<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
+<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
+<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
+<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
+<p>当时尝试了很多</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
+<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
+
+<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
+<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
+<p>查看本地库的NLS_LANGUAGE参数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
+
+<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
+<p>在本地尝试</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
+
+
+
+<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
+<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux-工作中常用命令总结与常见错误</title>
+    <url>/2024/07/10/Linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>在信创项目上，因为服务器通常是<code>linux</code> 操作系统，所以对<code>linux</code>命令也是经常需要使用。根据实际的项目里，需要经常使用到的<code>linux</code> 命令，做一个总结 。</p>
+<span id="more"></span>
+
+
+
+<h2 id="linux基础命令"><a href="#linux基础命令" class="headerlink" title="linux基础命令"></a>linux基础命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">dir</span> 指目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">file 指文件</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">path 指路径</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出当前目录所有内容</span></span><br><span class="line">ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">cd /path/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上级目录</span></span><br><span class="line">cd ..</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上个目录</span></span><br><span class="line">cd -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示当前路径</span></span><br><span class="line">pwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件内容 <span class="built_in">cat</span></span> </span><br><span class="line">cat /path/file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件末尾 N 行内容，并实时显示文件追加内容</span></span><br><span class="line">tail -fn N file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /path/to/create_dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建文件</span></span><br><span class="line">touch file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以使用 vi 编辑空文件保存，也是一个新文件</span></span><br><span class="line">vi file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除目录、文件</span></span><br><span class="line">rm -rf dir_name</span><br><span class="line">rm -rf file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar.gz</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制</span></span><br><span class="line">cp /path/dir_name /path/to/new_dir_name</span><br><span class="line">cp -r /path/dir_name /path/to/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">mv /path/dir_name /new_path/to/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重命名</span></span><br><span class="line">mv /path/dir_name /path/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀掉进程</span></span><br><span class="line">kill -9 pid</span><br></pre></td></tr></table></figure>
+
+
+
+<p>上述都是基础，当然下边也是基础。</p>
+<p>但是根据我在实际工作中，一个应用的部署过程来做的总结，包括前期应用的搭建，到后期应用服务运维，从一整个项目实施部署的过程，来梳理实际工作中应该掌握哪些命令。</p>
+<h2 id="项目过程中常用命令"><a href="#项目过程中常用命令" class="headerlink" title="项目过程中常用命令"></a>项目过程中常用命令</h2><h3 id="1-验证网络"><a href="#1-验证网络" class="headerlink" title="1 验证网络"></a>1 验证网络</h3><p>先验证应用服务器与数据库服务器网络是否开通，没有开通则沟通走流程开通</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping ip</span><br><span class="line">telnet ip port</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-1-配置-Hosts"><a href="#1-1-配置-Hosts" class="headerlink" title="1.1 配置 Hosts"></a>1.1 配置 Hosts</h4><p>当 <code>ping</code> <code>telnet</code> 无法找到对应的主机名或服务时，可以配置 <code>hosts</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 ip</span></span><br><span class="line">ip addr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取主机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-2-配置-DNS"><a href="#1-2-配置-DNS" class="headerlink" title="1.2 配置 DNS"></a>1.2 配置 DNS</h4><p>在项目上，有时候客户不提供 hosts，而是提供 DNS，比如对接邮箱服务的时候提供一个邮箱服务器的 DNS。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑 DNS 文件</span></span><br><span class="line">vi /etc/resolv.con</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加：nameserver 为固定写法</span></span><br><span class="line">nameserver ip</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">nameserver 127.0.0.1</span><br><span class="line">nameserver www.baidu.com</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2 创建用户"></a>2 创建用户</h3><p>在项目部署时，客户的生产环境是不会提供 root 用户的，测试环境上，需要自己创建相关的中间件、数据库用户，然后使用这个用户进行操作，能够使应用服务在测试和生产环境中保持一致的运行情况。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.创建用户组</span></span><br><span class="line">groupadd -g group_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">groupadd -g dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.创建用户</span></span><br><span class="line">useradd -g group_name -s /bin/bash -d /home/dir_name -m user_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-g：指定用户所属组</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s：指定用户用的 shell</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-d：指定用户的根目录路径</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-m：创建用户的根目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子,创建 dmdba 用户，并设置用户 ID\所属组\指定 SHELL\指定根目录并创建根目录：</span></span><br><span class="line">useradd -g dmdba -s /bin/bash -d /home/dm -m dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3.更改用户主、组</span></span><br><span class="line">chown dmdba:dmdba /home/dm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4.修改用户密码</span></span><br><span class="line">passwd user_name</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-修改权限"><a href="#3-修改权限" class="headerlink" title="3 修改权限"></a>3 修改权限</h3><p>在创建用户后，通常会创建一些目录，用来存放应用包，或者用来安装应用服务。</p>
+<p>如果使用root创建了目录，是需要修改这些目录的权限的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录所属主、组</span></span><br><span class="line">chown dmdba:dmdba -R /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录权限</span></span><br><span class="line">chmod 755 -R /home/dm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-解包"><a href="#4-解包" class="headerlink" title="4 解包"></a>4 解包</h3><p>在创建好目录后，上传应用包，一般为<code>tar.gz</code> 或者 <code>zip</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到当前目录</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到指定目录</span></span><br><span class="line">tar -xzvf file.tar.gz /path/to/dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 zip 包</span></span><br><span class="line">unzip file.zip</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4-1-挂载"><a href="#4-1-挂载" class="headerlink" title="4.1 挂载"></a>4.1 挂载</h4><p>因为有的安装包，是提供一个 <code>iso</code> 镜像文件的，在 linux 里需要先挂载 <code>iso</code> 文件，里边有安装 <code>.sh</code> 脚本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 iso 文件，主要挂载目录需要用户能访问，一般在应用主目录下创建一个挂载目录</span></span><br><span class="line">mount -o loop file_name.iso /home/dm/mnt </span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-配置环境变量"><a href="#5-配置环境变量" class="headerlink" title="5 配置环境变量"></a>5 配置环境变量</h3><p>通常的项目是个 java 构建的应用，需要使用 <code>JDK</code> 。如果服务器上没有安装 <code>JDK</code> 包就需要先安装，不过现在发行版的LINUX都是自带了<code>openJDK</code> ，需要根据<code>JDK</code> 的路径去配置环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通常情况下，我们是不知道一个新服务器的java安装路径在哪里的，所以我们可以通过命令查找</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先看是否安装</span></span><br><span class="line">java -version</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有则找 java 路径，这么找：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">whereis java 或者 <span class="built_in">which</span> java 都可以</span></span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# whereis java</span><br><span class="line">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/java/jdk1.8.0_231/bin/java /usr/share/man/man1/java.1.gz</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /usr/bin/java</span><br><span class="line">lrwxrwxrwx 1 root root 22 Jun  6  2023 /usr/bin/java -&gt; /etc/alternatives/java</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /etc/alternatives/java</span><br><span class="line">lrwxrwxrwx 1 root root 73 Jun  6  2023 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre/bin/java</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">知道了 java 的路径，就可以配置环境变量</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置环境变量有两个文件： /etc/profile 全局环境变量； ~/.bash_profile 当前用户的环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64</span><br><span class="line">export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-服务启停"><a href="#6-服务启停" class="headerlink" title="6 服务启停"></a>6 服务启停</h3><h4 id="6-1-启动服务"><a href="#6-1-启动服务" class="headerlink" title="6.1 启动服务"></a>6.1 启动服务</h4><p>一般多是用后台命令启动</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nohup server_name &amp;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-2-启动-java-程序"><a href="#6-2-启动-java-程序" class="headerlink" title="6.2 启动 java 程序"></a>6.2 启动 java 程序</h4><p>有的项目需要单独启动某个 <code>jar</code> 包</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar file.jar </span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-查看服务状态"><a href="#6-3-查看服务状态" class="headerlink" title="6.3 查看服务状态"></a>6.3 查看服务状态</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -ef | grep app_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">ps -ef | grep java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 ps -ef 命令的输出结果作为 grep java 的输入</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ps -ef 会查出所有运行的进程，grep java 则在这些进程里查找有关 java 的进程</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回的信息解释</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user  进程归属用户</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PID   进程 ID</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">CPU   CPU 使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MEM   内存使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">STAT  进程状态（R 运行 S 睡眠 Z 卡死）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">START  进程开始运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">TIME  进程运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">COMMAND  进程执行的命令</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="7-关闭防火墙"><a href="#7-关闭防火墙" class="headerlink" title="7 关闭防火墙"></a>7 关闭防火墙</h3><p>应用服务如果起来了，但是前台地址打不开的情况，拒绝访问或者无相应。需要关闭防火墙</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止自启（可操作也可不操作，不操作的话，机器重启会自启防火墙）</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-查看端口占用情况"><a href="#8-查看端口占用情况" class="headerlink" title="8 查看端口占用情况"></a>8 查看端口占用情况</h3><p>项目上，可能存在端口冲突的情况，比如说某个服务关闭异常导致服务关了但是端口没释放，可排查端口由哪个<code>pid</code> 占用着，将它 <code>kill</code> 掉释放端口</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">natstat -ntlp</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-n  显示地址、端口号</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-t  显示 tcp 连接信息</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-l  显示监听</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-p  显示进程</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="9-追踪日志"><a href="#9-追踪日志" class="headerlink" title="9 追踪日志"></a>9 追踪日志</h3><p>在排查问题过程中，经常需要看日志。</p>
+<p>可以直接实时查看日志，看看哪一步报错</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<p>也可以使用重定向，将日志先清空，避免冗余信息过多，然后再追踪日志</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&gt; 其实是个重定向，这个命令就是把前边的空内容以覆盖的方式输入到文件里，达到删除效果</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">file.log</span></span><br><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="10-查看服务器资源占用情况"><a href="#10-查看服务器资源占用情况" class="headerlink" title="10 查看服务器资源占用情况"></a>10 查看服务器资源占用情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">top 实时查看资源情况</span></span><br><span class="line">top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内存情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看磁盘情况</span></span><br><span class="line">df -h</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-查看历史命令"><a href="#11-查看历史命令" class="headerlink" title="11 查看历史命令"></a>11 查看历史命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示历史执行过的命令</span></span><br><span class="line">history</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="12-判断命令是否被拉起"><a href="#12-判断命令是否被拉起" class="headerlink" title="12 判断命令是否被拉起"></a>12 判断命令是否被拉起</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务器发送请求，判断应用是否被拉起，当操作机与服务器存在网络问题时可用此判断，如果不能访问，排查操作机的网络与服务器 IP 是否通</span></span><br><span class="line">curl URL</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="常见报错"><a href="#常见报错" class="headerlink" title="常见报错"></a>常见报错</h2><h3 id="1-No-such-file-or-directory"><a href="#1-No-such-file-or-directory" class="headerlink" title="1 No such file or directory"></a>1 No such file or directory</h3><p>执行 <code>shell</code> 脚本的是，可能会遇到这个报错，完整的报错类似下边：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/bin/sh: bad interpreter: No such file or directory</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者</span></span><br><span class="line">/usr/bin/env: &quot;sh\r&quot;: 没有那个文件或目录</span><br></pre></td></tr></table></figure>
+
+<p>是因为编写 <code>shell</code> 脚本时，使用的文本编辑器，它用的换行符是 <code>dos</code> ，在 <code>shell</code> 里的换行符应该需要更改为 <code>unix</code> ，如下设置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi file.sh</span><br><span class="line">:set ff=unix	# :set ff 可以查看当前 shell 脚本的换行符是 dos 还是 unix</span><br><span class="line">:wq				# 保存</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-Permission-denied"><a href="#2-Permission-denied" class="headerlink" title="2 Permission denied"></a>2 Permission denied</h3><p>就是因为权限的原因。在测试环境中使用了 root 用户操作，具有系统所有权，所以操作什么都不会报错。但是到了生产环境，一般是没有 root 的权限的，所以当执行一些需要用到 root 权限的命令时，就会报错。</p>
+<p>通常是因为 <code>shell</code> 脚本中，存在授权 <code>chmod</code> 、创建软链 <code>ln -s</code> 等命令。</p>
+<hr>
+<center>END</center>
+
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>Linux运维</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>kafka-基础知识与实际项目的问题</title>
+    <url>/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>最近异常交易的项目中，使用到了<code>kafka</code> ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触<code>kafka</code> ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用<code>kafka</code> 读取数据，做一个流式处理，供下游应用使用数据。</p>
+<span id="more"></span>
+
+<h2 id="kafka-主要组件"><a href="#kafka-主要组件" class="headerlink" title="kafka 主要组件"></a>kafka 主要组件</h2><h3 id="1-broker-服务器"><a href="#1-broker-服务器" class="headerlink" title="1 broker  服务器"></a>1 broker  服务器</h3><p>kafka集群的服务器，一台服务器就是一个 broker 。</p>
+<h3 id="2-producer-生产者"><a href="#2-producer-生产者" class="headerlink" title="2 producer 生产者"></a>2 producer 生产者</h3><p>producer 主要是用于生产消息，是 kafka 当中的消息生产者，生产的消息通过 topic 进行归类，保存到 kafka 的 broker 里面去。</p>
+<p>项目上我们的数据平台就是作为一个生产者，通过将上游数据推送到topic里。</p>
+<h3 id="3-topic-主题"><a href="#3-topic-主题" class="headerlink" title="3 topic 主题"></a>3 topic 主题</h3><p>kafka 将消息（数据）以 topic 为单位进行归类。在项目里边，一张表推到一个 topic ，需要推几张表就是建几个 topic 。</p>
+<h3 id="4-partition-分区"><a href="#4-partition-分区" class="headerlink" title="4 partition 分区"></a>4 partition 分区</h3><p>kafka 里，一个 topic 是可以有多个分区。比如说创建一个有 3 个分区的 topic ，那么整个 topic 的数据都存放在这 3 个分区内（就是说每个分区都存放一部分 topic 的数据）。</p>
+<h3 id="5-consumer-消费者"><a href="#5-consumer-消费者" class="headerlink" title="5 consumer 消费者"></a>5 consumer 消费者</h3><p>消费者主要就是消费 kafka topic 里的数据</p>
+<h3 id="6-consumer-group-消费者"><a href="#6-consumer-group-消费者" class="headerlink" title="6 consumer group 消费者"></a>6 consumer group 消费者</h3><p>消费者组里可以有多个消费者，同一个组里的消费者，对于同一条数据，只能消费 1 次。</p>
+<p>比如：一个消费者组里有 A 和 B 两个消费者，A 消费了 topic 里的第一条数据，那么 B 就无法消费该 topic 里的第一条数据，因为已经被消费过了。</p>
+<p>但是不同的消费者组，还是可以共同消费某个 topic 里的数据的。</p>
+<h4 id="6-1-消费者组与分区的关系"><a href="#6-1-消费者组与分区的关系" class="headerlink" title="6.1 消费者组与分区的关系"></a>6.1 消费者组与分区的关系</h4><img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624230047447.png" class="" title="image-20240624230047447">
+
+<p>如果 topic 只有 2 个分区，消费者组里有 4 个消费者，那么也只能供 2 个消费者消费。</p>
+<p>如果 topic 有 4 个分区，消费者组里的 4 个消费者都能消费数据，并发量就上来了。</p>
+<p>所以 topic 里的分区越多，消费的并发越高，处理速度也越快。</p>
+<h3 id="7-partition-replicas-分区副本"><a href="#7-partition-replicas-分区副本" class="headerlink" title="7 partition replicas 分区副本"></a>7 partition replicas 分区副本</h3><p>每个分区的副本，用来控制数据保存在几个 broker 服务器上，通常是几台 broker 就设置几个副本。</p>
+<h3 id="8-segment-文件"><a href="#8-segment-文件" class="headerlink" title="8 segment 文件"></a>8 segment 文件</h3><p>一个 partition 分区中由多个 segment 文件组成的。每个 segment 文件又包含了 <code>.log</code> 文件和<code>.index</code> 文件，<code>.log</code> 文件是存放推送的数据，<code>.index</code> 文件存放数据的索引值，用来加快数据的查询速度的。</p>
+<p><code>.index</code> 文件里存的索引值，是与<code>.log</code>文件里的数据位置是对应的。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># .index 是 key-value 存放方式</span></span><br><span class="line"><span class="number">1</span>,<span class="number">0</span>	<span class="comment"># 对应 .log 的第一条数据，值是0</span></span><br><span class="line"><span class="number">2</span>,<span class="number">2</span>	<span class="comment"># 对应 .log 的第二条数据，值是2</span></span><br><span class="line"><span class="number">3</span>,<span class="number">9</span>	<span class="comment"># 对应 .log 的第三条数据，值是9</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>.log</code> 文件里会记录<code>offset</code> 偏移量，用于标记消费者读取消息的位置。</p>
+<h2 id="kafka-基础操作"><a href="#kafka-基础操作" class="headerlink" title="kafka 基础操作"></a>kafka 基础操作</h2><h3 id="1-kafka启停"><a href="#1-kafka启停" class="headerlink" title="1 kafka启停"></a>1 kafka启停</h3><p>kafka 与 zookeeper 强依赖，启动 kafka 之前必须先启动 zookeeper ，否则会报错的</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># zookeeper 启动，后边接配置文件</span></span><br><span class="line">./zookeeper-server-start.sh ../config/zookeeper.properties</span><br><span class="line"><span class="comment"># zookeeper 停止</span></span><br><span class="line">./zookeeper-server-stop.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># kafka 启动，后边接配置文件</span></span><br><span class="line">./kafka-server-start.sh ../config/server.properties</span><br><span class="line"><span class="comment"># kafka 停止</span></span><br><span class="line">./kafka-server-stop.sh</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234319800.png" class="" title="image-20240624234319800">
+
+
+
+<h3 id="2-创建-topic"><a href="#2-创建-topic" class="headerlink" title="2 创建 topic"></a>2 创建 topic</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建语句 模板</span></span><br><span class="line">./kafka-topics.sh --create --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --replication-factor <span class="number">1</span> --partitions <span class="number">1</span> --topic topic_name</span><br><span class="line"><span class="comment"># bootstrap-server 指定 kafka 服务器地址和端口</span></span><br><span class="line"><span class="comment"># replication-factor 指定分区的副本个数</span></span><br><span class="line"><span class="comment"># partitions 指定topic的分区个数</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-删除-topic"><a href="#2-1-删除-topic" class="headerlink" title="2.1 删除 topic"></a>2.1 删除 topic</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --<span class="keyword">delete</span> --topic topic_name</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-增加-topic-partition"><a href="#2-2-增加-topic-partition" class="headerlink" title="2.2 增加 topic partition"></a>2.2 增加 topic partition</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --zookeeper <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --alter --topic topic_name --partition <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-查看-topic-数据"><a href="#3-查看-topic-数据" class="headerlink" title="3 查看 topic 数据"></a>3 查看 topic 数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-console-consumer.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --topic your_topic_name --from-beginning [--max-messages <span class="number">10</span>]</span><br><span class="line"><span class="comment"># --max-messages 查看几条消息</span></span><br><span class="line"><span class="comment"># --from-beginning 查看最新的消息</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-查询-topic-列表"><a href="#4-查询-topic-列表" class="headerlink" title="4 查询 topic 列表"></a>4 查询 topic 列表</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --list --zookeeper localhost</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="kafka-相关问题及解决方案"><a href="#kafka-相关问题及解决方案" class="headerlink" title="kafka 相关问题及解决方案"></a>kafka 相关问题及解决方案</h2><h3 id="1-报错-Error-while-fetching-metadata-with-correlation-id"><a href="#1-报错-Error-while-fetching-metadata-with-correlation-id" class="headerlink" title="1 报错 Error while fetching metadata with correlation id"></a>1 报错 Error while fetching metadata with correlation id</h3><p>这个报错是在 kafka 查看 topic 里的数据时，出现的错误。查了下资料，它是无法识别到 hostname 导致。</p>
+<p><strong>解决方案：</strong></p>
+<p>修改 <code>server.properties</code> 配置文件，增加 listeners 。默认的配置是没有这两行的，手动加上。</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234112411.png" class="" title="image-20240624234112411">
+
+
+
+<h3 id="2-报错-exiting-abnormally"><a href="#2-报错-exiting-abnormally" class="headerlink" title="2 报错 exiting abnormally"></a>2 报错 exiting abnormally</h3><p>这个是在启动 zookeeper 的时候出现，报错如下图所示：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234427279.png" class="" title="image-20240624234427279">
+
+<p><strong>解决方案：</strong></p>
+<p>在<code>zookeeper.properties</code>配置文件中，有个 <code>dataDir=/path</code> ，把 <code>/path</code> 路径下的<code>version-2</code> 文件夹删掉，然后重新启动即可。</p>
+<h3 id="3-报错-during-kafkaserver-startup"><a href="#3-报错-during-kafkaserver-startup" class="headerlink" title="3 报错 during kafkaserver startup"></a>3 报错 during kafkaserver startup</h3><p>启动 kafka 的时候出现，报错如下图所示：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234731914.png" class="" title="image-20240624234731914">
+
+<p>注意这个：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234814208.png" class="" title="image-20240624234814208">
+
+<p>由于启动的 id 和 <code>meta.properties</code> 里边的 id 不一致导致报错。通常是因为关闭 kafka 的时候出现了异常（虽然不知道有什么异常）</p>
+<p><strong>解决方案：</strong></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找到该文件</span></span><br><span class="line">find / -name <span class="string">&quot;meta.properties&quot;</span></span><br><span class="line"><span class="comment"># 修改里边的 cluster.id= 一串字符串id</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624235112007.png" class="" title="image-20240624235112007">
+
+<p>修改为报错里出现的那个括号里的一串id即可。</p>
+<h3 id="4-新增消费者组时数据显示不一致"><a href="#4-新增消费者组时数据显示不一致" class="headerlink" title="4 新增消费者组时数据显示不一致"></a>4 新增消费者组时数据显示不一致</h3><p>在做迁移的时候，为了对比迁移前后的数据量是否一致。在迁移后的环境中新增一个消费者组 B，用来消费同一个 topic 数据，发现跟迁移前的消费者组 A 的数据不一致。</p>
+<p>消费者组A的数据是当天的数据，但是消费者组B的数据却是几天前的。为啥？</p>
+<p>kafka每个消费者组都是独立消费数据，只要是消费同一个 topic，那么数据肯定是一致的。由于一般 kafka 的配置是保留 7 天的数据，所以在新增的消费者组消费同一个 topic 时，它会重头开始消费，即从所以就出现了，消费者组B里是几天前的数据，这是无可避免的。</p>
+<h3 id="5-配置流水字段"><a href="#5-配置流水字段" class="headerlink" title="5 配置流水字段"></a>5 配置流水字段</h3><p>由于当时第一次配置的时候，没有配置流水字段，导致了推送数据到 kafka topic 的任务，每次实时推送全量数据过去，导致了数据平台每次启动推送 kafka 的任务，就会迅速占满服务器内存，然后应用挂掉。</p>
+<p>后边加入流水字段，将任务配置为增量推送，内存占比就好了很多。</p>
+<p>通常是用线性递增的字段，作为流水字段。比如，实时成交表里有成交时间，委托流水表里有委托时间。</p>
+<h3 id="6-配置主键"><a href="#6-配置主键" class="headerlink" title="6 配置主键"></a>6 配置主键</h3><p>通过配置主键用来去重，避免推送重复数据到 topic 里。比如：实时成交表里的成交编号，委托流水表里的委托编号，编号是唯一的，那么可以使用编号作为主键。</p>
+]]></content>
+      <categories>
+        <category>大数据</category>
+        <category>kafka</category>
+      </categories>
+      <tags>
+        <tag>kafka</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实施部署-Nginx在项目上的应用（四）</title>
+    <url>/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-Nginx%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%9A%84%E5%BA%94%E7%94%A8/</url>
+    <content><![CDATA[<p>本文总结Nginx在项目上的实际应用，本文包含了Nginx的常用配置与在项目中遇到的问题。信创版本的负载均衡中间件其实也是类似于Nginx，以宝兰德负载均衡中间件BWS为例。</p>
+<span id="more"></span>
+
+
+
+<p>Nginx 负载均衡，在生产环境上常常会用到。简单通俗的架构如下：</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-Nginx%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%9A%84%E5%BA%94%E7%94%A8/image-20240610213747187.png" class="" title="image-20240610213747187">
+
+
+
+<p>在生产环境，通常具有多台应用服务器（一般为集群），通过 Nginx 服务器配置的地址去访问同一个应用，通过 Ng 实现应用的高并发、高可用。</p>
+<h2 id="1-Nginx基础"><a href="#1-Nginx基础" class="headerlink" title="1 Nginx基础"></a>1 Nginx基础</h2><p>Nginx 的配置文件，是 Nginx_home&#x2F;conf&#x2F;nginx.conf 文件，它里边的结构块是这样的：</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全局块</span></span><br><span class="line"><span class="comment"># user user_name;                   # 运行 nginx 进程的用户名</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 事件块</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># http 块</span></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment"># server 块</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="comment"># server 全局块</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment"># upstream 块</span></span><br><span class="line">    <span class="section">upstream</span> name &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment"># location 块</span></span><br><span class="line">    <span class="section">location</span> [PATTERN] &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-1-全局块"><a href="#1-1-全局块" class="headerlink" title="1.1 全局块"></a>1.1 全局块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全局块通常是配置用户、日志、进程、pid 等</span></span><br><span class="line"><span class="comment"># 注意，全局块中涉及的路径，需 nginx 有权限读写。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行 nginx 进程的用户名，指 Linux 用户</span></span><br><span class="line"><span class="attribute">user</span> user_name;</span><br><span class="line"><span class="comment"># 设置 nginx 的进程数，默认为 1，一般进程数=CPU 核数即可。双核配 2，4 核配 4.</span></span><br><span class="line"><span class="attribute">worker_processes</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment"># nginx 的工作目录，不配置，默认在 logs 下</span></span><br><span class="line"><span class="attribute">working_directory</span> nginx_path/logs;</span><br><span class="line"><span class="comment"># 设置日志级别：debug\info\notice\warn\error\crit（高到低）</span></span><br><span class="line"><span class="attribute">error_log</span> nginx_path/logs/<span class="literal">error</span>.log <span class="literal">info</span>;</span><br><span class="line"><span class="comment"># 也可以使用默认，记录 error</span></span><br><span class="line"><span class="attribute">error_log</span> nginx_path/logs/<span class="literal">error</span>.log</span><br><span class="line"><span class="comment"># pid，设置 nginx 进程的 pid 文件路径和名称</span></span><br><span class="line">pid nginx_path/logs/nginx.pid;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>全局块，通常配置 user  worker_processes  error_log  pid 即可。</p>
+<p>解释一下 pid，这个东西就是 nginx 运行时的进程 id（Linux 每个进程都有一个进程 id，即 pid），配置 pid，就是为了将 nginx 的进程 id 写到这个文件中（例如上方的 nginx.pid 文件），可以用来判断 nginx 是否运行，防止启动多个 nginx 进程的。</p>
+<p>网上的说法是这样的：nginx 启动时，会去找这个设置的 pid 文件，一是看这个文件是否存在，二是看 pid 文件中记录的 pid 进程是否存在，如果 pid 文件存在并且 pid 进程也存在，则说明 nginx 已经启动了，那么启动就会报错，防止启动多个 nginx 进程。</p>
+<h3 id="1-2-事件块"><a href="#1-2-事件块" class="headerlink" title="1.2 事件块"></a>1.2 事件块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># events 块，是 nginx 处理连接的配置块</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="comment"># 配置每个工作进程的最大连接数，默认 1024</span></span><br><span class="line">  <span class="attribute">worker_connection</span> <span class="number">1024</span>;</span><br><span class="line">  <span class="comment"># 鼓励接收，这个可不配</span></span><br><span class="line">  <span class="attribute">multi_accept</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="comment"># 处理连接的事件模型，默认 epoll，可不配</span></span><br><span class="line">  <span class="attribute">use</span> <span class="literal">epoll</span>;</span><br><span class="line">  <span class="comment"># 其他可百度</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其实只需要配置一个 <code>worker_connection</code> 即可</p>
+<h3 id="1-3-http-块"><a href="#1-3-http-块" class="headerlink" title="1.3 http 块"></a>1.3 http 块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块常用配置</span></span><br><span class="line">  <span class="attribute">include</span> mime.types;    <span class="comment"># 文件扩展名与文件类型映射表</span></span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;  <span class="comment"># 默认文件类型</span></span><br><span class="line">  <span class="attribute">access_log</span> logs/access.log main;    <span class="comment"># 日志路径、格式</span></span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">on</span>;                      <span class="comment"># 开启日志，记录客户端请求信息</span></span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;           <span class="comment"># 开启文件传输功能</span></span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">65s</span>;    <span class="comment"># 保持连接超时时长，超过这个时间，连接关闭</span></span><br><span class="line">  <span class="attribute">client_max_body_size</span> <span class="number">10m</span>;    <span class="comment"># 允许文件传输的最大值，根据实际情况设置</span></span><br><span class="line">  <span class="attribute">client_header_buffer_size</span> <span class="number">4k</span>;  <span class="comment"># 客户端请求头缓冲区大小，k(千字节)</span></span><br><span class="line">  <span class="attribute">client_body_buffer_size</span> <span class="number">8m</span>;  <span class="comment"># 客户端请求体缓存区大小，m(MB)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>client_max_body_size</code> 参数，对传输的文件大小做限制 <code>client_header_buffer_size</code>  <code>client_body_buffer_size</code> 参数，为了确保请求头(体)数据不会因为缓冲区太小而被截断</p>
+<h3 id="1-4-server-块"><a href="#1-4-server-块" class="headerlink" title="1.4 server 块"></a>1.4 server 块</h3><p>server 块里包含了 upstream 块、location 块</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 该块在 http 块下</span></span><br><span class="line"><span class="comment"># 通过配置的服务名和监听端口去访问时，根据不同的权重随机跳转到应用服务端</span></span><br><span class="line"><span class="comment"># 这里的链路大概如下：</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 ng 地址：http://hello:80/app  &gt;&gt;&gt;  跳转 http://fzjh/app</span></span><br><span class="line"><span class="comment"># &gt;&gt;&gt; 根据 upstream 块获取 fzjh 配置的 server   </span></span><br><span class="line"><span class="comment"># &gt;&gt;&gt; 根据权重访问 http://192.168.1.1:8080/app http://192.168.1.2:8080/app</span></span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment"># server 块</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;        <span class="comment"># 监听端口，默认 80，需要根据实际情况更改</span></span><br><span class="line">    <span class="attribute">server_name</span> hello;    <span class="comment"># 用来做跳转应用的服务名</span></span><br><span class="line">    <span class="comment"># upstream 块  负载均衡关键块</span></span><br><span class="line">    <span class="section">upstream</span> fzjh &#123;</span><br><span class="line">      <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span> weight=<span class="number">1</span>;  <span class="comment"># 服务器 1，权重 1</span></span><br><span class="line">      <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span> weight=<span class="number">2</span>;  <span class="comment"># 服务器 2，权重 2</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># location 块  反向代理关键块</span></span><br><span class="line">    <span class="section">location</span> /app &#123;        <span class="comment"># 指定访问的后缀</span></span><br><span class="line">      <span class="attribute">proxy_pass</span> http://fzjh/app;   <span class="comment"># proxy_pass 反向代理关键字 </span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>说明：通常只是做反向代理的话，是不需要配置 <code>upstream</code> 块的，只需要配置 <code>location</code> 块。</p>
+<h3 id="1-5-负载均衡策略"><a href="#1-5-负载均衡策略" class="headerlink" title="1.5 负载均衡策略"></a>1.5 负载均衡策略</h3><p>负载均衡策略的问题，其实就是在 upstream 块里边去配置。比如步骤【4）server 块】中的 upstream 块用法就是一个加权轮询策略，weight&#x3D;1  &#x3D;2  就是服务器的权重，通过给服务器分配权重，权重大的服务器将接收更多的请求。（<strong>数值越大，权重越高</strong>）</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 轮询</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加权轮询</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span> weight=<span class="number">1</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span> weight=<span class="number">3</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span> weight=<span class="number">5</span>;  <span class="comment"># 权重越大，接收请求越多</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># ip hash</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  ip_hash;            <span class="comment"># 没错，就是加上这个参数即可</span></span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最少连接</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  least_conn;        <span class="comment"># 没错，也是加个参数即可</span></span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="2-Nginx启停"><a href="#2-Nginx启停" class="headerlink" title="2 Nginx启停"></a>2 Nginx启停</h2><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动</span></span><br><span class="line"><span class="attribute">cd</span> nginx_home/sbin &amp;&amp; ./nginx</span><br><span class="line"><span class="comment"># 停止  pid 文件的路径为全局块中设置</span></span><br><span class="line">kill -QUIT `cat nginx_home/logs/nginx.pid`</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">cd nginx_home/sbin &amp;&amp; ./nginx -s reload</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="3-Nginx遇到的问题"><a href="#3-Nginx遇到的问题" class="headerlink" title="3 Nginx遇到的问题"></a>3 Nginx遇到的问题</h2><h3 id="3-1-文件上传超限"><a href="#3-1-文件上传超限" class="headerlink" title="3.1 文件上传超限"></a>3.1 文件上传超限</h3><p>通常在使用 ng 访问应用时，在应用上传附件时，会遇到如下报错：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">request entity too large nginx 解决方案</span><br></pre></td></tr></table></figure>
+
+<p>此错误是由于上传文件的大小超过 nginx 配置的文件传输最大值导致。通过更改 <code>client_max_body_size</code> 的大小即可（没有则在 HTTP块 新增即可）。更改完需要重启 nginx 服务。</p>
+<h3 id="3-2-无法显示验证码"><a href="#3-2-无法显示验证码" class="headerlink" title="3.2 无法显示验证码"></a>3.2 无法显示验证码</h3><p>应用的登录页面需要输入验证码，当通过Ng跳转到应用时，不显示验证码。在<code>upstream</code> 里把负载均衡策略改为 IP HASH </p>
+<h2 id="4-配置案例"><a href="#4-配置案例" class="headerlink" title="4 配置案例"></a>4 配置案例</h2><h3 id="4-1-反向代理"><a href="#4-1-反向代理" class="headerlink" title="4.1 反向代理"></a>4.1 反向代理</h3><p>该配置为审计项目开发环境、测试环境的实际配置。当然，信创版本，使用的是 宝兰德 BWS 中间件（国产版的Nginx）</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">user</span>  bes;</span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"><span class="comment">#pid        logs/bws.pid;</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="attribute">worker_connections</span> <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="attribute">include</span> mime.types;</span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;</span><br><span class="line">  <span class="attribute">log_format</span> main <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span> <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span> <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot;&#x27;</span>;</span><br><span class="line">  <span class="attribute">access_log</span> logs/access.log main;</span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">65s</span>;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="comment">#bws_http_server_name:server-tPegV0o6</span></span><br><span class="line">    <span class="comment">#bws_http_server_type:reverseProxy</span></span><br><span class="line">    <span class="attribute">listen</span> <span class="number">8070</span>;</span><br><span class="line">    <span class="attribute">server_name</span> <span class="number">192</span>.<span class="number">168</span>.XXX.<span class="number">56</span>;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">      <span class="comment">#type:static</span></span><br><span class="line">      <span class="comment">#bws_http_server_location_name:location-OsbKN52L</span></span><br><span class="line">      <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">     </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> /app &#123;</span><br><span class="line">       <span class="attribute">proxy_pass</span> http://192.168.XXX.59:18080/app;</span><br><span class="line">         <span class="comment"># 此处判断，允许跨源请求、http 方法、带 cookie 信息，通用配置 -- 开始</span></span><br><span class="line">        <span class="attribute">if</span> (<span class="variable">$request_method</span> = <span class="string">&#x27;OPTIONS&#x27;</span>) &#123;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Origin <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Headers <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Methods <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Credentials <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">                <span class="attribute">return</span> <span class="number">204</span>;</span><br><span class="line">            &#125;</span><br><span class="line">           </span><br><span class="line">            <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Upgrade <span class="variable">$http_upgrade</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Connection <span class="string">&quot;upgrade&quot;</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Origin <span class="string">&quot;&quot;</span>;</span><br><span class="line">					<span class="attribute">proxy_set_header</span> Cookie <span class="variable">$http_cookie</span>;</span><br><span class="line">         <span class="comment"># 通用配置  -- 结束           </span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">      <span class="comment">#type:static</span></span><br><span class="line">      <span class="comment">#bws_http_server_location_name:location-8t7KLrfH</span></span><br><span class="line">      <span class="attribute">root</span> html;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> = /bws_status &#123;</span><br><span class="line">      <span class="comment">#bws_http_server_location_name:monitor</span></span><br><span class="line">      <span class="attribute">stub_status</span> <span class="literal">on</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">error_page</span> <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span> /50x.html;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attribute">gzip</span> <span class="literal">off</span>;</span><br><span class="line">  <span class="attribute">gzip_comp_level</span> <span class="number">1</span>;</span><br><span class="line">  <span class="attribute">gzip_min_length</span> <span class="number">1k</span>;</span><br><span class="line">  <span class="attribute">client_max_body_size</span> <span class="number">1024m</span>;</span><br><span class="line">  <span class="attribute">client_header_buffer_size</span> <span class="number">4k</span>;</span><br><span class="line">  <span class="attribute">client_body_buffer_size</span> <span class="number">8m</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attribute">worker_processes</span> <span class="number">1</span>;</span><br><span class="line"><span class="attribute">error_log</span> logs/<span class="literal">error</span>.log <span class="literal">info</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-2-负载均衡"><a href="#4-2-负载均衡" class="headerlink" title="4.2 负载均衡"></a>4.2 负载均衡</h3><p>审计项目生产环境的配置（已脱敏）</p>
+<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="attribute">worker_processes</span> auto;</span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"><span class="comment">#pid        logs/bws.pid;</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="attribute">worker_connections</span> <span class="number">512</span>;</span><br><span class="line">  <span class="attribute">use</span> <span class="literal">epoll</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="attribute">include</span> mime.types;</span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;</span><br><span class="line">  <span class="comment">#log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span></span><br><span class="line">  <span class="comment">#                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span></span><br><span class="line">  <span class="comment">#                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span></span><br><span class="line">  <span class="comment">#access_log  logs/access.log  main;</span></span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">off</span>;</span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="comment">#tcp_nopush     on;</span></span><br><span class="line">  <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">75</span>;</span><br><span class="line">  <span class="comment">#gzip  on;</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server_name</span> SJGL-JR2-JQ;</span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line">    <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line">    <span class="section">location</span> /app &#123;</span><br><span class="line">      <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">      <span class="attribute">proxy_cache</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">concat</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">sysguard</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">proxy_pass</span> http://app-8080/app;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line">    <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="attribute">error_page</span> <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span> /50x.html;</span><br><span class="line">    <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">      <span class="attribute">root</span> html;</span><br><span class="line">      <span class="attribute">proxy_cache</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">concat</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">sysguard</span> <span class="literal">off</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="section">upstream</span> app-<span class="number">8080</span> &#123;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY1-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY2-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY3-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY4-JQ:<span class="number">8080</span>;</span><br><span class="line">    ip_hash;</span><br><span class="line">    <span class="attribute">check</span> interval=<span class="number">30000</span> fall=<span class="number">3</span> rise=<span class="number">2</span> default_down=<span class="literal">false</span> timeout=<span class="number">1000</span> type=tcp port=<span class="number">8080</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+
+
+
+
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>信创</category>
+      </categories>
+      <tags>
+        <tag>实施</tag>
+        <tag>Nginx</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实施部署-信创项目环境搭建准备（一）</title>
+    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B&#x2F;S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用javascrpit做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。</p>
+<span id="more"></span>
+
+<p>那运行产品的环境的搭建就主要包括：WEB服务的部署、数据库的部署。当然也有其他的服务，但其他服务需要根据产品的需要进行部署的。我主要负责信创类项目的实施部署，都是在LINUX服务器上部署。</p>
+<p>一个环境搭建的思路：</p>
+<p>前期环境的准备 &gt;&gt; 数据库部署 &gt;&gt; 中间件与应用部署 &gt;&gt; ETL工具部署</p>
+<p>本文总结前期环境的准备</p>
+<h2 id="1-信创项目知识"><a href="#1-信创项目知识" class="headerlink" title="1 信创项目知识"></a>1 信创项目知识</h2><p>信创类产品的实施部署从 0 到 1 ，实施部署前期需要了解什么，作为跟客户沟通的技术知识保障。</p>
+<h3 id="1-1-信创软硬件"><a href="#1-1-信创软硬件" class="headerlink" title="1.1 信创软硬件"></a>1.1 信创软硬件</h3><p>数据库：达梦<br>中间件：东方通、宝兰德<br>服务器操作系统：麒麟、统信<br>硬件平台：飞腾、华为、龙芯、海光、鲲鹏……<br>内核：AMD、ARM</p>
+<h3 id="1-2-确认服务器架构信息"><a href="#1-2-确认服务器架构信息" class="headerlink" title="1.2 确认服务器架构信息"></a>1.2 确认服务器架构信息</h3><p>信创，产品的框架与数据平台均做了适配，都需要根据内核来确认使用哪个版本。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span></span><br><span class="line"><span class="comment"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span></span><br><span class="line"><span class="comment"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回内核版本、架构</span></span><br><span class="line">uname -a</span><br><span class="line"><span class="comment"># 返回内核版本</span></span><br><span class="line">cat /proc/version</span><br><span class="line"><span class="comment"># 返回系统信息（包括内核、操作系统版本）</span></span><br><span class="line">hostnamectl</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-3-确认服务器内存信息"><a href="#1-3-确认服务器内存信息" class="headerlink" title="1.3 确认服务器内存信息"></a>1.3 确认服务器内存信息</h3><p>JAVA服务端通常需要设置服务的 JVM ，生产环境通常推荐 JVM &gt; 16G</p>
+<p>开发环境、测试环境 JVM 减半作为参考即可</p>
+<p>比如：在部署中间件、宝兰德中间件的时候，默认的 JVM 都是 2G，测试服务器只有8G内存的情况下，中间件的JVM修改为4G。</p>
+<h3 id="1-4-确认数据库参数"><a href="#1-4-确认数据库参数" class="headerlink" title="1.4 确认数据库参数"></a>1.4 确认数据库参数</h3><p>我所遇到的信创项目种，数据库通常使用达梦数据库。达梦数据库，有几个参数是在初始化实例的时候就需要确定的，且初始化实例后无法进行修改，除非重新初始化实例：</p>
+<ul>
+<li>页大小 (page_size)</li>
+<li>簇大小 (extent_size)</li>
+<li>大小写敏感 (case_sensitive)</li>
+<li>字符集 (charset)</li>
+</ul>
+<p>下表为这几个参数的具体含义：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+<th>可设置值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>page_size</td>
+<td>数据文件使用的页大小</td>
+<td>4&#x2F;8&#x2F;16&#x2F;32</td>
+</tr>
+<tr>
+<td>extent_size</td>
+<td>簇大小，每次分配新的段空间时连续的页面</td>
+<td>16&#x2F;32&#x2F;64</td>
+</tr>
+<tr>
+<td>case_sensitive</td>
+<td>标识符大小写敏感。当大小写敏感时，小写的标识符要用双引号括起，否则被转换为大写；当大小写不敏感时，系统不自动转换标识符的大小写，在标识符比较时也不区分大小写。默认 Y （1）敏感</td>
+<td>Y&#x2F;N（1&#x2F;0）</td>
+</tr>
+<tr>
+<td>charset</td>
+<td>字符集选项，0：GB18030；1：UTF-8（默认0）</td>
+<td>0&#x2F;1</td>
+</tr>
+<tr>
+<td>length_in_char</td>
+<td>VARCHAR类型长度是否以字符为单位（默认为N   0 ）</td>
+<td>Y&#x2F;N（1&#x2F;0）</td>
+</tr>
+</tbody></table>
+<p>页大小与字段长度有关，簇大小与表空间有关，但是这两个都与我们没有关系，我们需要注意的只有 2 个：</p>
+<ul>
+<li>大小写敏感</li>
+<li>字符集编码</li>
+</ul>
+<p>产品多为oracle开发，从oracle移植过来，为了更好的兼容，通常开启大小写敏感；字符集编码是GB18030还是UTF-8没关系，但是开发环境、测试环境、生产环境需要字符集编码一致。</p>
+<p>在实际的项目实施部署中，客户的开发环境、测试环境通常由我们厂商维护，只有生产环境是由DBA维护。所以在前期的沟通中，我们需要跟DBA确认好达梦数据库里的上述参数，确保开发环境、测试环境、生产环境保持一致。</p>
+<p>总结了一份模板如下，页大小和簇大小根据在生产上通常建议设置为32</p>
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/image-20240606222536306.png" class="" title="image-20240606222536306">
+
+
+
+<h4 id="1-4-1-参数带来的影响"><a href="#1-4-1-参数带来的影响" class="headerlink" title="1.4.1 参数带来的影响"></a>1.4.1 参数带来的影响</h4><h5 id="1）编码不一致"><a href="#1）编码不一致" class="headerlink" title="1）编码不一致"></a>1）编码不一致</h5><p>当开发环境或者测试环境，与生产环境的字符集编码不一致时，可能会产生字符串长度相关的报错。</p>
+<p>比如：</p>
+<p>测试环境上是 GB18030 编码，但是生产环境上是 UTF8 编码，因为 GB 编码存一个中文需要的 1 个字节少于 UTF8 存一个中文需要的 3 个字节，测试后的产品功能上了生产环境可能会报出字符串截断的错误。</p>
+<h5 id="2）大小写敏感不一致"><a href="#2）大小写敏感不一致" class="headerlink" title="2）大小写敏感不一致"></a>2）大小写敏感不一致</h5><p>大小写敏感：查数据内容时，查 a 就是 a，查 A 就是 A</p>
+<p>大小写不敏感：查数据内容时，查 a 返回 A、a</p>
+<p>如果不设置大小写敏感，不仅是在写查询SQL的时候会影响，在创建对象、写存储过程时，对象名称、字段名称也会受到影响。比如：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A (id varchar2(<span class="number">8</span>));</span><br><span class="line"><span class="keyword">insert</span> table_a <span class="keyword">values</span>(<span class="string">&#x27;001&#x27;</span>);</span><br><span class="line"># <span class="keyword">insert</span> 就会报错，因为 table_a 不存在，必须与创建的表名一模一样才可以</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-4-2-其他可能需要修改的参数"><a href="#1-4-2-其他可能需要修改的参数" class="headerlink" title="1.4.2 其他可能需要修改的参数"></a>1.4.2 其他可能需要修改的参数</h4><p>此处的参数指，达梦数据库 <code>dm.ini</code> 配置文件里的参数。在开发环境、测试环境可由自己根据实际情况更改，在生产上必须与DBA沟通后进行更改，也需要保持三个环境中参数的一致性。</p>
+<p><code>dm.ini </code>配置文件中，有静态参数、动态参数。静态参数需要重启数据库服务后才生效，在生产上重启数据库是一件严肃的事情，需要修改的参数需要自己做好验证是否能够解决实际的情况。</p>
+<h5 id="1）COMPATIBLE-MODE"><a href="#1）COMPATIBLE-MODE" class="headerlink" title="1）COMPATIBLE_MODE"></a>1）COMPATIBLE_MODE</h5><p>该参数用于控制达梦数据库在部分功能处理时与其他数据库的兼容模式。常用设置：</p>
+<ul>
+<li>0 - 不兼容</li>
+<li>1 - 兼容SQL92标准</li>
+<li>2 - 兼容ORACLE</li>
+<li>3 - 兼容SQL SERVER</li>
+<li>4 - 兼容MYSQL</li>
+</ul>
+<p>通常项目上，此参数设置为2，可以更好的适配基于ORACLE开发的产品代码。</p>
+<h6 id="【例子】"><a href="#【例子】" class="headerlink" title="【例子】"></a>【例子】</h6><p>达梦数据库默认<code>NULL</code> 与<code>空值</code>是不等价的，NULL就是NULL，空值就是空值。某个功能查询需要同时满足它们，需要这样写：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="keyword">is</span> <span class="keyword">null</span> <span class="keyword">or</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>ORACLE中默认<code>NULL</code> 和<code>空值</code>是等价的，同时满足只需要：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>COMPATIBLE_MODE</code>参数为<code>2</code>即可跟在ORACLE上的查询写法一致。</p>
+<h5 id="2）PK-WITH-CLUSTER"><a href="#2）PK-WITH-CLUSTER" class="headerlink" title="2）PK_WITH_CLUSTER"></a>2）PK_WITH_CLUSTER</h5><p>该参数默认为<code>1</code> </p>
+<p>该参数与建表时的主键索引有关，达梦数据库在创建表时，如果创建主键，则默认主键是聚簇索引键。如果没有主键，则默认<code>rowid</code> 作为聚簇索引键</p>
+<h6 id="【例子】-1"><a href="#【例子】-1" class="headerlink" title="【例子】"></a>【例子】</h6><p>当在达梦数据建表时，同时出现主键、字段为大字段CLOB类型的时候，就会报错：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A(</span><br><span class="line">	id varchar2(<span class="number">8</span>) <span class="keyword">primary</span> key,</span><br><span class="line">    name varchar2(<span class="number">20</span>),</span><br><span class="line">    addr <span class="type">clob</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段</span></span><br></pre></td></tr></table></figure>
+
+<p>此时，修改参数<code>PK_WITH_CLUSTER=0</code> ，再创建有主键、字段为CLOB类型的表，就可以创建成功。</p>
+<h6 id="【关于聚簇索引】"><a href="#【关于聚簇索引】" class="headerlink" title="【关于聚簇索引】"></a>【关于聚簇索引】</h6><blockquote>
+<p>表（列存储表和堆表除外）都是使用 B+树(以下简称 B 树)索引结构管理的，每一个普通表都有一个聚集索引，数据通过聚集索引键排序，根据聚集索引键可以快速查询任何记录。（即表是一个索引，这个索引名称叫聚集索引，可以理解为创建一个表后，将所有字段放在一起建立一个复合索引，只不过这个不需要我们来创建，系统自动给我们维护了一个）</p>
+</blockquote>
+<blockquote>
+<p>当建表语句未指定聚集索引键，DM 的默认聚集索引键是 ROWID，即记录默认以 ROWID 在页面中排序。ROWID 是 B 树为记录生成的逻辑递增序号，表上不同记录的 ROWID 是不一样的，并且最新插入的记录 ROWID 最大。很多情况下，以 ROWID 建的默认聚集索引并不能提高查询速度，因为实际情况下很少人根据 ROWID 来查找数据。</p>
+</blockquote>
+<p><a href="">原文链接： https://blog.csdn.net/sinat_32856657&#x2F;article&#x2F;details&#x2F;125410328</a></p>
+<h5 id="3）CALS-AS-DECIMAL"><a href="#3）CALS-AS-DECIMAL" class="headerlink" title="3）CALS_AS_DECIMAL"></a>3）CALS_AS_DECIMAL</h5><p>该参数是控制 整数除法运算是否舍弃小数。</p>
+<p>在达梦数据库中，整数相除或者使用<code>ROUND</code>函数，结果如果有小数位，会被直接舍弃，返回整数。</p>
+<p>比如</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">9</span><span class="operator">/</span><span class="number">2</span> <span class="keyword">from</span> dual;</span><br><span class="line"><span class="comment">-- 会返回4</span></span><br></pre></td></tr></table></figure>
+
+<p>可修改<code>CALC_AS_DECIMAL=1</code> 让运算不舍弃小数位</p>
+<h5 id="关于参数修改方式"><a href="#关于参数修改方式" class="headerlink" title="关于参数修改方式"></a>关于参数修改方式</h5><p>第一种：通过<code>dm.ini</code> 修改参数</p>
+<p>第二种：在达梦SQL窗口中，执行：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sp_set_para_value(old_values, <span class="string">&#x27;param_name&#x27;</span>, new_values);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 例如</span></span><br><span class="line">sp_set_para_value(<span class="number">1</span>,<span class="string">&#x27;PK_WITH_CLUSTER&#x27;</span>,<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-5-确认数据库用户权限"><a href="#1-5-确认数据库用户权限" class="headerlink" title="1.5 确认数据库用户权限"></a>1.5 确认数据库用户权限</h3><p>产品需要的用户大部分情况下是使用了DBA角色的权限，但是在项目实施时（特别是在生产环境中），会有部分客户认为产品上 DBA 权限不合理，也会有部分客户授权 DBA 是需要走流程申请。</p>
+<p>所以这一点在前期就需要跟客户确认，用户权限能否授予DBA权限。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建达梦用户脚本</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建表空间</span></span><br><span class="line"><span class="comment">-- 默认初始大小 500MB，每次自增 40MB，最大 10G</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span>space &quot;TS_TEST&quot; datafile <span class="string">&#x27;/dm8/data/DAMENG/TS_TEST.DBF&#x27;</span> size <span class="number">500</span> autoextend <span class="keyword">on</span> next <span class="number">40</span> maxsize <span class="number">10240</span>;    <span class="comment">-- 生产上可扩展为 unlimited</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> &quot;test&quot; identified <span class="keyword">by</span> &quot;testdata123&quot; <span class="keyword">default</span> tablespace TS_test;</span><br><span class="line"><span class="keyword">grant</span> &quot;DBA&quot; <span class="keyword">to</span> &quot;test&quot;;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">delete</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">execute</span> <span class="keyword">any</span> <span class="keyword">procedure</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">insert</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> dictionary <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> unlimited tablespace <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">update</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>甚至有的客户（我遇到的一个），认为<code>ANY</code>权限也是有大隐患的，需要针对到具体表名的权限。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">DELETE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">UPDATE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">INSERT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况就没办法了，很麻烦，一个成熟且功能复杂的产品，可能标准版初始的表就有上千张（还不包括后续的开发新的功能表），存储过程、自定义函数等等也有上千个。每个存储过程用到的表都不一样，要一一梳理哪些用户select，哪个用户要delete等等，后期就需要额外的花时间去进行梳理。<del>（虽然更安全、合规，但是麻烦的是我~吐槽一下）</del></p>
+<h2 id="2-达梦权限说明"><a href="#2-达梦权限说明" class="headerlink" title="2 达梦权限说明"></a>2 达梦权限说明</h2><p>通常我们在部署时，JDBC 中的连接，我们使用 <code>WOLF</code>  <code>WOLFDATA</code> 用户去连接，或者使用 <code>WOLF</code> 去配置两个 JDBC 连接，指向 <code>WOLF</code>  <code>WOLFDATA</code> 模式（达梦中 schema 的概念，可以把它当成 oracle 的实例概念）。</p>
+<p>使用了 <code>WOLF</code> 用户去配置 JDBC 连接，那么此时，在系统进行日常操作的时候，在数据库中就是基于 <code>WOLF</code> 用户对对各个对象（TABLE \ SP \ FUNCTION \ VIEW \ TYPE \ PACKAGE 等）进行增删改查操作。</p>
+<p>通常情况下，框架提供的默认权限脚本权限多含 <code>DBA</code> 或者 <code>ANY</code> 权限，但是在生产环境上其实是不被允许的。在用户具备 DBA \ DROP ANY OBJECTS 的情况，能做的事情比较多，包括了对表空间（数据文件）的更改、跨用户删除表 等危险操作。</p>
+<p>因此在权限上，有的客户会要求梳理到具体的表需要什么权限。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>.除了本身的 ROURCE 角色外，需要对系统表的查询权限，SOV\SVI 角色</span><br><span class="line"><span class="number">2</span>.需要对 WOLFDATA 具有完全执行权，WOLFDATA 下一般只有表，对这些表有增删改查即可</span><br><span class="line"><span class="number">3</span>.对产品用户的对象：（不包含达梦自身用户的对象）</span><br><span class="line">  所有 TABLE 有 INSERT \ DELETE \ UPDATE \ SELECT 权限</span><br><span class="line">  所有 VIEW  有 SELECT 权限</span><br><span class="line">  所有 SP    有 EXECUTE 权限</span><br><span class="line">  所有的 FUNC 有 EXECUTE</span><br><span class="line">  所有的 PACKAGE 有 EXECUTE  （达梦的 TYPE 类型集合到了 PACKAGE 里）</span><br><span class="line">  所有的 CLASS 有 EXECUTE</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">其他的产品用户，权限则需要有自身的 RESOURCE 用户外，</span><br><span class="line">还应该从自身的 SP 中逐一排查需要的 跨用户对象的某个权限</span><br><span class="line"></span><br><span class="line">比如 RISKCONFIG 的 SP 中通常含有对中间层表的 DELETE \ INSERT \ SELECT \ UPDATE</span><br><span class="line">则应该为 RISKCONFIG 用户赋予中间层表的 DELETE \ INSERT \ SELECT \ UPDATE 权限。</span><br><span class="line"></span><br><span class="line">不需要 WOLF 对中间层表有权限，WOLF 只需要有执行该 SP 的权限即可。</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p>前期将这些沟通好，等客户给服务器的相关信息，就可以开始着手准备实施部署产品了。</p>
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>信创</category>
+      </categories>
+      <tags>
+        <tag>实施</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实施部署-达梦数据库linux版的安装（二）</title>
+    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
+<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
+<span id="more"></span>
+
+<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
+<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
+<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
+
+<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
+
+
+
+<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
+
+<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
+
+
+
+<p>显示安装结束后，切换到root用户</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
+<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
+<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
+
+<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
+<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
+<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh DAMENG</span></span><br></pre></td></tr></table></figure>
+
+<p>然后把对应的实例数据目录删除即可</p>
+<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
+<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
+<p>或者上传任意目录，使用cp命令替换</p>
+<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
+
+
+
+<p>生产上，一般会安装达梦的监控守护模式</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
+<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>配置说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>LOGIN_MODE</th>
+<th>服务名方式登录，始终会优先登录主库；</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LOGIN_MODE</td>
+<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_TIME</td>
+<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_INTERVAL</td>
+<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>信创</category>
+      </categories>
+      <tags>
+        <tag>实施</tag>
+        <tag>达梦</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>经验杂谈-面对个性化的产品如何下手</title>
+    <url>/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/</url>
+    <content><![CDATA[<p>《吐槽一下，让心情发泄一下》</p>
+<p>今天在工作的时候，烦恼的时候突然蹦出来一个思路。针对单个功能个性化的思路。</p>
+<p>现在的工作的公司，多数都是靠着个性化服务来做产品，导致了一个产品的标准版，到了客户现场环境，会根据客户的实际使用要求，对产品的功能、转换去做个性化开发。导致了刚到现场接触这个产品的时候常常因为困惑感到无从下手。</p>
+<span id="more"></span>
+
+<p>特别是，一上来就让你排查生产问题的时候。。。。</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212748892.png" class="" title="image-20240604212748892">
+
+<p>但是表面还是要装作很谈定，装作很熟悉的样子，打开控制台，看看功能背后用了什么支持的文件或者代码，，，</p>
+<p>打开数据库看看对应的SP，看看主表join表有没有数据，关联条件是不是导致了数据重复，会不会过滤掉部分数据，看看where条件是不是把数据过滤掉，，，</p>
+<p>看看上游数据是不是正常的，转换后数据是不是正常的，，，</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604213252623.png" class="" title="image-20240604213252623">
+
+
+
+
+
+<p> 一个经过多年完善的产品，越成熟意味着越复杂。刚进公司的第一年，做着游走打支援的活，基本是哪里有活就去哪，哪里缺人手就去哪。做多以后呢，好像上级对我的要求就一下子就拔高了？？？总是会默认你是会的。这一点就很奇怪，支援式的工作，无法有长久的时间去深入了解一个产品。特别是一些反洗钱、异常交易这种与业务勾稽关系多，模块又多的产品。<del>因为公司对这些产品是没有文档介绍的（至少我没见过，辣鸡）~~~~做了一年半没见过公司的标准版产品长啥样，现场实施的痛！</del></p>
+<p>没接触一个项目得自己摸索，摸索一点门道，还没咋熟悉，又换一个项目（对于我而言是新的），特别是公司极度缺人，交接也没交接，技术支持也没有，内心：</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212459209.png" class="" title="image-20240604212459209">
+
+
+
+<p>而且每天都在苦恼业务的提问<del>刁难！</del>，心里只有：</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212233306.png" class="" title="image-20240604212233306">
+
+
+
+
+
+
+
+<p>之前在看期货风险度监控的时候，这个功能总是只出了一个来源期货数仓的期货账户数据，还有好几个O32的期货账户数据监控不出来，纳闷了好久，里边三段逻辑有一段限制了日期，有一段限制了账户，只有一段是没有做限制的。</p>
+<p>上一个人做了一半，就走了。。。</p>
+<p>我就被急急忙忙拉过来继续完成上一个人的工作，我也不知道现场这边是怎么做的，反正看仿真环境代码里有2个限制，再对比一下生产环境，好家伙，也有2个限制。我也不知道一段限制日期，一段限制账户。看着生产也这样，想想接触的个性化的转换代码，功能代码多了去了。只是当这是个性化的一部分。</p>
+<p>为了能让其他的期货账户的数据被监控出来，我前前后后看了上游数据、转换后的数据、以及业务表的数据，看了转换的条件，看了监控的逻辑条件。纳闷，代码、数据没什么问题啊，为什么没出来。。。</p>
+<p>怎么我一来就没数据。没做完，又被拉去做另一个更紧急的项目上了，这个就搁置了。</p>
+<p>今天又过去，继续看。找了熟悉现场的同事问了问，同事已经不记得了。问了产品部，产品部答复该代码非标准版代码，应该为现场实施修改的，具体需要咨询现场的实施。</p>
+<p>卧槽，哪还有人咨询。</p>
+<p>后边我突然想到，我也没见过标准版代码是啥，我找产品部拿不就好了，我之前咋脑子不灵光</p>
+<p>看了标准版，代码里没有对期货账户做限制，这里为啥要限制，尝试注释掉，然后重新跑一下监控，其他期货账户数据被监控出来。。。。</p>
+<p>啊~</p>
+<p><strong>以后遇到个性化的代码，一定先跟标准版对比，然后去问熟悉的人（同事或者客户）看看为什么要这么做个性化，搞懂原因后，看这个代码就顺眼多了，问题自然好解决。</strong></p>
+]]></content>
+      <categories>
+        <category>工作思考</category>
+      </categories>
+      <tags>
+        <tag>经验记录</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>实施部署-东方通中间件、宝兰德部署应用（三）</title>
     <url>/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/</url>
     <content><![CDATA[<p>本文总结在信创项目中，使用最多的中间件：东方通、宝兰德。</p>
@@ -279,591 +992,6 @@
       <tags>
         <tag>实施</tag>
         <tag>中间件</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>kafka-基础知识与实际项目的问题</title>
-    <url>/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p>最近异常交易的项目中，使用到了<code>kafka</code> ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触<code>kafka</code> ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用<code>kafka</code> 读取数据，做一个流式处理，供下游应用使用数据。</p>
-<span id="more"></span>
-
-<h2 id="kafka-主要组件"><a href="#kafka-主要组件" class="headerlink" title="kafka 主要组件"></a>kafka 主要组件</h2><h3 id="1-broker-服务器"><a href="#1-broker-服务器" class="headerlink" title="1 broker  服务器"></a>1 broker  服务器</h3><p>kafka集群的服务器，一台服务器就是一个 broker 。</p>
-<h3 id="2-producer-生产者"><a href="#2-producer-生产者" class="headerlink" title="2 producer 生产者"></a>2 producer 生产者</h3><p>producer 主要是用于生产消息，是 kafka 当中的消息生产者，生产的消息通过 topic 进行归类，保存到 kafka 的 broker 里面去。</p>
-<p>项目上我们的数据平台就是作为一个生产者，通过将上游数据推送到topic里。</p>
-<h3 id="3-topic-主题"><a href="#3-topic-主题" class="headerlink" title="3 topic 主题"></a>3 topic 主题</h3><p>kafka 将消息（数据）以 topic 为单位进行归类。在项目里边，一张表推到一个 topic ，需要推几张表就是建几个 topic 。</p>
-<h3 id="4-partition-分区"><a href="#4-partition-分区" class="headerlink" title="4 partition 分区"></a>4 partition 分区</h3><p>kafka 里，一个 topic 是可以有多个分区。比如说创建一个有 3 个分区的 topic ，那么整个 topic 的数据都存放在这 3 个分区内（就是说每个分区都存放一部分 topic 的数据）。</p>
-<h3 id="5-consumer-消费者"><a href="#5-consumer-消费者" class="headerlink" title="5 consumer 消费者"></a>5 consumer 消费者</h3><p>消费者主要就是消费 kafka topic 里的数据</p>
-<h3 id="6-consumer-group-消费者"><a href="#6-consumer-group-消费者" class="headerlink" title="6 consumer group 消费者"></a>6 consumer group 消费者</h3><p>消费者组里可以有多个消费者，同一个组里的消费者，对于同一条数据，只能消费 1 次。</p>
-<p>比如：一个消费者组里有 A 和 B 两个消费者，A 消费了 topic 里的第一条数据，那么 B 就无法消费该 topic 里的第一条数据，因为已经被消费过了。</p>
-<p>但是不同的消费者组，还是可以共同消费某个 topic 里的数据的。</p>
-<h4 id="6-1-消费者组与分区的关系"><a href="#6-1-消费者组与分区的关系" class="headerlink" title="6.1 消费者组与分区的关系"></a>6.1 消费者组与分区的关系</h4><img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624230047447.png" class="" title="image-20240624230047447">
-
-<p>如果 topic 只有 2 个分区，消费者组里有 4 个消费者，那么也只能供 2 个消费者消费。</p>
-<p>如果 topic 有 4 个分区，消费者组里的 4 个消费者都能消费数据，并发量就上来了。</p>
-<p>所以 topic 里的分区越多，消费的并发越高，处理速度也越快。</p>
-<h3 id="7-partition-replicas-分区副本"><a href="#7-partition-replicas-分区副本" class="headerlink" title="7 partition replicas 分区副本"></a>7 partition replicas 分区副本</h3><p>每个分区的副本，用来控制数据保存在几个 broker 服务器上，通常是几台 broker 就设置几个副本。</p>
-<h3 id="8-segment-文件"><a href="#8-segment-文件" class="headerlink" title="8 segment 文件"></a>8 segment 文件</h3><p>一个 partition 分区中由多个 segment 文件组成的。每个 segment 文件又包含了 <code>.log</code> 文件和<code>.index</code> 文件，<code>.log</code> 文件是存放推送的数据，<code>.index</code> 文件存放数据的索引值，用来加快数据的查询速度的。</p>
-<p><code>.index</code> 文件里存的索引值，是与<code>.log</code>文件里的数据位置是对应的。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># .index 是 key-value 存放方式</span></span><br><span class="line"><span class="number">1</span>,<span class="number">0</span>	<span class="comment"># 对应 .log 的第一条数据，值是0</span></span><br><span class="line"><span class="number">2</span>,<span class="number">2</span>	<span class="comment"># 对应 .log 的第二条数据，值是2</span></span><br><span class="line"><span class="number">3</span>,<span class="number">9</span>	<span class="comment"># 对应 .log 的第三条数据，值是9</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>.log</code> 文件里会记录<code>offset</code> 偏移量，用于标记消费者读取消息的位置。</p>
-<h2 id="kafka-基础操作"><a href="#kafka-基础操作" class="headerlink" title="kafka 基础操作"></a>kafka 基础操作</h2><h3 id="1-kafka启停"><a href="#1-kafka启停" class="headerlink" title="1 kafka启停"></a>1 kafka启停</h3><p>kafka 与 zookeeper 强依赖，启动 kafka 之前必须先启动 zookeeper ，否则会报错的</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># zookeeper 启动，后边接配置文件</span></span><br><span class="line">./zookeeper-server-start.sh ../config/zookeeper.properties</span><br><span class="line"><span class="comment"># zookeeper 停止</span></span><br><span class="line">./zookeeper-server-stop.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># kafka 启动，后边接配置文件</span></span><br><span class="line">./kafka-server-start.sh ../config/server.properties</span><br><span class="line"><span class="comment"># kafka 停止</span></span><br><span class="line">./kafka-server-stop.sh</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234319800.png" class="" title="image-20240624234319800">
-
-
-
-<h3 id="2-创建-topic"><a href="#2-创建-topic" class="headerlink" title="2 创建 topic"></a>2 创建 topic</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建语句 模板</span></span><br><span class="line">./kafka-topics.sh --create --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --replication-factor <span class="number">1</span> --partitions <span class="number">1</span> --topic topic_name</span><br><span class="line"><span class="comment"># bootstrap-server 指定 kafka 服务器地址和端口</span></span><br><span class="line"><span class="comment"># replication-factor 指定分区的副本个数</span></span><br><span class="line"><span class="comment"># partitions 指定topic的分区个数</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="2-1-删除-topic"><a href="#2-1-删除-topic" class="headerlink" title="2.1 删除 topic"></a>2.1 删除 topic</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --<span class="keyword">delete</span> --topic topic_name</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-2-增加-topic-partition"><a href="#2-2-增加-topic-partition" class="headerlink" title="2.2 增加 topic partition"></a>2.2 增加 topic partition</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --zookeeper <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --alter --topic topic_name --partition <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-查看-topic-数据"><a href="#3-查看-topic-数据" class="headerlink" title="3 查看 topic 数据"></a>3 查看 topic 数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-console-consumer.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --topic your_topic_name --from-beginning [--max-messages <span class="number">10</span>]</span><br><span class="line"><span class="comment"># --max-messages 查看几条消息</span></span><br><span class="line"><span class="comment"># --from-beginning 查看最新的消息</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-查询-topic-列表"><a href="#4-查询-topic-列表" class="headerlink" title="4 查询 topic 列表"></a>4 查询 topic 列表</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --list --zookeeper localhost</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="kafka-相关问题及解决方案"><a href="#kafka-相关问题及解决方案" class="headerlink" title="kafka 相关问题及解决方案"></a>kafka 相关问题及解决方案</h2><h3 id="1-报错-Error-while-fetching-metadata-with-correlation-id"><a href="#1-报错-Error-while-fetching-metadata-with-correlation-id" class="headerlink" title="1 报错 Error while fetching metadata with correlation id"></a>1 报错 Error while fetching metadata with correlation id</h3><p>这个报错是在 kafka 查看 topic 里的数据时，出现的错误。查了下资料，它是无法识别到 hostname 导致。</p>
-<p><strong>解决方案：</strong></p>
-<p>修改 <code>server.properties</code> 配置文件，增加 listeners 。默认的配置是没有这两行的，手动加上。</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234112411.png" class="" title="image-20240624234112411">
-
-
-
-<h3 id="2-报错-exiting-abnormally"><a href="#2-报错-exiting-abnormally" class="headerlink" title="2 报错 exiting abnormally"></a>2 报错 exiting abnormally</h3><p>这个是在启动 zookeeper 的时候出现，报错如下图所示：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234427279.png" class="" title="image-20240624234427279">
-
-<p><strong>解决方案：</strong></p>
-<p>在<code>zookeeper.properties</code>配置文件中，有个 <code>dataDir=/path</code> ，把 <code>/path</code> 路径下的<code>version-2</code> 文件夹删掉，然后重新启动即可。</p>
-<h3 id="3-报错-during-kafkaserver-startup"><a href="#3-报错-during-kafkaserver-startup" class="headerlink" title="3 报错 during kafkaserver startup"></a>3 报错 during kafkaserver startup</h3><p>启动 kafka 的时候出现，报错如下图所示：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234731914.png" class="" title="image-20240624234731914">
-
-<p>注意这个：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234814208.png" class="" title="image-20240624234814208">
-
-<p>由于启动的 id 和 <code>meta.properties</code> 里边的 id 不一致导致报错。通常是因为关闭 kafka 的时候出现了异常（虽然不知道有什么异常）</p>
-<p><strong>解决方案：</strong></p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找到该文件</span></span><br><span class="line">find / -name <span class="string">&quot;meta.properties&quot;</span></span><br><span class="line"><span class="comment"># 修改里边的 cluster.id= 一串字符串id</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624235112007.png" class="" title="image-20240624235112007">
-
-<p>修改为报错里出现的那个括号里的一串id即可。</p>
-<h3 id="4-新增消费者组时数据显示不一致"><a href="#4-新增消费者组时数据显示不一致" class="headerlink" title="4 新增消费者组时数据显示不一致"></a>4 新增消费者组时数据显示不一致</h3><p>在做迁移的时候，为了对比迁移前后的数据量是否一致。在迁移后的环境中新增一个消费者组 B，用来消费同一个 topic 数据，发现跟迁移前的消费者组 A 的数据不一致。</p>
-<p>消费者组A的数据是当天的数据，但是消费者组B的数据却是几天前的。为啥？</p>
-<p>kafka每个消费者组都是独立消费数据，只要是消费同一个 topic，那么数据肯定是一致的。由于一般 kafka 的配置是保留 7 天的数据，所以在新增的消费者组消费同一个 topic 时，它会重头开始消费，即从所以就出现了，消费者组B里是几天前的数据，这是无可避免的。</p>
-<h3 id="5-配置流水字段"><a href="#5-配置流水字段" class="headerlink" title="5 配置流水字段"></a>5 配置流水字段</h3><p>由于当时第一次配置的时候，没有配置流水字段，导致了推送数据到 kafka topic 的任务，每次实时推送全量数据过去，导致了数据平台每次启动推送 kafka 的任务，就会迅速占满服务器内存，然后应用挂掉。</p>
-<p>后边加入流水字段，将任务配置为增量推送，内存占比就好了很多。</p>
-<p>通常是用线性递增的字段，作为流水字段。比如，实时成交表里有成交时间，委托流水表里有委托时间。</p>
-<h3 id="6-配置主键"><a href="#6-配置主键" class="headerlink" title="6 配置主键"></a>6 配置主键</h3><p>通过配置主键用来去重，避免推送重复数据到 topic 里。比如：实时成交表里的成交编号，委托流水表里的委托编号，编号是唯一的，那么可以使用编号作为主键。</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>kafka</category>
-      </categories>
-      <tags>
-        <tag>kafka</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL-日期时间转换问题</title>
-    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
-<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
-<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
-<span id="more"></span>
-
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
-<p>查看上游的数据，交易时间为：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
-
-<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
-<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
-
-<p>然后再将利用<code>to_date</code> 进行转换</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
-
-<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
-
-
-
-<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
-<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
-<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
-<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
-<p>当时尝试了很多</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
-<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
-
-<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
-<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
-<p>查看本地库的NLS_LANGUAGE参数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
-
-<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
-<p>在本地尝试</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
-
-
-
-<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
-<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>SQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>实施部署-Nginx在项目上的应用（四）</title>
-    <url>/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-Nginx%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%9A%84%E5%BA%94%E7%94%A8/</url>
-    <content><![CDATA[<p>本文总结Nginx在项目上的实际应用，本文包含了Nginx的常用配置与在项目中遇到的问题。信创版本的负载均衡中间件其实也是类似于Nginx，以宝兰德负载均衡中间件BWS为例。</p>
-<span id="more"></span>
-
-
-
-<p>Nginx 负载均衡，在生产环境上常常会用到。简单通俗的架构如下：</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-Nginx%E5%9C%A8%E9%A1%B9%E7%9B%AE%E4%B8%8A%E7%9A%84%E5%BA%94%E7%94%A8/image-20240610213747187.png" class="" title="image-20240610213747187">
-
-
-
-<p>在生产环境，通常具有多台应用服务器（一般为集群），通过 Nginx 服务器配置的地址去访问同一个应用，通过 Ng 实现应用的高并发、高可用。</p>
-<h2 id="1-Nginx基础"><a href="#1-Nginx基础" class="headerlink" title="1 Nginx基础"></a>1 Nginx基础</h2><p>Nginx 的配置文件，是 Nginx_home&#x2F;conf&#x2F;nginx.conf 文件，它里边的结构块是这样的：</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全局块</span></span><br><span class="line"><span class="comment"># user user_name;                   # 运行 nginx 进程的用户名</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 事件块</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># http 块</span></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment"># server 块</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="comment"># server 全局块</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="comment"># upstream 块</span></span><br><span class="line">    <span class="section">upstream</span> name &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment"># location 块</span></span><br><span class="line">    <span class="section">location</span> [PATTERN] &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="1-1-全局块"><a href="#1-1-全局块" class="headerlink" title="1.1 全局块"></a>1.1 全局块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 全局块通常是配置用户、日志、进程、pid 等</span></span><br><span class="line"><span class="comment"># 注意，全局块中涉及的路径，需 nginx 有权限读写。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行 nginx 进程的用户名，指 Linux 用户</span></span><br><span class="line"><span class="attribute">user</span> user_name;</span><br><span class="line"><span class="comment"># 设置 nginx 的进程数，默认为 1，一般进程数=CPU 核数即可。双核配 2，4 核配 4.</span></span><br><span class="line"><span class="attribute">worker_processes</span> <span class="number">1</span>;</span><br><span class="line"><span class="comment"># nginx 的工作目录，不配置，默认在 logs 下</span></span><br><span class="line"><span class="attribute">working_directory</span> nginx_path/logs;</span><br><span class="line"><span class="comment"># 设置日志级别：debug\info\notice\warn\error\crit（高到低）</span></span><br><span class="line"><span class="attribute">error_log</span> nginx_path/logs/<span class="literal">error</span>.log <span class="literal">info</span>;</span><br><span class="line"><span class="comment"># 也可以使用默认，记录 error</span></span><br><span class="line"><span class="attribute">error_log</span> nginx_path/logs/<span class="literal">error</span>.log</span><br><span class="line"><span class="comment"># pid，设置 nginx 进程的 pid 文件路径和名称</span></span><br><span class="line">pid nginx_path/logs/nginx.pid;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>全局块，通常配置 user  worker_processes  error_log  pid 即可。</p>
-<p>解释一下 pid，这个东西就是 nginx 运行时的进程 id（Linux 每个进程都有一个进程 id，即 pid），配置 pid，就是为了将 nginx 的进程 id 写到这个文件中（例如上方的 nginx.pid 文件），可以用来判断 nginx 是否运行，防止启动多个 nginx 进程的。</p>
-<p>网上的说法是这样的：nginx 启动时，会去找这个设置的 pid 文件，一是看这个文件是否存在，二是看 pid 文件中记录的 pid 进程是否存在，如果 pid 文件存在并且 pid 进程也存在，则说明 nginx 已经启动了，那么启动就会报错，防止启动多个 nginx 进程。</p>
-<h3 id="1-2-事件块"><a href="#1-2-事件块" class="headerlink" title="1.2 事件块"></a>1.2 事件块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># events 块，是 nginx 处理连接的配置块</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="comment"># 配置每个工作进程的最大连接数，默认 1024</span></span><br><span class="line">  <span class="attribute">worker_connection</span> <span class="number">1024</span>;</span><br><span class="line">  <span class="comment"># 鼓励接收，这个可不配</span></span><br><span class="line">  <span class="attribute">multi_accept</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="comment"># 处理连接的事件模型，默认 epoll，可不配</span></span><br><span class="line">  <span class="attribute">use</span> <span class="literal">epoll</span>;</span><br><span class="line">  <span class="comment"># 其他可百度</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>其实只需要配置一个 <code>worker_connection</code> 即可</p>
-<h3 id="1-3-http-块"><a href="#1-3-http-块" class="headerlink" title="1.3 http 块"></a>1.3 http 块</h3><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块常用配置</span></span><br><span class="line">  <span class="attribute">include</span> mime.types;    <span class="comment"># 文件扩展名与文件类型映射表</span></span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;  <span class="comment"># 默认文件类型</span></span><br><span class="line">  <span class="attribute">access_log</span> logs/access.log main;    <span class="comment"># 日志路径、格式</span></span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">on</span>;                      <span class="comment"># 开启日志，记录客户端请求信息</span></span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;           <span class="comment"># 开启文件传输功能</span></span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">65s</span>;    <span class="comment"># 保持连接超时时长，超过这个时间，连接关闭</span></span><br><span class="line">  <span class="attribute">client_max_body_size</span> <span class="number">10m</span>;    <span class="comment"># 允许文件传输的最大值，根据实际情况设置</span></span><br><span class="line">  <span class="attribute">client_header_buffer_size</span> <span class="number">4k</span>;  <span class="comment"># 客户端请求头缓冲区大小，k(千字节)</span></span><br><span class="line">  <span class="attribute">client_body_buffer_size</span> <span class="number">8m</span>;  <span class="comment"># 客户端请求体缓存区大小，m(MB)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>client_max_body_size</code> 参数，对传输的文件大小做限制 <code>client_header_buffer_size</code>  <code>client_body_buffer_size</code> 参数，为了确保请求头(体)数据不会因为缓冲区太小而被截断</p>
-<h3 id="1-4-server-块"><a href="#1-4-server-块" class="headerlink" title="1.4 server 块"></a>1.4 server 块</h3><p>server 块里包含了 upstream 块、location 块</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 该块在 http 块下</span></span><br><span class="line"><span class="comment"># 通过配置的服务名和监听端口去访问时，根据不同的权重随机跳转到应用服务端</span></span><br><span class="line"><span class="comment"># 这里的链路大概如下：</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 ng 地址：http://hello:80/app  &gt;&gt;&gt;  跳转 http://fzjh/app</span></span><br><span class="line"><span class="comment"># &gt;&gt;&gt; 根据 upstream 块获取 fzjh 配置的 server   </span></span><br><span class="line"><span class="comment"># &gt;&gt;&gt; 根据权重访问 http://192.168.1.1:8080/app http://192.168.1.2:8080/app</span></span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="comment"># http 全局块</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment"># server 块</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;        <span class="comment"># 监听端口，默认 80，需要根据实际情况更改</span></span><br><span class="line">    <span class="attribute">server_name</span> hello;    <span class="comment"># 用来做跳转应用的服务名</span></span><br><span class="line">    <span class="comment"># upstream 块  负载均衡关键块</span></span><br><span class="line">    <span class="section">upstream</span> fzjh &#123;</span><br><span class="line">      <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span> weight=<span class="number">1</span>;  <span class="comment"># 服务器 1，权重 1</span></span><br><span class="line">      <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span> weight=<span class="number">2</span>;  <span class="comment"># 服务器 2，权重 2</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># location 块  反向代理关键块</span></span><br><span class="line">    <span class="section">location</span> /app &#123;        <span class="comment"># 指定访问的后缀</span></span><br><span class="line">      <span class="attribute">proxy_pass</span> http://fzjh/app;   <span class="comment"># proxy_pass 反向代理关键字 </span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>说明：通常只是做反向代理的话，是不需要配置 <code>upstream</code> 块的，只需要配置 <code>location</code> 块。</p>
-<h3 id="1-5-负载均衡策略"><a href="#1-5-负载均衡策略" class="headerlink" title="1.5 负载均衡策略"></a>1.5 负载均衡策略</h3><p>负载均衡策略的问题，其实就是在 upstream 块里边去配置。比如步骤【4）server 块】中的 upstream 块用法就是一个加权轮询策略，weight&#x3D;1  &#x3D;2  就是服务器的权重，通过给服务器分配权重，权重大的服务器将接收更多的请求。（<strong>数值越大，权重越高</strong>）</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 轮询</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加权轮询</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span> weight=<span class="number">1</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span> weight=<span class="number">3</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span> weight=<span class="number">5</span>;  <span class="comment"># 权重越大，接收请求越多</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># ip hash</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  ip_hash;            <span class="comment"># 没错，就是加上这个参数即可</span></span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最少连接</span></span><br><span class="line"><span class="section">upstream</span> fzjh &#123;</span><br><span class="line">  least_conn;        <span class="comment"># 没错，也是加个参数即可</span></span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.1:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.2:8080</span>;</span><br><span class="line">  <span class="attribute">server</span> <span class="number">192.168.1.3:8080</span>;  </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="2-Nginx启停"><a href="#2-Nginx启停" class="headerlink" title="2 Nginx启停"></a>2 Nginx启停</h2><figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动</span></span><br><span class="line"><span class="attribute">cd</span> nginx_home/sbin &amp;&amp; ./nginx</span><br><span class="line"><span class="comment"># 停止  pid 文件的路径为全局块中设置</span></span><br><span class="line">kill -QUIT `cat nginx_home/logs/nginx.pid`</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">cd nginx_home/sbin &amp;&amp; ./nginx -s reload</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="3-Nginx遇到的问题"><a href="#3-Nginx遇到的问题" class="headerlink" title="3 Nginx遇到的问题"></a>3 Nginx遇到的问题</h2><h3 id="3-1-文件上传超限"><a href="#3-1-文件上传超限" class="headerlink" title="3.1 文件上传超限"></a>3.1 文件上传超限</h3><p>通常在使用 ng 访问应用时，在应用上传附件时，会遇到如下报错：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">request entity too large nginx 解决方案</span><br></pre></td></tr></table></figure>
-
-<p>此错误是由于上传文件的大小超过 nginx 配置的文件传输最大值导致。通过更改 <code>client_max_body_size</code> 的大小即可（没有则在 HTTP块 新增即可）。更改完需要重启 nginx 服务。</p>
-<h3 id="3-2-无法显示验证码"><a href="#3-2-无法显示验证码" class="headerlink" title="3.2 无法显示验证码"></a>3.2 无法显示验证码</h3><p>应用的登录页面需要输入验证码，当通过Ng跳转到应用时，不显示验证码。在<code>upstream</code> 里把负载均衡策略改为 IP HASH </p>
-<h2 id="4-配置案例"><a href="#4-配置案例" class="headerlink" title="4 配置案例"></a>4 配置案例</h2><h3 id="4-1-反向代理"><a href="#4-1-反向代理" class="headerlink" title="4.1 反向代理"></a>4.1 反向代理</h3><p>该配置为审计项目开发环境、测试环境的实际配置。当然，信创版本，使用的是 宝兰德 BWS 中间件（国产版的Nginx）</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="attribute">user</span>  bes;</span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"><span class="comment">#pid        logs/bws.pid;</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="attribute">worker_connections</span> <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="attribute">include</span> mime.types;</span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;</span><br><span class="line">  <span class="attribute">log_format</span> main <span class="string">&#x27;<span class="variable">$remote_addr</span> - <span class="variable">$remote_user</span> [<span class="variable">$time_local</span>] &quot;<span class="variable">$request</span>&quot; &#x27;</span> <span class="string">&#x27;<span class="variable">$status</span> <span class="variable">$body_bytes_sent</span> &quot;<span class="variable">$http_referer</span>&quot; &#x27;</span> <span class="string">&#x27;&quot;<span class="variable">$http_user_agent</span>&quot; &quot;<span class="variable">$http_x_forwarded_for</span>&quot;&#x27;</span>;</span><br><span class="line">  <span class="attribute">access_log</span> logs/access.log main;</span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">65s</span>;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="comment">#bws_http_server_name:server-tPegV0o6</span></span><br><span class="line">    <span class="comment">#bws_http_server_type:reverseProxy</span></span><br><span class="line">    <span class="attribute">listen</span> <span class="number">8070</span>;</span><br><span class="line">    <span class="attribute">server_name</span> <span class="number">192</span>.<span class="number">168</span>.XXX.<span class="number">56</span>;</span><br><span class="line">    <span class="section">location</span> / &#123;</span><br><span class="line">      <span class="comment">#type:static</span></span><br><span class="line">      <span class="comment">#bws_http_server_location_name:location-OsbKN52L</span></span><br><span class="line">      <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">     </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> /app &#123;</span><br><span class="line">       <span class="attribute">proxy_pass</span> http://192.168.XXX.59:18080/app;</span><br><span class="line">         <span class="comment"># 此处判断，允许跨源请求、http 方法、带 cookie 信息，通用配置 -- 开始</span></span><br><span class="line">        <span class="attribute">if</span> (<span class="variable">$request_method</span> = <span class="string">&#x27;OPTIONS&#x27;</span>) &#123;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Origin <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Headers <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Methods <span class="string">&#x27;*&#x27;</span>;</span><br><span class="line">                <span class="attribute">add_header</span> Access-Control-Allow-Credentials <span class="string">&#x27;true&#x27;</span>;</span><br><span class="line">                <span class="attribute">return</span> <span class="number">204</span>;</span><br><span class="line">            &#125;</span><br><span class="line">           </span><br><span class="line">            <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Upgrade <span class="variable">$http_upgrade</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Connection <span class="string">&quot;upgrade&quot;</span>;</span><br><span class="line">                    <span class="attribute">proxy_set_header</span> Origin <span class="string">&quot;&quot;</span>;</span><br><span class="line">					<span class="attribute">proxy_set_header</span> Cookie <span class="variable">$http_cookie</span>;</span><br><span class="line">         <span class="comment"># 通用配置  -- 结束           </span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">      <span class="comment">#type:static</span></span><br><span class="line">      <span class="comment">#bws_http_server_location_name:location-8t7KLrfH</span></span><br><span class="line">      <span class="attribute">root</span> html;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="section">location</span> = /bws_status &#123;</span><br><span class="line">      <span class="comment">#bws_http_server_location_name:monitor</span></span><br><span class="line">      <span class="attribute">stub_status</span> <span class="literal">on</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="attribute">error_page</span> <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span> /50x.html;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="attribute">gzip</span> <span class="literal">off</span>;</span><br><span class="line">  <span class="attribute">gzip_comp_level</span> <span class="number">1</span>;</span><br><span class="line">  <span class="attribute">gzip_min_length</span> <span class="number">1k</span>;</span><br><span class="line">  <span class="attribute">client_max_body_size</span> <span class="number">1024m</span>;</span><br><span class="line">  <span class="attribute">client_header_buffer_size</span> <span class="number">4k</span>;</span><br><span class="line">  <span class="attribute">client_body_buffer_size</span> <span class="number">8m</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attribute">worker_processes</span> <span class="number">1</span>;</span><br><span class="line"><span class="attribute">error_log</span> logs/<span class="literal">error</span>.log <span class="literal">info</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-2-负载均衡"><a href="#4-2-负载均衡" class="headerlink" title="4.2 负载均衡"></a>4.2 负载均衡</h3><p>审计项目生产环境的配置（已脱敏）</p>
-<figure class="highlight nginx"><table><tr><td class="code"><pre><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="attribute">worker_processes</span> auto;</span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"><span class="comment">#pid        logs/bws.pid;</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">  <span class="attribute">worker_connections</span> <span class="number">512</span>;</span><br><span class="line">  <span class="attribute">use</span> <span class="literal">epoll</span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="attribute">include</span> mime.types;</span><br><span class="line">  <span class="attribute">default_type</span> application/octet-stream;</span><br><span class="line">  <span class="comment">#log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span></span><br><span class="line">  <span class="comment">#                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span></span><br><span class="line">  <span class="comment">#                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span></span><br><span class="line">  <span class="comment">#access_log  logs/access.log  main;</span></span><br><span class="line">  <span class="attribute">access_log</span> <span class="literal">off</span>;</span><br><span class="line">  <span class="attribute">sendfile</span> <span class="literal">on</span>;</span><br><span class="line">  <span class="comment">#tcp_nopush     on;</span></span><br><span class="line">  <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">  <span class="attribute">keepalive_timeout</span> <span class="number">75</span>;</span><br><span class="line">  <span class="comment">#gzip  on;</span></span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server_name</span> SJGL-JR2-JQ;</span><br><span class="line">    <span class="comment">#charset koi8-r;</span></span><br><span class="line">    <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line">    <span class="section">location</span> /app &#123;</span><br><span class="line">      <span class="attribute">index</span> index.html index.htm;</span><br><span class="line">      <span class="attribute">proxy_cache</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">concat</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">sysguard</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">proxy_pass</span> http://app-8080/app;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line">    <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="attribute">error_page</span> <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span> /50x.html;</span><br><span class="line">    <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">      <span class="attribute">root</span> html;</span><br><span class="line">      <span class="attribute">proxy_cache</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">concat</span> <span class="literal">off</span>;</span><br><span class="line">      <span class="attribute">sysguard</span> <span class="literal">off</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="section">upstream</span> app-<span class="number">8080</span> &#123;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY1-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY2-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY3-JQ:<span class="number">8080</span>;</span><br><span class="line">    <span class="attribute">server</span> SJGL-YY4-JQ:<span class="number">8080</span>;</span><br><span class="line">    ip_hash;</span><br><span class="line">    <span class="attribute">check</span> interval=<span class="number">30000</span> fall=<span class="number">3</span> rise=<span class="number">2</span> default_down=<span class="literal">false</span> timeout=<span class="number">1000</span> type=tcp port=<span class="number">8080</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-
-
-
-
-
-
-
-
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>实施</tag>
-        <tag>Nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>实施部署-达梦数据库linux版的安装（二）</title>
-    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
-    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
-<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
-<span id="more"></span>
-
-<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
-<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
-<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
-
-<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
-
-
-
-<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
-
-<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
-
-
-
-<p>显示安装结束后，切换到root用户</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
-<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
-<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
-
-<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
-<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
-<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh DAMENG</span></span><br></pre></td></tr></table></figure>
-
-<p>然后把对应的实例数据目录删除即可</p>
-<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
-<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
-<p>或者上传任意目录，使用cp命令替换</p>
-<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
-
-
-
-<p>生产上，一般会安装达梦的监控守护模式</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
-<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>配置说明如下：</p>
-<table>
-<thead>
-<tr>
-<th>LOGIN_MODE</th>
-<th>服务名方式登录，始终会优先登录主库；</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>LOGIN_MODE</td>
-<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_TIME</td>
-<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_INTERVAL</td>
-<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>实施</tag>
-        <tag>达梦</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>经验杂谈-面对个性化的产品如何下手</title>
-    <url>/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/</url>
-    <content><![CDATA[<p>《吐槽一下，让心情发泄一下》</p>
-<p>今天在工作的时候，烦恼的时候突然蹦出来一个思路。针对单个功能个性化的思路。</p>
-<p>现在的工作的公司，多数都是靠着个性化服务来做产品，导致了一个产品的标准版，到了客户现场环境，会根据客户的实际使用要求，对产品的功能、转换去做个性化开发。导致了刚到现场接触这个产品的时候常常因为困惑感到无从下手。</p>
-<span id="more"></span>
-
-<p>特别是，一上来就让你排查生产问题的时候。。。。</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212748892.png" class="" title="image-20240604212748892">
-
-<p>但是表面还是要装作很谈定，装作很熟悉的样子，打开控制台，看看功能背后用了什么支持的文件或者代码，，，</p>
-<p>打开数据库看看对应的SP，看看主表join表有没有数据，关联条件是不是导致了数据重复，会不会过滤掉部分数据，看看where条件是不是把数据过滤掉，，，</p>
-<p>看看上游数据是不是正常的，转换后数据是不是正常的，，，</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604213252623.png" class="" title="image-20240604213252623">
-
-
-
-
-
-<p> 一个经过多年完善的产品，越成熟意味着越复杂。刚进公司的第一年，做着游走打支援的活，基本是哪里有活就去哪，哪里缺人手就去哪。做多以后呢，好像上级对我的要求就一下子就拔高了？？？总是会默认你是会的。这一点就很奇怪，支援式的工作，无法有长久的时间去深入了解一个产品。特别是一些反洗钱、异常交易这种与业务勾稽关系多，模块又多的产品。<del>因为公司对这些产品是没有文档介绍的（至少我没见过，辣鸡）~~~~做了一年半没见过公司的标准版产品长啥样，现场实施的痛！</del></p>
-<p>没接触一个项目得自己摸索，摸索一点门道，还没咋熟悉，又换一个项目（对于我而言是新的），特别是公司极度缺人，交接也没交接，技术支持也没有，内心：</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212459209.png" class="" title="image-20240604212459209">
-
-
-
-<p>而且每天都在苦恼业务的提问<del>刁难！</del>，心里只有：</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212233306.png" class="" title="image-20240604212233306">
-
-
-
-
-
-
-
-<p>之前在看期货风险度监控的时候，这个功能总是只出了一个来源期货数仓的期货账户数据，还有好几个O32的期货账户数据监控不出来，纳闷了好久，里边三段逻辑有一段限制了日期，有一段限制了账户，只有一段是没有做限制的。</p>
-<p>上一个人做了一半，就走了。。。</p>
-<p>我就被急急忙忙拉过来继续完成上一个人的工作，我也不知道现场这边是怎么做的，反正看仿真环境代码里有2个限制，再对比一下生产环境，好家伙，也有2个限制。我也不知道一段限制日期，一段限制账户。看着生产也这样，想想接触的个性化的转换代码，功能代码多了去了。只是当这是个性化的一部分。</p>
-<p>为了能让其他的期货账户的数据被监控出来，我前前后后看了上游数据、转换后的数据、以及业务表的数据，看了转换的条件，看了监控的逻辑条件。纳闷，代码、数据没什么问题啊，为什么没出来。。。</p>
-<p>怎么我一来就没数据。没做完，又被拉去做另一个更紧急的项目上了，这个就搁置了。</p>
-<p>今天又过去，继续看。找了熟悉现场的同事问了问，同事已经不记得了。问了产品部，产品部答复该代码非标准版代码，应该为现场实施修改的，具体需要咨询现场的实施。</p>
-<p>卧槽，哪还有人咨询。</p>
-<p>后边我突然想到，我也没见过标准版代码是啥，我找产品部拿不就好了，我之前咋脑子不灵光</p>
-<p>看了标准版，代码里没有对期货账户做限制，这里为啥要限制，尝试注释掉，然后重新跑一下监控，其他期货账户数据被监控出来。。。。</p>
-<p>啊~</p>
-<p><strong>以后遇到个性化的代码，一定先跟标准版对比，然后去问熟悉的人（同事或者客户）看看为什么要这么做个性化，搞懂原因后，看这个代码就顺眼多了，问题自然好解决。</strong></p>
-]]></content>
-      <categories>
-        <category>工作思考</category>
-      </categories>
-      <tags>
-        <tag>经验记录</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>实施部署-信创项目环境搭建准备（一）</title>
-    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B&#x2F;S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用javascrpit做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。</p>
-<span id="more"></span>
-
-<p>那运行产品的环境的搭建就主要包括：WEB服务的部署、数据库的部署。当然也有其他的服务，但其他服务需要根据产品的需要进行部署的。我主要负责信创类项目的实施部署，都是在LINUX服务器上部署。</p>
-<p>一个环境搭建的思路：</p>
-<p>前期环境的准备 &gt;&gt; 数据库部署 &gt;&gt; 中间件与应用部署 &gt;&gt; ETL工具部署</p>
-<p>本文总结前期环境的准备</p>
-<h2 id="1-信创项目知识"><a href="#1-信创项目知识" class="headerlink" title="1 信创项目知识"></a>1 信创项目知识</h2><p>信创类产品的实施部署从 0 到 1 ，实施部署前期需要了解什么，作为跟客户沟通的技术知识保障。</p>
-<h3 id="1-1-信创软硬件"><a href="#1-1-信创软硬件" class="headerlink" title="1.1 信创软硬件"></a>1.1 信创软硬件</h3><p>数据库：达梦<br>中间件：东方通、宝兰德<br>服务器操作系统：麒麟、统信<br>硬件平台：飞腾、华为、龙芯、海光、鲲鹏……<br>内核：AMD、ARM</p>
-<h3 id="1-2-确认服务器架构信息"><a href="#1-2-确认服务器架构信息" class="headerlink" title="1.2 确认服务器架构信息"></a>1.2 确认服务器架构信息</h3><p>信创，产品的框架与数据平台均做了适配，都需要根据内核来确认使用哪个版本。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span></span><br><span class="line"><span class="comment"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span></span><br><span class="line"><span class="comment"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回内核版本、架构</span></span><br><span class="line">uname -a</span><br><span class="line"><span class="comment"># 返回内核版本</span></span><br><span class="line">cat /proc/version</span><br><span class="line"><span class="comment"># 返回系统信息（包括内核、操作系统版本）</span></span><br><span class="line">hostnamectl</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="1-3-确认服务器内存信息"><a href="#1-3-确认服务器内存信息" class="headerlink" title="1.3 确认服务器内存信息"></a>1.3 确认服务器内存信息</h3><p>JAVA服务端通常需要设置服务的 JVM ，生产环境通常推荐 JVM &gt; 16G</p>
-<p>开发环境、测试环境 JVM 减半作为参考即可</p>
-<p>比如：在部署中间件、宝兰德中间件的时候，默认的 JVM 都是 2G，测试服务器只有8G内存的情况下，中间件的JVM修改为4G。</p>
-<h3 id="1-4-确认数据库参数"><a href="#1-4-确认数据库参数" class="headerlink" title="1.4 确认数据库参数"></a>1.4 确认数据库参数</h3><p>我所遇到的信创项目种，数据库通常使用达梦数据库。达梦数据库，有几个参数是在初始化实例的时候就需要确定的，且初始化实例后无法进行修改，除非重新初始化实例：</p>
-<ul>
-<li>页大小 (page_size)</li>
-<li>簇大小 (extent_size)</li>
-<li>大小写敏感 (case_sensitive)</li>
-<li>字符集 (charset)</li>
-</ul>
-<p>下表为这几个参数的具体含义：</p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>含义</th>
-<th>可设置值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>page_size</td>
-<td>数据文件使用的页大小</td>
-<td>4&#x2F;8&#x2F;16&#x2F;32</td>
-</tr>
-<tr>
-<td>extent_size</td>
-<td>簇大小，每次分配新的段空间时连续的页面</td>
-<td>16&#x2F;32&#x2F;64</td>
-</tr>
-<tr>
-<td>case_sensitive</td>
-<td>标识符大小写敏感。当大小写敏感时，小写的标识符要用双引号括起，否则被转换为大写；当大小写不敏感时，系统不自动转换标识符的大小写，在标识符比较时也不区分大小写。默认 Y （1）敏感</td>
-<td>Y&#x2F;N（1&#x2F;0）</td>
-</tr>
-<tr>
-<td>charset</td>
-<td>字符集选项，0：GB18030；1：UTF-8（默认0）</td>
-<td>0&#x2F;1</td>
-</tr>
-<tr>
-<td>length_in_char</td>
-<td>VARCHAR类型长度是否以字符为单位（默认为N   0 ）</td>
-<td>Y&#x2F;N（1&#x2F;0）</td>
-</tr>
-</tbody></table>
-<p>页大小与字段长度有关，簇大小与表空间有关，但是这两个都与我们没有关系，我们需要注意的只有 2 个：</p>
-<ul>
-<li>大小写敏感</li>
-<li>字符集编码</li>
-</ul>
-<p>产品多为oracle开发，从oracle移植过来，为了更好的兼容，通常开启大小写敏感；字符集编码是GB18030还是UTF-8没关系，但是开发环境、测试环境、生产环境需要字符集编码一致。</p>
-<p>在实际的项目实施部署中，客户的开发环境、测试环境通常由我们厂商维护，只有生产环境是由DBA维护。所以在前期的沟通中，我们需要跟DBA确认好达梦数据库里的上述参数，确保开发环境、测试环境、生产环境保持一致。</p>
-<p>总结了一份模板如下，页大小和簇大小根据在生产上通常建议设置为32</p>
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/image-20240606222536306.png" class="" title="image-20240606222536306">
-
-
-
-<h4 id="1-4-1-参数带来的影响"><a href="#1-4-1-参数带来的影响" class="headerlink" title="1.4.1 参数带来的影响"></a>1.4.1 参数带来的影响</h4><h5 id="1）编码不一致"><a href="#1）编码不一致" class="headerlink" title="1）编码不一致"></a>1）编码不一致</h5><p>当开发环境或者测试环境，与生产环境的字符集编码不一致时，可能会产生字符串长度相关的报错。</p>
-<p>比如：</p>
-<p>测试环境上是 GB18030 编码，但是生产环境上是 UTF8 编码，因为 GB 编码存一个中文需要的 1 个字节少于 UTF8 存一个中文需要的 3 个字节，测试后的产品功能上了生产环境可能会报出字符串截断的错误。</p>
-<h5 id="2）大小写敏感不一致"><a href="#2）大小写敏感不一致" class="headerlink" title="2）大小写敏感不一致"></a>2）大小写敏感不一致</h5><p>大小写敏感：查数据内容时，查 a 就是 a，查 A 就是 A</p>
-<p>大小写不敏感：查数据内容时，查 a 返回 A、a</p>
-<p>如果不设置大小写敏感，不仅是在写查询SQL的时候会影响，在创建对象、写存储过程时，对象名称、字段名称也会受到影响。比如：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A (id varchar2(<span class="number">8</span>));</span><br><span class="line"><span class="keyword">insert</span> table_a <span class="keyword">values</span>(<span class="string">&#x27;001&#x27;</span>);</span><br><span class="line"># <span class="keyword">insert</span> 就会报错，因为 table_a 不存在，必须与创建的表名一模一样才可以</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="1-4-2-其他可能需要修改的参数"><a href="#1-4-2-其他可能需要修改的参数" class="headerlink" title="1.4.2 其他可能需要修改的参数"></a>1.4.2 其他可能需要修改的参数</h4><p>此处的参数指，达梦数据库 <code>dm.ini</code> 配置文件里的参数。在开发环境、测试环境可由自己根据实际情况更改，在生产上必须与DBA沟通后进行更改，也需要保持三个环境中参数的一致性。</p>
-<p><code>dm.ini </code>配置文件中，有静态参数、动态参数。静态参数需要重启数据库服务后才生效，在生产上重启数据库是一件严肃的事情，需要修改的参数需要自己做好验证是否能够解决实际的情况。</p>
-<h5 id="1）COMPATIBLE-MODE"><a href="#1）COMPATIBLE-MODE" class="headerlink" title="1）COMPATIBLE_MODE"></a>1）COMPATIBLE_MODE</h5><p>该参数用于控制达梦数据库在部分功能处理时与其他数据库的兼容模式。常用设置：</p>
-<ul>
-<li>0 - 不兼容</li>
-<li>1 - 兼容SQL92标准</li>
-<li>2 - 兼容ORACLE</li>
-<li>3 - 兼容SQL SERVER</li>
-<li>4 - 兼容MYSQL</li>
-</ul>
-<p>通常项目上，此参数设置为2，可以更好的适配基于ORACLE开发的产品代码。</p>
-<h6 id="【例子】"><a href="#【例子】" class="headerlink" title="【例子】"></a>【例子】</h6><p>达梦数据库默认<code>NULL</code> 与<code>空值</code>是不等价的，NULL就是NULL，空值就是空值。某个功能查询需要同时满足它们，需要这样写：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="keyword">is</span> <span class="keyword">null</span> <span class="keyword">or</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
-
-<p>ORACLE中默认<code>NULL</code> 和<code>空值</code>是等价的，同时满足只需要：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
-
-<p>修改<code>COMPATIBLE_MODE</code>参数为<code>2</code>即可跟在ORACLE上的查询写法一致。</p>
-<h5 id="2）PK-WITH-CLUSTER"><a href="#2）PK-WITH-CLUSTER" class="headerlink" title="2）PK_WITH_CLUSTER"></a>2）PK_WITH_CLUSTER</h5><p>该参数默认为<code>1</code> </p>
-<p>该参数与建表时的主键索引有关，达梦数据库在创建表时，如果创建主键，则默认主键是聚簇索引键。如果没有主键，则默认<code>rowid</code> 作为聚簇索引键</p>
-<h6 id="【例子】-1"><a href="#【例子】-1" class="headerlink" title="【例子】"></a>【例子】</h6><p>当在达梦数据建表时，同时出现主键、字段为大字段CLOB类型的时候，就会报错：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A(</span><br><span class="line">	id varchar2(<span class="number">8</span>) <span class="keyword">primary</span> key,</span><br><span class="line">    name varchar2(<span class="number">20</span>),</span><br><span class="line">    addr <span class="type">clob</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，修改参数<code>PK_WITH_CLUSTER=0</code> ，再创建有主键、字段为CLOB类型的表，就可以创建成功。</p>
-<h6 id="【关于聚簇索引】"><a href="#【关于聚簇索引】" class="headerlink" title="【关于聚簇索引】"></a>【关于聚簇索引】</h6><blockquote>
-<p>表（列存储表和堆表除外）都是使用 B+树(以下简称 B 树)索引结构管理的，每一个普通表都有一个聚集索引，数据通过聚集索引键排序，根据聚集索引键可以快速查询任何记录。（即表是一个索引，这个索引名称叫聚集索引，可以理解为创建一个表后，将所有字段放在一起建立一个复合索引，只不过这个不需要我们来创建，系统自动给我们维护了一个）</p>
-</blockquote>
-<blockquote>
-<p>当建表语句未指定聚集索引键，DM 的默认聚集索引键是 ROWID，即记录默认以 ROWID 在页面中排序。ROWID 是 B 树为记录生成的逻辑递增序号，表上不同记录的 ROWID 是不一样的，并且最新插入的记录 ROWID 最大。很多情况下，以 ROWID 建的默认聚集索引并不能提高查询速度，因为实际情况下很少人根据 ROWID 来查找数据。</p>
-</blockquote>
-<p><a href="">原文链接： https://blog.csdn.net/sinat_32856657&#x2F;article&#x2F;details&#x2F;125410328</a></p>
-<h5 id="3）CALS-AS-DECIMAL"><a href="#3）CALS-AS-DECIMAL" class="headerlink" title="3）CALS_AS_DECIMAL"></a>3）CALS_AS_DECIMAL</h5><p>该参数是控制 整数除法运算是否舍弃小数。</p>
-<p>在达梦数据库中，整数相除或者使用<code>ROUND</code>函数，结果如果有小数位，会被直接舍弃，返回整数。</p>
-<p>比如</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">9</span><span class="operator">/</span><span class="number">2</span> <span class="keyword">from</span> dual;</span><br><span class="line"><span class="comment">-- 会返回4</span></span><br></pre></td></tr></table></figure>
-
-<p>可修改<code>CALC_AS_DECIMAL=1</code> 让运算不舍弃小数位</p>
-<h5 id="关于参数修改方式"><a href="#关于参数修改方式" class="headerlink" title="关于参数修改方式"></a>关于参数修改方式</h5><p>第一种：通过<code>dm.ini</code> 修改参数</p>
-<p>第二种：在达梦SQL窗口中，执行：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sp_set_para_value(old_values, <span class="string">&#x27;param_name&#x27;</span>, new_values);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 例如</span></span><br><span class="line">sp_set_para_value(<span class="number">1</span>,<span class="string">&#x27;PK_WITH_CLUSTER&#x27;</span>,<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="1-5-确认数据库用户权限"><a href="#1-5-确认数据库用户权限" class="headerlink" title="1.5 确认数据库用户权限"></a>1.5 确认数据库用户权限</h3><p>产品需要的用户大部分情况下是使用了DBA角色的权限，但是在项目实施时（特别是在生产环境中），会有部分客户认为产品上 DBA 权限不合理，也会有部分客户授权 DBA 是需要走流程申请。</p>
-<p>所以这一点在前期就需要跟客户确认，用户权限能否授予DBA权限。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建达梦用户脚本</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建表空间</span></span><br><span class="line"><span class="comment">-- 默认初始大小 500MB，每次自增 40MB，最大 10G</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span>space &quot;TS_TEST&quot; datafile <span class="string">&#x27;/dm8/data/DAMENG/TS_TEST.DBF&#x27;</span> size <span class="number">500</span> autoextend <span class="keyword">on</span> next <span class="number">40</span> maxsize <span class="number">10240</span>;    <span class="comment">-- 生产上可扩展为 unlimited</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> &quot;test&quot; identified <span class="keyword">by</span> &quot;testdata123&quot; <span class="keyword">default</span> tablespace TS_test;</span><br><span class="line"><span class="keyword">grant</span> &quot;DBA&quot; <span class="keyword">to</span> &quot;test&quot;;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">delete</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">execute</span> <span class="keyword">any</span> <span class="keyword">procedure</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">insert</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> dictionary <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> unlimited tablespace <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">update</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>甚至有的客户（我遇到的一个），认为<code>ANY</code>权限也是有大隐患的，需要针对到具体表名的权限。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">DELETE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">UPDATE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">INSERT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br></pre></td></tr></table></figure>
-
-<p>这种情况就没办法了，很麻烦，一个成熟且功能复杂的产品，可能标准版初始的表就有上千张（还不包括后续的开发新的功能表），存储过程、自定义函数等等也有上千个。每个存储过程用到的表都不一样，要一一梳理哪些用户select，哪个用户要delete等等，后期就需要额外的花时间去进行梳理。<del>（虽然更安全、合规，但是麻烦的是我~吐槽一下）</del></p>
-<h2 id="2-达梦权限说明"><a href="#2-达梦权限说明" class="headerlink" title="2 达梦权限说明"></a>2 达梦权限说明</h2><p>通常我们在部署时，JDBC 中的连接，我们使用 <code>WOLF</code>  <code>WOLFDATA</code> 用户去连接，或者使用 <code>WOLF</code> 去配置两个 JDBC 连接，指向 <code>WOLF</code>  <code>WOLFDATA</code> 模式（达梦中 schema 的概念，可以把它当成 oracle 的实例概念）。</p>
-<p>使用了 <code>WOLF</code> 用户去配置 JDBC 连接，那么此时，在系统进行日常操作的时候，在数据库中就是基于 <code>WOLF</code> 用户对对各个对象（TABLE \ SP \ FUNCTION \ VIEW \ TYPE \ PACKAGE 等）进行增删改查操作。</p>
-<p>通常情况下，框架提供的默认权限脚本权限多含 <code>DBA</code> 或者 <code>ANY</code> 权限，但是在生产环境上其实是不被允许的。在用户具备 DBA \ DROP ANY OBJECTS 的情况，能做的事情比较多，包括了对表空间（数据文件）的更改、跨用户删除表 等危险操作。</p>
-<p>因此在权限上，有的客户会要求梳理到具体的表需要什么权限。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>.除了本身的 ROURCE 角色外，需要对系统表的查询权限，SOV\SVI 角色</span><br><span class="line"><span class="number">2</span>.需要对 WOLFDATA 具有完全执行权，WOLFDATA 下一般只有表，对这些表有增删改查即可</span><br><span class="line"><span class="number">3</span>.对产品用户的对象：（不包含达梦自身用户的对象）</span><br><span class="line">  所有 TABLE 有 INSERT \ DELETE \ UPDATE \ SELECT 权限</span><br><span class="line">  所有 VIEW  有 SELECT 权限</span><br><span class="line">  所有 SP    有 EXECUTE 权限</span><br><span class="line">  所有的 FUNC 有 EXECUTE</span><br><span class="line">  所有的 PACKAGE 有 EXECUTE  （达梦的 TYPE 类型集合到了 PACKAGE 里）</span><br><span class="line">  所有的 CLASS 有 EXECUTE</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">其他的产品用户，权限则需要有自身的 RESOURCE 用户外，</span><br><span class="line">还应该从自身的 SP 中逐一排查需要的 跨用户对象的某个权限</span><br><span class="line"></span><br><span class="line">比如 RISKCONFIG 的 SP 中通常含有对中间层表的 DELETE \ INSERT \ SELECT \ UPDATE</span><br><span class="line">则应该为 RISKCONFIG 用户赋予中间层表的 DELETE \ INSERT \ SELECT \ UPDATE 权限。</span><br><span class="line"></span><br><span class="line">不需要 WOLF 对中间层表有权限，WOLF 只需要有执行该 SP 的权限即可。</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<p>前期将这些沟通好，等客户给服务器的相关信息，就可以开始着手准备实施部署产品了。</p>
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>实施</tag>
       </tags>
   </entry>
 </search>
