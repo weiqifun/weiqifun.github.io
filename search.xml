@@ -1,55 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Linux-挂载共享文件系统</title>
-    <url>/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</url>
-    <content><![CDATA[<h2 id="挂载-windows-共享目录"><a href="#挂载-windows-共享目录" class="headerlink" title="挂载 windows 共享目录"></a>挂载 windows 共享目录</h2><p>在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）</p>
-<p>在 Linux 服务器进行挂载操作：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个挂载目录</span></span><br><span class="line"> mkdir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式一</span></span><br><span class="line"> mount -t cifs -o username=@user, password=@password //IP/share_dir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式二</span></span><br><span class="line"> mount -t cifs -v -o credentials=/var/pwd //IP/d/data/output /home/aml/                                                                                                             Password for usertest,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span></span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> vi /etc/fstab</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">加入以下内容</span></span><br><span class="line"> //IP/share_dir /home/aml cifs username=@user, password=@password 0 0</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">或者</span></span><br><span class="line"> //IP/share_dir /home/aml cifs credentials=/var/pwd 0 0</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">然后给目录读取的权限</span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash"><span class="built_in">chown</span> -R aml:aml /home/aml</span></span><br><span class="line"> chmod -R 444 /home/aml</span><br></pre></td></tr></table></figure>
-
-<p>一般发行版Linux都默认装了 cifs 或者 samba ，可以这么查：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@FXQ-YWYY-57-81 ~]# rpm -qa | grep samba</span><br><span class="line"> samba-common-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> samba-client-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> [root@FXQ-YWYY-57-81 ~]# rpm -qa | grep cifs</span><br><span class="line"> cifs-utils-6.10-0.ky10.aarch64</span><br></pre></td></tr></table></figure>
-
-<p>卸载共享目录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
+    <title>Linux-工作中常用命令总结与常见错误</title>
+    <url>/2024/07/10/Linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>在信创项目上，因为服务器通常是<code>linux</code> 操作系统，所以对<code>linux</code>命令也是经常需要使用。根据实际的项目里，需要经常使用到的<code>linux</code> 命令，做一个总结 。</p>
+<span id="more"></span>
 
 
 
-<h2 id="挂载-NFS-文件系统"><a href="#挂载-NFS-文件系统" class="headerlink" title="挂载 NFS 文件系统"></a>挂载 NFS 文件系统</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个共享目录</span></span><br><span class="line"> mkdir /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">挂载</span></span><br><span class="line"> mount -t nfs ip:/path/to/share /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span> </span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> ip:/path/to/share /mnt/nfs nfs defaults 0 0</span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">卸载</span></span><br><span class="line"> umount /mnt/nfs</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=gmjjb,password=sxzq@123,vers=2.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Invalid argument</span><br><span class="line"></span><br><span class="line">sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=2.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=2.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内核日志</span></span><br><span class="line">[root@kylinV10arm162 ~]# sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=1.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=1.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># mount -t cifs -v -o credentials=/var/pwd.txt //10.9.97.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.9.97.65/d/data/output:  ********</span></span></span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,user=gmjjb,password=sxzq@123,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[2783009.282175] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783282.433585] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783470.189648] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># vi /etc/samba/smb.conf</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">global 加入</span></span><br><span class="line">client min protocol = CORE</span><br><span class="line">client max protocol = SMB3</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# smbclient -L //10.9.97.65/</span><br><span class="line">do_connect: Connection to 10.9.97.65 failed (Error NT_STATUS_IO_TIMEOUT)</span><br><span class="line">[root@kylinV10arm162 ~]# ping 10.9.97.65</span><br><span class="line">PING 10.9.97.65 (10.9.97.65) 56(84) bytes of data.</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=1 ttl=125 time=1.77 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=2 ttl=125 time=1.11 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=3 ttl=125 time=0.870 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=4 ttl=125 time=0.906 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=5 ttl=125 time=0.897 ms</span><br><span class="line">^C</span><br><span class="line">--- 10.9.97.65 ping statistics ---</span><br><span class="line">5 packets transmitted, 5 received, 0% packet loss, time 4111ms</span><br><span class="line">rtt min/avg/max/mdev = 0.870/1.109/1.765/0.338 ms</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br></pre></td></tr></table></figure>
+<h2 id="linux基础命令"><a href="#linux基础命令" class="headerlink" title="linux基础命令"></a>linux基础命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">dir</span> 指目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">file 指文件</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">path 指路径</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出当前目录所有内容</span></span><br><span class="line">ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">cd /path/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上级目录</span></span><br><span class="line">cd ..</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上个目录</span></span><br><span class="line">cd -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示当前路径</span></span><br><span class="line">pwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件内容 <span class="built_in">cat</span></span> </span><br><span class="line">cat /path/file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件末尾 N 行内容，并实时显示文件追加内容</span></span><br><span class="line">tail -fn N file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /path/to/create_dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建文件</span></span><br><span class="line">touch file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以使用 vi 编辑空文件保存，也是一个新文件</span></span><br><span class="line">vi file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除目录、文件</span></span><br><span class="line">rm -rf dir_name</span><br><span class="line">rm -rf file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar.gz</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制</span></span><br><span class="line">cp /path/dir_name /path/to/new_dir_name</span><br><span class="line">cp -r /path/dir_name /path/to/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">mv /path/dir_name /new_path/to/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重命名</span></span><br><span class="line">mv /path/dir_name /path/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀掉进程</span></span><br><span class="line">kill -9 pid</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="生产实践-挂载-windows-共享目录"><a href="#生产实践-挂载-windows-共享目录" class="headerlink" title="生产实践-挂载 windows 共享目录"></a>生产实践-挂载 windows 共享目录</h2><p>因为密码中含有特殊字符 <code>@</code> ，所以建立了一个存放 Windows 共享目录的用户密码的文件(pwd文件需要创建)，在命令中使用：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 mnt]# cat /var/pwd </span><br><span class="line">user=test</span><br><span class="line">pass=test@123</span><br><span class="line">vers=1.0</span><br><span class="line">[root@kylinV10arm162 mnt]# mount -t cifs -v -o credentials=/var/pwd //10.9.96.195/d/data/output /mnt/B9/  </span><br><span class="line">Credential formatted incorrectly: 1.0</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.96.195,unc=\\10.9.96.195\d,user=test,prefixpath=data/output,pass=********</span><br><span class="line">[root@kylinV10arm162 mnt]# df -h</span><br><span class="line">Filesystem                   Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                      32G     0   32G   0% /dev</span><br><span class="line">tmpfs                         32G  192K   32G   1% /dev/shm</span><br><span class="line">tmpfs                         32G  1.5G   30G   5% /run</span><br><span class="line">tmpfs                         32G     0   32G   0% /sys/fs/cgroup</span><br><span class="line">/dev/mapper/klas-root        483G   38G  446G   8% /</span><br><span class="line">tmpfs                         32G  2.1M   32G   1% /tmp</span><br><span class="line">/dev/vda2                   1014M  222M  793M  22% /boot</span><br><span class="line">/dev/vda1                    599M  6.5M  593M   2% /boot/efi</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/993</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/0</span><br><span class="line">//10.9.96.195/d/data/output  500G  392G  109G  79% /mnt/B9		# 已经挂载好了</span><br></pre></td></tr></table></figure>
-
-<p>然后到 <code>/mnt/B9</code> 目录下查看就行了</p>
-<p>卸载共享目录</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
+<p>上述都是基础，当然下边也是基础。</p>
+<p>但是根据我在实际工作中，一个应用的部署过程来做的总结，包括前期应用的搭建，到后期应用服务运维，从一整个项目实施部署的过程，来梳理实际工作中应该掌握哪些命令。</p>
+<h2 id="项目过程中常用命令"><a href="#项目过程中常用命令" class="headerlink" title="项目过程中常用命令"></a>项目过程中常用命令</h2><h3 id="1-验证网络"><a href="#1-验证网络" class="headerlink" title="1 验证网络"></a>1 验证网络</h3><p>先验证应用服务器与数据库服务器网络是否开通，没有开通则沟通走流程开通</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping ip</span><br><span class="line">telnet ip port</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="强制取消挂载时出现-Busy-问题"><a href="#强制取消挂载时出现-Busy-问题" class="headerlink" title="强制取消挂载时出现 Busy 问题"></a>强制取消挂载时出现 Busy 问题</h3><p>我使用 <code>umount -f /home/aml/B9</code> 后，B9目录就变成了这样： </p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">d????????? ? ?    ?       ?            ? B9</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 aml]# ll</span><br><span class="line">ls: cannot access &#x27;B9&#x27;: No such device</span><br><span class="line">total 8</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:10 3K</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:12 99</span><br><span class="line">d????????? ? ?    ?       ?            ? B9</span><br></pre></td></tr></table></figure>
-
-<p>对这块盘进行重新取消挂载即可</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 aml]# umount -l B9</span><br></pre></td></tr></table></figure>
+<h4 id="1-1-配置-Hosts"><a href="#1-1-配置-Hosts" class="headerlink" title="1.1 配置 Hosts"></a>1.1 配置 Hosts</h4><p>当 <code>ping</code> <code>telnet</code> 无法找到对应的主机名或服务时，可以配置 <code>hosts</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 ip</span></span><br><span class="line">ip addr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取主机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="报错-Operation-now-in-progress"><a href="#报错-Operation-now-in-progress" class="headerlink" title="报错 Operation now in progress"></a>报错 Operation now in progress</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=test,password=test@123,vers=1.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用文件的形式也是报错</span></span><br><span class="line">vi /var/pwd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">加入</span></span><br><span class="line">user=&lt;username&gt;</span><br><span class="line">pass=&lt;password&gt;</span><br><span class="line">vers=1.0</span><br><span class="line"></span><br><span class="line">chown root:root /var/pwd</span><br><span class="line">chmod 600 /etc/pwd</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -v -o credentials=/var/pwd //10.9.97.65/d/data/output /home/aml/99/                                                    Password for test,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br></pre></td></tr></table></figure>
+<h4 id="1-2-配置-DNS"><a href="#1-2-配置-DNS" class="headerlink" title="1.2 配置 DNS"></a>1.2 配置 DNS</h4><p>在项目上，有时候客户不提供 hosts，而是提供 DNS，比如对接邮箱服务的时候提供一个邮箱服务器的 DNS。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑 DNS 文件</span></span><br><span class="line">vi /etc/resolv.con</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加：nameserver 为固定写法</span></span><br><span class="line">nameserver ip</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">nameserver 127.0.0.1</span><br><span class="line">nameserver www.baidu.com</span><br></pre></td></tr></table></figure>
 
 
 
-<p><code>ping ip</code>能通，但<code>telnet ip 445</code>也不通，故该服务器访问<code>Windows</code>服务器的共享目录端口是不通的，需要在防火墙上开启端口，需要负责管理网络这块的去开通。</p>
+<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2 创建用户"></a>2 创建用户</h3><p>在项目部署时，客户的生产环境是不会提供 root 用户的，测试环境上，需要自己创建相关的中间件、数据库用户，然后使用这个用户进行操作，能够使应用服务在测试和生产环境中保持一致的运行情况。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.创建用户组</span></span><br><span class="line">groupadd -g group_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">groupadd -g dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.创建用户</span></span><br><span class="line">useradd -g group_name -s /bin/bash -d /home/dir_name -m user_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-g：指定用户所属组</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s：指定用户用的 shell</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-d：指定用户的根目录路径</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-m：创建用户的根目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子,创建 dmdba 用户，并设置用户 ID\所属组\指定 SHELL\指定根目录并创建根目录：</span></span><br><span class="line">useradd -g dmdba -s /bin/bash -d /home/dm -m dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3.更改用户主、组</span></span><br><span class="line">chown dmdba:dmdba /home/dm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4.修改用户密码</span></span><br><span class="line">passwd user_name</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-修改权限"><a href="#3-修改权限" class="headerlink" title="3 修改权限"></a>3 修改权限</h3><p>在创建用户后，通常会创建一些目录，用来存放应用包，或者用来安装应用服务。</p>
+<p>如果使用root创建了目录，是需要修改这些目录的权限的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录所属主、组</span></span><br><span class="line">chown dmdba:dmdba -R /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录权限</span></span><br><span class="line">chmod 755 -R /home/dm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-解包"><a href="#4-解包" class="headerlink" title="4 解包"></a>4 解包</h3><p>在创建好目录后，上传应用包，一般为<code>tar.gz</code> 或者 <code>zip</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到当前目录</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到指定目录</span></span><br><span class="line">tar -xzvf file.tar.gz /path/to/dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 zip 包</span></span><br><span class="line">unzip file.zip</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4-1-挂载"><a href="#4-1-挂载" class="headerlink" title="4.1 挂载"></a>4.1 挂载</h4><p>因为有的安装包，是提供一个 <code>iso</code> 镜像文件的，在 linux 里需要先挂载 <code>iso</code> 文件，里边有安装 <code>.sh</code> 脚本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 iso 文件，主要挂载目录需要用户能访问，一般在应用主目录下创建一个挂载目录</span></span><br><span class="line">mount -o loop file_name.iso /home/dm/mnt </span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-配置环境变量"><a href="#5-配置环境变量" class="headerlink" title="5 配置环境变量"></a>5 配置环境变量</h3><p>通常的项目是个 java 构建的应用，需要使用 <code>JDK</code> 。如果服务器上没有安装 <code>JDK</code> 包就需要先安装，不过现在发行版的LINUX都是自带了<code>openJDK</code> ，需要根据<code>JDK</code> 的路径去配置环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通常情况下，我们是不知道一个新服务器的java安装路径在哪里的，所以我们可以通过命令查找</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先看是否安装</span></span><br><span class="line">java -version</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有则找 java 路径，这么找：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">whereis java 或者 <span class="built_in">which</span> java 都可以</span></span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# whereis java</span><br><span class="line">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/java/jdk1.8.0_231/bin/java /usr/share/man/man1/java.1.gz</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /usr/bin/java</span><br><span class="line">lrwxrwxrwx 1 root root 22 Jun  6  2023 /usr/bin/java -&gt; /etc/alternatives/java</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /etc/alternatives/java</span><br><span class="line">lrwxrwxrwx 1 root root 73 Jun  6  2023 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre/bin/java</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">知道了 java 的路径，就可以配置环境变量</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置环境变量有两个文件： /etc/profile 全局环境变量； ~/.bash_profile 当前用户的环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64</span><br><span class="line">export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-服务启停"><a href="#6-服务启停" class="headerlink" title="6 服务启停"></a>6 服务启停</h3><h4 id="6-1-启动服务"><a href="#6-1-启动服务" class="headerlink" title="6.1 启动服务"></a>6.1 启动服务</h4><p>一般多是用后台命令启动</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nohup server_name &amp;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-2-启动-java-程序"><a href="#6-2-启动-java-程序" class="headerlink" title="6.2 启动 java 程序"></a>6.2 启动 java 程序</h4><p>有的项目需要单独启动某个 <code>jar</code> 包</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar file.jar </span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-查看服务状态"><a href="#6-3-查看服务状态" class="headerlink" title="6.3 查看服务状态"></a>6.3 查看服务状态</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -ef | grep app_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">ps -ef | grep java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 ps -ef 命令的输出结果作为 grep java 的输入</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ps -ef 会查出所有运行的进程，grep java 则在这些进程里查找有关 java 的进程</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回的信息解释</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user  进程归属用户</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PID   进程 ID</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">CPU   CPU 使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MEM   内存使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">STAT  进程状态（R 运行 S 睡眠 Z 卡死）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">START  进程开始运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">TIME  进程运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">COMMAND  进程执行的命令</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="7-关闭防火墙"><a href="#7-关闭防火墙" class="headerlink" title="7 关闭防火墙"></a>7 关闭防火墙</h3><p>应用服务如果起来了，但是前台地址打不开的情况，拒绝访问或者无相应。需要关闭防火墙</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止自启（可操作也可不操作，不操作的话，机器重启会自启防火墙）</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-查看端口占用情况"><a href="#8-查看端口占用情况" class="headerlink" title="8 查看端口占用情况"></a>8 查看端口占用情况</h3><p>项目上，可能存在端口冲突的情况，比如说某个服务关闭异常导致服务关了但是端口没释放，可排查端口由哪个<code>pid</code> 占用着，将它 <code>kill</code> 掉释放端口</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">natstat -ntlp</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-n  显示地址、端口号</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-t  显示 tcp 连接信息</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-l  显示监听</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-p  显示进程</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="9-追踪日志"><a href="#9-追踪日志" class="headerlink" title="9 追踪日志"></a>9 追踪日志</h3><p>在排查问题过程中，经常需要看日志。</p>
+<p>可以直接实时查看日志，看看哪一步报错</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<p>也可以使用重定向，将日志先清空，避免冗余信息过多，然后再追踪日志</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&gt; 其实是个重定向，这个命令就是把前边的空内容以覆盖的方式输入到文件里，达到删除效果</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">file.log</span></span><br><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="10-查看服务器资源占用情况"><a href="#10-查看服务器资源占用情况" class="headerlink" title="10 查看服务器资源占用情况"></a>10 查看服务器资源占用情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">top 实时查看资源情况</span></span><br><span class="line">top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内存情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看磁盘情况</span></span><br><span class="line">df -h</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-查看历史命令"><a href="#11-查看历史命令" class="headerlink" title="11 查看历史命令"></a>11 查看历史命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示历史执行过的命令</span></span><br><span class="line">history</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="12-判断命令是否被拉起"><a href="#12-判断命令是否被拉起" class="headerlink" title="12 判断命令是否被拉起"></a>12 判断命令是否被拉起</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务器发送请求，判断应用是否被拉起，当操作机与服务器存在网络问题时可用此判断，如果不能访问，排查操作机的网络与服务器 IP 是否通</span></span><br><span class="line">curl URL</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="常见报错"><a href="#常见报错" class="headerlink" title="常见报错"></a>常见报错</h2><h3 id="1-No-such-file-or-directory"><a href="#1-No-such-file-or-directory" class="headerlink" title="1 No such file or directory"></a>1 No such file or directory</h3><p>执行 <code>shell</code> 脚本的是，可能会遇到这个报错，完整的报错类似下边：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/bin/sh: bad interpreter: No such file or directory</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者</span></span><br><span class="line">/usr/bin/env: &quot;sh\r&quot;: 没有那个文件或目录</span><br></pre></td></tr></table></figure>
+
+<p>是因为编写 <code>shell</code> 脚本时，使用的文本编辑器，它用的换行符是 <code>dos</code> ，在 <code>shell</code> 里的换行符应该需要更改为 <code>unix</code> ，如下设置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi file.sh</span><br><span class="line">:set ff=unix	# :set ff 可以查看当前 shell 脚本的换行符是 dos 还是 unix</span><br><span class="line">:wq				# 保存</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-Permission-denied"><a href="#2-Permission-denied" class="headerlink" title="2 Permission denied"></a>2 Permission denied</h3><p>就是因为权限的原因。在测试环境中使用了 root 用户操作，具有系统所有权，所以操作什么都不会报错。但是到了生产环境，一般是没有 root 的权限的，所以当执行一些需要用到 root 权限的命令时，就会报错。</p>
+<p>通常是因为 <code>shell</code> 脚本中，存在授权 <code>chmod</code> 、创建软链 <code>ln -s</code> 等命令。</p>
+<hr>
+<center>END</center>
+
 ]]></content>
       <categories>
         <category>Linux运维</category>
       </categories>
       <tags>
         <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL-违反表的唯一约束条件（主键冲突）问题</title>
+    <url>/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>实际的项目中，采集上游数据到数据集市的贴源层 &gt;&gt; 跑数据转换任务，将数据写入到我们的业务表，在跑转换任务的时候，时不时会报错主键冲突。转换里，通常写着<code>insert</code> <code>update</code> 语句，当向表执行插入和更新操作，时不时出现报错：违反表的唯一约束条件。</p>
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603204053362.png" class="" title="image-20240603204053362">
+
+<p>因为在实际业务中，中间层或者业务层表，通常情况下，是具有主键的（可能是单一主键，可能是复合主键）。</p>
+<span id="more"></span>
+
+<h2 id="常见的两种情况"><a href="#常见的两种情况" class="headerlink" title="常见的两种情况"></a>常见的两种情况</h2><p>1）目标表里已经有了一条数据A，但是转换任务又往目标表里写入一条数据A，导致的报错；</p>
+<p>2）目标表里没有数据，但是转换里，使用的关联条件产生了多条重复数据，导致的报错。</p>
+<p>根据这两种情况对数据进行排查，看看是哪些数据重复了。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1.根据报错的主键名称，查找该索引名是哪张表的主键名</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> all_indexes a</span><br><span class="line"> <span class="keyword">where</span> a.index_name <span class="operator">=</span> <span class="string">&#x27;报错的主键名&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212340949.png" class="" title="image-20240603212340949">
+
+
+
+<p>2.查看该表，查看该主键由哪些字段组成</p>
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212455621.png" class="" title="image-20240603212455621">
+
+
+
+<p>3.对于第一种情况，根据这些字段，将目标表与转换里源表进行<code>join</code>，对索引字段进行<code>count</code>，查看是否有重复数据</p>
+<p>例如这张表在转换里源表（from的表）为 <code>ct.st_xxx</code>，那么可以如下，查到重复的数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.contract_no, a.stock_account, <span class="built_in">count</span>(<span class="operator">*</span>)</span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后，对比该数据，是否完全一致（因为数据可能出现只有主键字段是相同的，但是其他字段不同的情况）</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.<span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">where</span> a.contract_no <span class="operator">=</span> <span class="string">&#x27;查到的contract_no&#x27;</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> <span class="string">&#x27;查到的stock_account&#x27;</span></span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account;</span><br></pre></td></tr></table></figure>
+
+<p>3.1）若一致，则可将目标表里的数据删掉</p>
+<p>3.2）若不一致，应咨询业务，它们是否有区别，根据业务沟通后的方案，将数据备份后，对其更改或删除等操作</p>
+<p>4.对于第二种情况，则需要看转换里，它的<code>insert</code> 或者<code>update</code> 的逻辑，类似：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> table_a (</span><br><span class="line">	col_1,</span><br><span class="line">    col_2,</span><br><span class="line">    ...</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> col_a,</span><br><span class="line">	   col_b,</span><br><span class="line">	   ...</span><br><span class="line">  <span class="keyword">from</span> table_b t1</span><br><span class="line">  <span class="keyword">join</span> table_c t2</span><br><span class="line">    <span class="keyword">on</span> t1.col_a <span class="operator">=</span> t2.col_a</span><br><span class="line">   <span class="keyword">and</span> t1.col_b <span class="operator">=</span> t2.col_b;</span><br></pre></td></tr></table></figure>
+
+<p>然后对关联条件进行检查，看看是不是关联条件出现了 <code>1:N</code> <code>N:N</code> 的情况，如果是，则根据代码的逻辑，对该数据产生的原因进行定位，根据实际情况进行解决。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
       </tags>
   </entry>
   <entry>
@@ -455,124 +575,49 @@
       </tags>
   </entry>
   <entry>
-    <title>Linux-工作中常用命令总结与常见错误</title>
-    <url>/2024/07/10/Linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<p>在信创项目上，因为服务器通常是<code>linux</code> 操作系统，所以对<code>linux</code>命令也是经常需要使用。根据实际的项目里，需要经常使用到的<code>linux</code> 命令，做一个总结 。</p>
-<span id="more"></span>
+    <title>Linux-挂载共享文件系统</title>
+    <url>/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</url>
+    <content><![CDATA[<h2 id="挂载-windows-共享目录"><a href="#挂载-windows-共享目录" class="headerlink" title="挂载 windows 共享目录"></a>挂载 windows 共享目录</h2><p>在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）</p>
+<p>在 Linux 服务器进行挂载操作：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个挂载目录</span></span><br><span class="line"> mkdir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式一</span></span><br><span class="line"> mount -t cifs -o username=@user, password=@password //IP/share_dir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式二</span></span><br><span class="line"> mount -t cifs -v -o credentials=/var/pwd //IP/d/data/output /home/aml/                                                                                                             Password for usertest,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span></span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> vi /etc/fstab</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">加入以下内容</span></span><br><span class="line"> //IP/share_dir /home/aml cifs username=@user, password=@password 0 0</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">或者</span></span><br><span class="line"> //IP/share_dir /home/aml cifs credentials=/var/pwd 0 0</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">然后给目录读取的权限</span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash"><span class="built_in">chown</span> -R aml:aml /home/aml</span></span><br><span class="line"> chmod -R 444 /home/aml</span><br></pre></td></tr></table></figure>
 
+<p>一般发行版Linux都默认装了 cifs 或者 samba ，可以这么查：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@FXQ-YWYY-57-81 ~]# rpm -qa | grep samba</span><br><span class="line"> samba-common-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> samba-client-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> [root@FXQ-YWYY-57-81 ~]# rpm -qa | grep cifs</span><br><span class="line"> cifs-utils-6.10-0.ky10.aarch64</span><br></pre></td></tr></table></figure>
 
+<p>卸载共享目录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
 
-<h2 id="linux基础命令"><a href="#linux基础命令" class="headerlink" title="linux基础命令"></a>linux基础命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">dir</span> 指目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">file 指文件</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">path 指路径</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出当前目录所有内容</span></span><br><span class="line">ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">cd /path/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上级目录</span></span><br><span class="line">cd ..</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上个目录</span></span><br><span class="line">cd -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示当前路径</span></span><br><span class="line">pwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件内容 <span class="built_in">cat</span></span> </span><br><span class="line">cat /path/file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件末尾 N 行内容，并实时显示文件追加内容</span></span><br><span class="line">tail -fn N file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /path/to/create_dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建文件</span></span><br><span class="line">touch file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以使用 vi 编辑空文件保存，也是一个新文件</span></span><br><span class="line">vi file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除目录、文件</span></span><br><span class="line">rm -rf dir_name</span><br><span class="line">rm -rf file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar.gz</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制</span></span><br><span class="line">cp /path/dir_name /path/to/new_dir_name</span><br><span class="line">cp -r /path/dir_name /path/to/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">mv /path/dir_name /new_path/to/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重命名</span></span><br><span class="line">mv /path/dir_name /path/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀掉进程</span></span><br><span class="line">kill -9 pid</span><br></pre></td></tr></table></figure>
 
 
+<h2 id="挂载-NFS-文件系统"><a href="#挂载-NFS-文件系统" class="headerlink" title="挂载 NFS 文件系统"></a>挂载 NFS 文件系统</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个共享目录</span></span><br><span class="line"> mkdir /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">挂载</span></span><br><span class="line"> mount -t nfs ip:/path/to/share /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span> </span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> ip:/path/to/share /mnt/nfs nfs defaults 0 0</span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">卸载</span></span><br><span class="line"> umount /mnt/nfs</span><br></pre></td></tr></table></figure>
 
-<p>上述都是基础，当然下边也是基础。</p>
-<p>但是根据我在实际工作中，一个应用的部署过程来做的总结，包括前期应用的搭建，到后期应用服务运维，从一整个项目实施部署的过程，来梳理实际工作中应该掌握哪些命令。</p>
-<h2 id="项目过程中常用命令"><a href="#项目过程中常用命令" class="headerlink" title="项目过程中常用命令"></a>项目过程中常用命令</h2><h3 id="1-验证网络"><a href="#1-验证网络" class="headerlink" title="1 验证网络"></a>1 验证网络</h3><p>先验证应用服务器与数据库服务器网络是否开通，没有开通则沟通走流程开通</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping ip</span><br><span class="line">telnet ip port</span><br></pre></td></tr></table></figure>
 
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=gmjjb,password=sxzq@123,vers=2.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Invalid argument</span><br><span class="line"></span><br><span class="line">sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=2.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=2.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内核日志</span></span><br><span class="line">[root@kylinV10arm162 ~]# sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=1.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=1.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># mount -t cifs -v -o credentials=/var/pwd.txt //10.9.97.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.9.97.65/d/data/output:  ********</span></span></span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,user=gmjjb,password=sxzq@123,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[2783009.282175] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783282.433585] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783470.189648] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># vi /etc/samba/smb.conf</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">global 加入</span></span><br><span class="line">client min protocol = CORE</span><br><span class="line">client max protocol = SMB3</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# smbclient -L //10.9.97.65/</span><br><span class="line">do_connect: Connection to 10.9.97.65 failed (Error NT_STATUS_IO_TIMEOUT)</span><br><span class="line">[root@kylinV10arm162 ~]# ping 10.9.97.65</span><br><span class="line">PING 10.9.97.65 (10.9.97.65) 56(84) bytes of data.</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=1 ttl=125 time=1.77 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=2 ttl=125 time=1.11 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=3 ttl=125 time=0.870 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=4 ttl=125 time=0.906 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=5 ttl=125 time=0.897 ms</span><br><span class="line">^C</span><br><span class="line">--- 10.9.97.65 ping statistics ---</span><br><span class="line">5 packets transmitted, 5 received, 0% packet loss, time 4111ms</span><br><span class="line">rtt min/avg/max/mdev = 0.870/1.109/1.765/0.338 ms</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br></pre></td></tr></table></figure>
 
 
-<h4 id="1-1-配置-Hosts"><a href="#1-1-配置-Hosts" class="headerlink" title="1.1 配置 Hosts"></a>1.1 配置 Hosts</h4><p>当 <code>ping</code> <code>telnet</code> 无法找到对应的主机名或服务时，可以配置 <code>hosts</code> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 ip</span></span><br><span class="line">ip addr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取主机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
 
+<h2 id="生产实践-挂载-windows-共享目录"><a href="#生产实践-挂载-windows-共享目录" class="headerlink" title="生产实践-挂载 windows 共享目录"></a>生产实践-挂载 windows 共享目录</h2><p>因为密码中含有特殊字符 <code>@</code> ，所以建立了一个存放 Windows 共享目录的用户密码的文件(pwd文件需要创建)，在命令中使用：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 mnt]# cat /var/pwd </span><br><span class="line">user=test</span><br><span class="line">pass=test@123</span><br><span class="line">vers=1.0</span><br><span class="line">[root@kylinV10arm162 mnt]# mount -t cifs -v -o credentials=/var/pwd //10.9.96.195/d/data/output /mnt/B9/  </span><br><span class="line">Credential formatted incorrectly: 1.0</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.96.195,unc=\\10.9.96.195\d,user=test,prefixpath=data/output,pass=********</span><br><span class="line">[root@kylinV10arm162 mnt]# df -h</span><br><span class="line">Filesystem                   Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                      32G     0   32G   0% /dev</span><br><span class="line">tmpfs                         32G  192K   32G   1% /dev/shm</span><br><span class="line">tmpfs                         32G  1.5G   30G   5% /run</span><br><span class="line">tmpfs                         32G     0   32G   0% /sys/fs/cgroup</span><br><span class="line">/dev/mapper/klas-root        483G   38G  446G   8% /</span><br><span class="line">tmpfs                         32G  2.1M   32G   1% /tmp</span><br><span class="line">/dev/vda2                   1014M  222M  793M  22% /boot</span><br><span class="line">/dev/vda1                    599M  6.5M  593M   2% /boot/efi</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/993</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/0</span><br><span class="line">//10.9.96.195/d/data/output  500G  392G  109G  79% /mnt/B9		# 已经挂载好了</span><br></pre></td></tr></table></figure>
 
+<p>然后到 <code>/mnt/B9</code> 目录下查看就行了</p>
+<p>卸载共享目录</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
 
-<h4 id="1-2-配置-DNS"><a href="#1-2-配置-DNS" class="headerlink" title="1.2 配置 DNS"></a>1.2 配置 DNS</h4><p>在项目上，有时候客户不提供 hosts，而是提供 DNS，比如对接邮箱服务的时候提供一个邮箱服务器的 DNS。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑 DNS 文件</span></span><br><span class="line">vi /etc/resolv.con</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加：nameserver 为固定写法</span></span><br><span class="line">nameserver ip</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">nameserver 127.0.0.1</span><br><span class="line">nameserver www.baidu.com</span><br></pre></td></tr></table></figure>
 
 
+<h3 id="强制取消挂载时出现-Busy-问题"><a href="#强制取消挂载时出现-Busy-问题" class="headerlink" title="强制取消挂载时出现 Busy 问题"></a>强制取消挂载时出现 Busy 问题</h3><p>我使用 <code>umount -f /home/aml/B9</code> 后，B9目录就变成了这样： </p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">d????????? ? ?    ?       ?            ? B9</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 aml]# ll</span><br><span class="line">ls: cannot access &#x27;B9&#x27;: No such device</span><br><span class="line">total 8</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:10 3K</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:12 99</span><br><span class="line">d????????? ? ?    ?       ?            ? B9</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2 创建用户"></a>2 创建用户</h3><p>在项目部署时，客户的生产环境是不会提供 root 用户的，测试环境上，需要自己创建相关的中间件、数据库用户，然后使用这个用户进行操作，能够使应用服务在测试和生产环境中保持一致的运行情况。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.创建用户组</span></span><br><span class="line">groupadd -g group_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">groupadd -g dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.创建用户</span></span><br><span class="line">useradd -g group_name -s /bin/bash -d /home/dir_name -m user_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-g：指定用户所属组</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s：指定用户用的 shell</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-d：指定用户的根目录路径</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-m：创建用户的根目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子,创建 dmdba 用户，并设置用户 ID\所属组\指定 SHELL\指定根目录并创建根目录：</span></span><br><span class="line">useradd -g dmdba -s /bin/bash -d /home/dm -m dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3.更改用户主、组</span></span><br><span class="line">chown dmdba:dmdba /home/dm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4.修改用户密码</span></span><br><span class="line">passwd user_name</span><br></pre></td></tr></table></figure>
+<p>对这块盘进行重新取消挂载即可</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 aml]# umount -l B9</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="3-修改权限"><a href="#3-修改权限" class="headerlink" title="3 修改权限"></a>3 修改权限</h3><p>在创建用户后，通常会创建一些目录，用来存放应用包，或者用来安装应用服务。</p>
-<p>如果使用root创建了目录，是需要修改这些目录的权限的</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录所属主、组</span></span><br><span class="line">chown dmdba:dmdba -R /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录权限</span></span><br><span class="line">chmod 755 -R /home/dm</span><br></pre></td></tr></table></figure>
+<h3 id="报错-Operation-now-in-progress"><a href="#报错-Operation-now-in-progress" class="headerlink" title="报错 Operation now in progress"></a>报错 Operation now in progress</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=test,password=test@123,vers=1.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用文件的形式也是报错</span></span><br><span class="line">vi /var/pwd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">加入</span></span><br><span class="line">user=&lt;username&gt;</span><br><span class="line">pass=&lt;password&gt;</span><br><span class="line">vers=1.0</span><br><span class="line"></span><br><span class="line">chown root:root /var/pwd</span><br><span class="line">chmod 600 /etc/pwd</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -v -o credentials=/var/pwd //10.9.97.65/d/data/output /home/aml/99/                                                    Password for test,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="4-解包"><a href="#4-解包" class="headerlink" title="4 解包"></a>4 解包</h3><p>在创建好目录后，上传应用包，一般为<code>tar.gz</code> 或者 <code>zip</code> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到当前目录</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到指定目录</span></span><br><span class="line">tar -xzvf file.tar.gz /path/to/dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 zip 包</span></span><br><span class="line">unzip file.zip</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="4-1-挂载"><a href="#4-1-挂载" class="headerlink" title="4.1 挂载"></a>4.1 挂载</h4><p>因为有的安装包，是提供一个 <code>iso</code> 镜像文件的，在 linux 里需要先挂载 <code>iso</code> 文件，里边有安装 <code>.sh</code> 脚本</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 iso 文件，主要挂载目录需要用户能访问，一般在应用主目录下创建一个挂载目录</span></span><br><span class="line">mount -o loop file_name.iso /home/dm/mnt </span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-配置环境变量"><a href="#5-配置环境变量" class="headerlink" title="5 配置环境变量"></a>5 配置环境变量</h3><p>通常的项目是个 java 构建的应用，需要使用 <code>JDK</code> 。如果服务器上没有安装 <code>JDK</code> 包就需要先安装，不过现在发行版的LINUX都是自带了<code>openJDK</code> ，需要根据<code>JDK</code> 的路径去配置环境变量。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通常情况下，我们是不知道一个新服务器的java安装路径在哪里的，所以我们可以通过命令查找</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先看是否安装</span></span><br><span class="line">java -version</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有则找 java 路径，这么找：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">whereis java 或者 <span class="built_in">which</span> java 都可以</span></span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# whereis java</span><br><span class="line">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/java/jdk1.8.0_231/bin/java /usr/share/man/man1/java.1.gz</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /usr/bin/java</span><br><span class="line">lrwxrwxrwx 1 root root 22 Jun  6  2023 /usr/bin/java -&gt; /etc/alternatives/java</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /etc/alternatives/java</span><br><span class="line">lrwxrwxrwx 1 root root 73 Jun  6  2023 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre/bin/java</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">知道了 java 的路径，就可以配置环境变量</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置环境变量有两个文件： /etc/profile 全局环境变量； ~/.bash_profile 当前用户的环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64</span><br><span class="line">export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="6-服务启停"><a href="#6-服务启停" class="headerlink" title="6 服务启停"></a>6 服务启停</h3><h4 id="6-1-启动服务"><a href="#6-1-启动服务" class="headerlink" title="6.1 启动服务"></a>6.1 启动服务</h4><p>一般多是用后台命令启动</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nohup server_name &amp;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-2-启动-java-程序"><a href="#6-2-启动-java-程序" class="headerlink" title="6.2 启动 java 程序"></a>6.2 启动 java 程序</h4><p>有的项目需要单独启动某个 <code>jar</code> 包</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar file.jar </span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-3-查看服务状态"><a href="#6-3-查看服务状态" class="headerlink" title="6.3 查看服务状态"></a>6.3 查看服务状态</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -ef | grep app_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">ps -ef | grep java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 ps -ef 命令的输出结果作为 grep java 的输入</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ps -ef 会查出所有运行的进程，grep java 则在这些进程里查找有关 java 的进程</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回的信息解释</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user  进程归属用户</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PID   进程 ID</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">CPU   CPU 使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MEM   内存使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">STAT  进程状态（R 运行 S 睡眠 Z 卡死）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">START  进程开始运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">TIME  进程运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">COMMAND  进程执行的命令</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="7-关闭防火墙"><a href="#7-关闭防火墙" class="headerlink" title="7 关闭防火墙"></a>7 关闭防火墙</h3><p>应用服务如果起来了，但是前台地址打不开的情况，拒绝访问或者无相应。需要关闭防火墙</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止自启（可操作也可不操作，不操作的话，机器重启会自启防火墙）</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="8-查看端口占用情况"><a href="#8-查看端口占用情况" class="headerlink" title="8 查看端口占用情况"></a>8 查看端口占用情况</h3><p>项目上，可能存在端口冲突的情况，比如说某个服务关闭异常导致服务关了但是端口没释放，可排查端口由哪个<code>pid</code> 占用着，将它 <code>kill</code> 掉释放端口</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">natstat -ntlp</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-n  显示地址、端口号</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-t  显示 tcp 连接信息</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-l  显示监听</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-p  显示进程</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="9-追踪日志"><a href="#9-追踪日志" class="headerlink" title="9 追踪日志"></a>9 追踪日志</h3><p>在排查问题过程中，经常需要看日志。</p>
-<p>可以直接实时查看日志，看看哪一步报错</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
-
-
-
-<p>也可以使用重定向，将日志先清空，避免冗余信息过多，然后再追踪日志</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&gt; 其实是个重定向，这个命令就是把前边的空内容以覆盖的方式输入到文件里，达到删除效果</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">file.log</span></span><br><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="10-查看服务器资源占用情况"><a href="#10-查看服务器资源占用情况" class="headerlink" title="10 查看服务器资源占用情况"></a>10 查看服务器资源占用情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">top 实时查看资源情况</span></span><br><span class="line">top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内存情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看磁盘情况</span></span><br><span class="line">df -h</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="11-查看历史命令"><a href="#11-查看历史命令" class="headerlink" title="11 查看历史命令"></a>11 查看历史命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示历史执行过的命令</span></span><br><span class="line">history</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="12-判断命令是否被拉起"><a href="#12-判断命令是否被拉起" class="headerlink" title="12 判断命令是否被拉起"></a>12 判断命令是否被拉起</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务器发送请求，判断应用是否被拉起，当操作机与服务器存在网络问题时可用此判断，如果不能访问，排查操作机的网络与服务器 IP 是否通</span></span><br><span class="line">curl URL</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="常见报错"><a href="#常见报错" class="headerlink" title="常见报错"></a>常见报错</h2><h3 id="1-No-such-file-or-directory"><a href="#1-No-such-file-or-directory" class="headerlink" title="1 No such file or directory"></a>1 No such file or directory</h3><p>执行 <code>shell</code> 脚本的是，可能会遇到这个报错，完整的报错类似下边：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/bin/sh: bad interpreter: No such file or directory</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者</span></span><br><span class="line">/usr/bin/env: &quot;sh\r&quot;: 没有那个文件或目录</span><br></pre></td></tr></table></figure>
-
-<p>是因为编写 <code>shell</code> 脚本时，使用的文本编辑器，它用的换行符是 <code>dos</code> ，在 <code>shell</code> 里的换行符应该需要更改为 <code>unix</code> ，如下设置</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi file.sh</span><br><span class="line">:set ff=unix	# :set ff 可以查看当前 shell 脚本的换行符是 dos 还是 unix</span><br><span class="line">:wq				# 保存</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-Permission-denied"><a href="#2-Permission-denied" class="headerlink" title="2 Permission denied"></a>2 Permission denied</h3><p>就是因为权限的原因。在测试环境中使用了 root 用户操作，具有系统所有权，所以操作什么都不会报错。但是到了生产环境，一般是没有 root 的权限的，所以当执行一些需要用到 root 权限的命令时，就会报错。</p>
-<p>通常是因为 <code>shell</code> 脚本中，存在授权 <code>chmod</code> 、创建软链 <code>ln -s</code> 等命令。</p>
-<hr>
-<center>END</center>
-
+<p><code>ping ip</code>能通，但<code>telnet ip 445</code>也不通，故该服务器访问<code>Windows</code>服务器的共享目录端口是不通的，需要在防火墙上开启端口，需要负责管理网络这块的去开通。</p>
 ]]></content>
       <categories>
         <category>Linux运维</category>
@@ -582,48 +627,300 @@
       </tags>
   </entry>
   <entry>
-    <title>SQL-违反表的唯一约束条件（主键冲突）问题</title>
-    <url>/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>实际的项目中，采集上游数据到数据集市的贴源层 &gt;&gt; 跑数据转换任务，将数据写入到我们的业务表，在跑转换任务的时候，时不时会报错主键冲突。转换里，通常写着<code>insert</code> <code>update</code> 语句，当向表执行插入和更新操作，时不时出现报错：违反表的唯一约束条件。</p>
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603204053362.png" class="" title="image-20240603204053362">
-
-<p>因为在实际业务中，中间层或者业务层表，通常情况下，是具有主键的（可能是单一主键，可能是复合主键）。</p>
+    <title>SQL-日期时间转换问题</title>
+    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
+<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
+<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
 <span id="more"></span>
 
-<h2 id="常见的两种情况"><a href="#常见的两种情况" class="headerlink" title="常见的两种情况"></a>常见的两种情况</h2><p>1）目标表里已经有了一条数据A，但是转换任务又往目标表里写入一条数据A，导致的报错；</p>
-<p>2）目标表里没有数据，但是转换里，使用的关联条件产生了多条重复数据，导致的报错。</p>
-<p>根据这两种情况对数据进行排查，看看是哪些数据重复了。</p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1.根据报错的主键名称，查找该索引名是哪张表的主键名</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> all_indexes a</span><br><span class="line"> <span class="keyword">where</span> a.index_name <span class="operator">=</span> <span class="string">&#x27;报错的主键名&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
+<p>查看上游的数据，交易时间为：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
 
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212340949.png" class="" title="image-20240603212340949">
+<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
+
+<p>然后再将利用<code>to_date</code> 进行转换</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
+
+<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
 
 
 
-<p>2.查看该表，查看该主键由哪些字段组成</p>
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212455621.png" class="" title="image-20240603212455621">
+<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
+<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
+<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
+<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
 
 
 
-<p>3.对于第一种情况，根据这些字段，将目标表与转换里源表进行<code>join</code>，对索引字段进行<code>count</code>，查看是否有重复数据</p>
-<p>例如这张表在转换里源表（from的表）为 <code>ct.st_xxx</code>，那么可以如下，查到重复的数据</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.contract_no, a.stock_account, <span class="built_in">count</span>(<span class="operator">*</span>)</span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
 
-<p>然后，对比该数据，是否完全一致（因为数据可能出现只有主键字段是相同的，但是其他字段不同的情况）</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.<span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">where</span> a.contract_no <span class="operator">=</span> <span class="string">&#x27;查到的contract_no&#x27;</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> <span class="string">&#x27;查到的stock_account&#x27;</span></span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account;</span><br></pre></td></tr></table></figure>
 
-<p>3.1）若一致，则可将目标表里的数据删掉</p>
-<p>3.2）若不一致，应咨询业务，它们是否有区别，根据业务沟通后的方案，将数据备份后，对其更改或删除等操作</p>
-<p>4.对于第二种情况，则需要看转换里，它的<code>insert</code> 或者<code>update</code> 的逻辑，类似：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> table_a (</span><br><span class="line">	col_1,</span><br><span class="line">    col_2,</span><br><span class="line">    ...</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> col_a,</span><br><span class="line">	   col_b,</span><br><span class="line">	   ...</span><br><span class="line">  <span class="keyword">from</span> table_b t1</span><br><span class="line">  <span class="keyword">join</span> table_c t2</span><br><span class="line">    <span class="keyword">on</span> t1.col_a <span class="operator">=</span> t2.col_a</span><br><span class="line">   <span class="keyword">and</span> t1.col_b <span class="operator">=</span> t2.col_b;</span><br></pre></td></tr></table></figure>
 
-<p>然后对关联条件进行检查，看看是不是关联条件出现了 <code>1:N</code> <code>N:N</code> 的情况，如果是，则根据代码的逻辑，对该数据产生的原因进行定位，根据实际情况进行解决。</p>
+<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
+<p>当时尝试了很多</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
+<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
+
+<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
+<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
+<p>查看本地库的NLS_LANGUAGE参数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
+
+<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
+<p>在本地尝试</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
+
+
+
+<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
+<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
 ]]></content>
       <categories>
         <category>数据库</category>
       </categories>
       <tags>
         <tag>SQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>kafka-基础知识与实际项目的问题</title>
+    <url>/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>最近异常交易的项目中，使用到了<code>kafka</code> ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触<code>kafka</code> ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用<code>kafka</code> 读取数据，做一个流式处理，供下游应用使用数据。</p>
+<span id="more"></span>
+
+<h2 id="kafka-主要组件"><a href="#kafka-主要组件" class="headerlink" title="kafka 主要组件"></a>kafka 主要组件</h2><h3 id="1-broker-服务器"><a href="#1-broker-服务器" class="headerlink" title="1 broker  服务器"></a>1 broker  服务器</h3><p>kafka集群的服务器，一台服务器就是一个 broker 。</p>
+<h3 id="2-producer-生产者"><a href="#2-producer-生产者" class="headerlink" title="2 producer 生产者"></a>2 producer 生产者</h3><p>producer 主要是用于生产消息，是 kafka 当中的消息生产者，生产的消息通过 topic 进行归类，保存到 kafka 的 broker 里面去。</p>
+<p>项目上我们的数据平台就是作为一个生产者，通过将上游数据推送到topic里。</p>
+<h3 id="3-topic-主题"><a href="#3-topic-主题" class="headerlink" title="3 topic 主题"></a>3 topic 主题</h3><p>kafka 将消息（数据）以 topic 为单位进行归类。在项目里边，一张表推到一个 topic ，需要推几张表就是建几个 topic 。</p>
+<h3 id="4-partition-分区"><a href="#4-partition-分区" class="headerlink" title="4 partition 分区"></a>4 partition 分区</h3><p>kafka 里，一个 topic 是可以有多个分区。比如说创建一个有 3 个分区的 topic ，那么整个 topic 的数据都存放在这 3 个分区内（就是说每个分区都存放一部分 topic 的数据）。</p>
+<h3 id="5-consumer-消费者"><a href="#5-consumer-消费者" class="headerlink" title="5 consumer 消费者"></a>5 consumer 消费者</h3><p>消费者主要就是消费 kafka topic 里的数据</p>
+<h3 id="6-consumer-group-消费者"><a href="#6-consumer-group-消费者" class="headerlink" title="6 consumer group 消费者"></a>6 consumer group 消费者</h3><p>消费者组里可以有多个消费者，同一个组里的消费者，对于同一条数据，只能消费 1 次。</p>
+<p>比如：一个消费者组里有 A 和 B 两个消费者，A 消费了 topic 里的第一条数据，那么 B 就无法消费该 topic 里的第一条数据，因为已经被消费过了。</p>
+<p>但是不同的消费者组，还是可以共同消费某个 topic 里的数据的。</p>
+<h4 id="6-1-消费者组与分区的关系"><a href="#6-1-消费者组与分区的关系" class="headerlink" title="6.1 消费者组与分区的关系"></a>6.1 消费者组与分区的关系</h4><img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624230047447.png" class="" title="image-20240624230047447">
+
+<p>如果 topic 只有 2 个分区，消费者组里有 4 个消费者，那么也只能供 2 个消费者消费。</p>
+<p>如果 topic 有 4 个分区，消费者组里的 4 个消费者都能消费数据，并发量就上来了。</p>
+<p>所以 topic 里的分区越多，消费的并发越高，处理速度也越快。</p>
+<h3 id="7-partition-replicas-分区副本"><a href="#7-partition-replicas-分区副本" class="headerlink" title="7 partition replicas 分区副本"></a>7 partition replicas 分区副本</h3><p>每个分区的副本，用来控制数据保存在几个 broker 服务器上，通常是几台 broker 就设置几个副本。</p>
+<h3 id="8-segment-文件"><a href="#8-segment-文件" class="headerlink" title="8 segment 文件"></a>8 segment 文件</h3><p>一个 partition 分区中由多个 segment 文件组成的。每个 segment 文件又包含了 <code>.log</code> 文件和<code>.index</code> 文件，<code>.log</code> 文件是存放推送的数据，<code>.index</code> 文件存放数据的索引值，用来加快数据的查询速度的。</p>
+<p><code>.index</code> 文件里存的索引值，是与<code>.log</code>文件里的数据位置是对应的。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># .index 是 key-value 存放方式</span></span><br><span class="line"><span class="number">1</span>,<span class="number">0</span>	<span class="comment"># 对应 .log 的第一条数据，值是0</span></span><br><span class="line"><span class="number">2</span>,<span class="number">2</span>	<span class="comment"># 对应 .log 的第二条数据，值是2</span></span><br><span class="line"><span class="number">3</span>,<span class="number">9</span>	<span class="comment"># 对应 .log 的第三条数据，值是9</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>.log</code> 文件里会记录<code>offset</code> 偏移量，用于标记消费者读取消息的位置。</p>
+<h2 id="kafka-基础操作"><a href="#kafka-基础操作" class="headerlink" title="kafka 基础操作"></a>kafka 基础操作</h2><h3 id="1-kafka启停"><a href="#1-kafka启停" class="headerlink" title="1 kafka启停"></a>1 kafka启停</h3><p>kafka 与 zookeeper 强依赖，启动 kafka 之前必须先启动 zookeeper ，否则会报错的</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># zookeeper 启动，后边接配置文件</span></span><br><span class="line">./zookeeper-server-start.sh ../config/zookeeper.properties</span><br><span class="line"><span class="comment"># zookeeper 停止</span></span><br><span class="line">./zookeeper-server-stop.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># kafka 启动，后边接配置文件</span></span><br><span class="line">./kafka-server-start.sh ../config/server.properties</span><br><span class="line"><span class="comment"># kafka 停止</span></span><br><span class="line">./kafka-server-stop.sh</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234319800.png" class="" title="image-20240624234319800">
+
+
+
+<h3 id="2-创建-topic"><a href="#2-创建-topic" class="headerlink" title="2 创建 topic"></a>2 创建 topic</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建语句 模板</span></span><br><span class="line">./kafka-topics.sh --create --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --replication-factor <span class="number">1</span> --partitions <span class="number">1</span> --topic topic_name</span><br><span class="line"><span class="comment"># bootstrap-server 指定 kafka 服务器地址和端口</span></span><br><span class="line"><span class="comment"># replication-factor 指定分区的副本个数</span></span><br><span class="line"><span class="comment"># partitions 指定topic的分区个数</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="2-1-删除-topic"><a href="#2-1-删除-topic" class="headerlink" title="2.1 删除 topic"></a>2.1 删除 topic</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --<span class="keyword">delete</span> --topic topic_name</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-2-增加-topic-partition"><a href="#2-2-增加-topic-partition" class="headerlink" title="2.2 增加 topic partition"></a>2.2 增加 topic partition</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --zookeeper <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --alter --topic topic_name --partition <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-查看-topic-数据"><a href="#3-查看-topic-数据" class="headerlink" title="3 查看 topic 数据"></a>3 查看 topic 数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-console-consumer.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --topic your_topic_name --from-beginning [--max-messages <span class="number">10</span>]</span><br><span class="line"><span class="comment"># --max-messages 查看几条消息</span></span><br><span class="line"><span class="comment"># --from-beginning 查看最新的消息</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-查询-topic-列表"><a href="#4-查询-topic-列表" class="headerlink" title="4 查询 topic 列表"></a>4 查询 topic 列表</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --list --zookeeper localhost</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="kafka-相关问题及解决方案"><a href="#kafka-相关问题及解决方案" class="headerlink" title="kafka 相关问题及解决方案"></a>kafka 相关问题及解决方案</h2><h3 id="1-报错-Error-while-fetching-metadata-with-correlation-id"><a href="#1-报错-Error-while-fetching-metadata-with-correlation-id" class="headerlink" title="1 报错 Error while fetching metadata with correlation id"></a>1 报错 Error while fetching metadata with correlation id</h3><p>这个报错是在 kafka 查看 topic 里的数据时，出现的错误。查了下资料，它是无法识别到 hostname 导致。</p>
+<p><strong>解决方案：</strong></p>
+<p>修改 <code>server.properties</code> 配置文件，增加 listeners 。默认的配置是没有这两行的，手动加上。</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234112411.png" class="" title="image-20240624234112411">
+
+
+
+<h3 id="2-报错-exiting-abnormally"><a href="#2-报错-exiting-abnormally" class="headerlink" title="2 报错 exiting abnormally"></a>2 报错 exiting abnormally</h3><p>这个是在启动 zookeeper 的时候出现，报错如下图所示：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234427279.png" class="" title="image-20240624234427279">
+
+<p><strong>解决方案：</strong></p>
+<p>在<code>zookeeper.properties</code>配置文件中，有个 <code>dataDir=/path</code> ，把 <code>/path</code> 路径下的<code>version-2</code> 文件夹删掉，然后重新启动即可。</p>
+<h3 id="3-报错-during-kafkaserver-startup"><a href="#3-报错-during-kafkaserver-startup" class="headerlink" title="3 报错 during kafkaserver startup"></a>3 报错 during kafkaserver startup</h3><p>启动 kafka 的时候出现，报错如下图所示：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234731914.png" class="" title="image-20240624234731914">
+
+<p>注意这个：</p>
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234814208.png" class="" title="image-20240624234814208">
+
+<p>由于启动的 id 和 <code>meta.properties</code> 里边的 id 不一致导致报错。通常是因为关闭 kafka 的时候出现了异常（虽然不知道有什么异常）</p>
+<p><strong>解决方案：</strong></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找到该文件</span></span><br><span class="line">find / -name <span class="string">&quot;meta.properties&quot;</span></span><br><span class="line"><span class="comment"># 修改里边的 cluster.id= 一串字符串id</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624235112007.png" class="" title="image-20240624235112007">
+
+<p>修改为报错里出现的那个括号里的一串id即可。</p>
+<h3 id="4-新增消费者组时数据显示不一致"><a href="#4-新增消费者组时数据显示不一致" class="headerlink" title="4 新增消费者组时数据显示不一致"></a>4 新增消费者组时数据显示不一致</h3><p>在做迁移的时候，为了对比迁移前后的数据量是否一致。在迁移后的环境中新增一个消费者组 B，用来消费同一个 topic 数据，发现跟迁移前的消费者组 A 的数据不一致。</p>
+<p>消费者组A的数据是当天的数据，但是消费者组B的数据却是几天前的。为啥？</p>
+<p>kafka每个消费者组都是独立消费数据，只要是消费同一个 topic，那么数据肯定是一致的。由于一般 kafka 的配置是保留 7 天的数据，所以在新增的消费者组消费同一个 topic 时，它会重头开始消费，即从所以就出现了，消费者组B里是几天前的数据，这是无可避免的。</p>
+<h3 id="5-配置流水字段"><a href="#5-配置流水字段" class="headerlink" title="5 配置流水字段"></a>5 配置流水字段</h3><p>由于当时第一次配置的时候，没有配置流水字段，导致了推送数据到 kafka topic 的任务，每次实时推送全量数据过去，导致了数据平台每次启动推送 kafka 的任务，就会迅速占满服务器内存，然后应用挂掉。</p>
+<p>后边加入流水字段，将任务配置为增量推送，内存占比就好了很多。</p>
+<p>通常是用线性递增的字段，作为流水字段。比如，实时成交表里有成交时间，委托流水表里有委托时间。</p>
+<h3 id="6-配置主键"><a href="#6-配置主键" class="headerlink" title="6 配置主键"></a>6 配置主键</h3><p>通过配置主键用来去重，避免推送重复数据到 topic 里。比如：实时成交表里的成交编号，委托流水表里的委托编号，编号是唯一的，那么可以使用编号作为主键。</p>
+]]></content>
+      <categories>
+        <category>大数据</category>
+        <category>kafka</category>
+      </categories>
+      <tags>
+        <tag>kafka</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>主备集群-达梦数据库数据守护（一）</title>
+    <url>/2024/07/21/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4/</url>
+    <content><![CDATA[<p>为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。</p>
+<p>总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。</p>
+<span id="more"></span>
+
+<h1 id="达梦数据守护概念"><a href="#达梦数据守护概念" class="headerlink" title="达梦数据守护概念"></a>达梦数据守护概念</h1><p>达梦数据守护，为数据库容灾方案，通过数据库主备集群，进行实时主备切换，在主库出现异常时，自带切换备库对应用提供数据库服务。</p>
+<h2 id="数据守护原理"><a href="#数据守护原理" class="headerlink" title="数据守护原理"></a>数据守护原理</h2><p>DM数据守护 <code>DM DATA WATCH</code> 原理：</p>
+<p>主库产生的 <code>Redo</code> 日志 &gt;&gt; 传到备库 &gt;&gt; 备库重演 <code>Redo</code> 日志，实现主备库数据同步</p>
+<h2 id="数据守护组成"><a href="#数据守护组成" class="headerlink" title="数据守护组成"></a>数据守护组成</h2><ul>
+<li><p>主库</p>
+</li>
+<li><p>备库</p>
+</li>
+<li><p>Redo 日志</p>
+</li>
+<li><p>Redo 日志传输</p>
+</li>
+<li><p>Redo 日志重演</p>
+</li>
+<li><p>守护进程 DmWatcher</p>
+</li>
+<li><p>监视器 DmMonitor</p>
+</li>
+</ul>
+<h3 id="主库"><a href="#主库" class="headerlink" title="主库"></a>主库</h3><p>主库使用 <code>Primary</code> 模式，有完整的数据库服务</p>
+<h3 id="备库"><a href="#备库" class="headerlink" title="备库"></a>备库</h3><p>使用 <code>Standby</code> 模式，提供只读服务</p>
+<h3 id="Redo-日志"><a href="#Redo-日志" class="headerlink" title="Redo 日志"></a>Redo 日志</h3><p><code>Redo</code> 日志里，记录了物理数据页内容变动的情况（在部署时，确定页大小，就是为了单页能够记录更多的内容）</p>
+<p>Inert \ Update \ Delete \ Create 等 <code>DML</code> 和 <code>DDL</code> 操作都会记录到 Redo 日志里</p>
+<h3 id="Redo-日志重演"><a href="#Redo-日志重演" class="headerlink" title="Redo 日志重演"></a>Redo 日志重演</h3><p>达梦有专门的 Redo 日志重演的服务</p>
+<h3 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h3><p><code>DmWatcher</code> 用来监控数据库实例的运行状态和主备库同步情况的，它接收各种消息（数据库实例、监视器的消息）</p>
+<h3 id="监视器"><a href="#监视器" class="headerlink" title="监视器"></a>监视器</h3><p><code>DmMonitor</code> 用来监控守护进程、数据库实例的信息，监控实例故障、自动切换主备的。</p>
+<p>现有的接触项目的情况，是没有这个的，监视器需要单独一台服务器，来监控数据库实例和守护进程。</p>
+<p>不过要是配置在数据库服务器上，应该也是可以的，就是服务器不能异常就行，这种情况只允许进程异常。</p>
+<p>普通的项目，通常是一主一备，并没有多余的机器部署 <code>DmMonitor</code> ，所以还是不能实现主备自动切换的，只能手动切换主备</p>
+<h2 id="数据库与数据库实例"><a href="#数据库与数据库实例" class="headerlink" title="数据库与数据库实例"></a>数据库与数据库实例</h2><p>数据库是一个文件集合，包括数据文件、日志文件、控制文件等，保存在磁盘中</p>
+<p>数据库实例，则是一个操作系统进程。通过数据库实例来操作数据库（说白了，我们只需要操作实例，实例会对数据库进行操作）</p>
+<h2 id="数据守护需要了解的基本概念"><a href="#数据守护需要了解的基本概念" class="headerlink" title="数据守护需要了解的基本概念"></a>数据守护需要了解的基本概念</h2><h3 id="数据库模式"><a href="#数据库模式" class="headerlink" title="数据库模式"></a>数据库模式</h3><ul>
+<li>Normal 模式</li>
+<li>Primary 模式</li>
+<li>Standby 模式</li>
+</ul>
+<h4 id="Normal-模式"><a href="#Normal-模式" class="headerlink" title="Normal 模式"></a>Normal 模式</h4><p>正常模式，操作没有限制</p>
+<p>生成本地归档</p>
+<h4 id="Primary-模式"><a href="#Primary-模式" class="headerlink" title="Primary 模式"></a>Primary 模式</h4><p>主库的模式</p>
+<p>不支持修改表空间文件名，不支持修改归档 <code>arch_ini</code> 参数</p>
+<p>生成本地归档，支持实时归档、即时归档、异步归档</p>
+<p>临时表空间以外的所有操作都生成 <code>Redo</code> 日志</p>
+<h4 id="Standby-模式"><a href="#Standby-模式" class="headerlink" title="Standby 模式"></a>Standby 模式</h4><p>备库模式，只读模式</p>
+<h4 id="数据库模式切换"><a href="#数据库模式切换" class="headerlink" title="数据库模式切换"></a>数据库模式切换</h4><p>在数据库服务器上，进入 <code>disql as SYSDBA/SYSDBA</code>  ，使用 <code>SQL</code> 语句切换</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 先将数据库切换为 Mount 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE MOUNT;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 切换为 Primary 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">PRIMARY</span>;</span><br><span class="line"><span class="comment">-- 切换为 Standby 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE STANDBY;</span><br><span class="line"><span class="comment">-- 切换为 Normal 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE NORMAL;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 执行完毕后将数据库实例打开</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="数据库状态"><a href="#数据库状态" class="headerlink" title="数据库状态"></a>数据库状态</h3><ul>
+<li><p>Startup 状态</p>
+</li>
+<li><p>After Redo 状态</p>
+</li>
+<li><p>Open 状态</p>
+</li>
+<li><p>Mount 状态</p>
+</li>
+<li><p>Suspend 状态</p>
+</li>
+<li><p>Shutdown 状态</p>
+</li>
+</ul>
+<h4 id="Mount-状态"><a href="#Mount-状态" class="headerlink" title="Mount 状态"></a>Mount 状态</h4><p>这个状态下，不能修改数据，不能访问数据库对象</p>
+<p>可以执行<strong>修改归档配置、控制文件、修改数据库模式</strong></p>
+<p>修改为 <code>Mount</code> 状态时，会回滚所有活动事务，已提交事务不影响</p>
+<h4 id="Startup-状态"><a href="#Startup-状态" class="headerlink" title="Startup 状态"></a>Startup 状态</h4><p>数据库刚启动时默认为这个状态</p>
+<h4 id="Open-状态"><a href="#Open-状态" class="headerlink" title="Open 状态"></a>Open 状态</h4><p>这个状态，数据库才会正常提供服务</p>
+<p>这个状态不能归档操作</p>
+<h4 id="Suspend-状态"><a href="#Suspend-状态" class="headerlink" title="Suspend 状态"></a>Suspend 状态</h4><p>一般是修改归档状态之前将系统切换为 <code>Suspend</code> 状态，它不会像 <code>Mount</code> 状态那样回滚所有活动事务，而是切换后所有事务可以继续执行</p>
+<h4 id="Shutdown-状态"><a href="#Shutdown-状态" class="headerlink" title="Shutdown 状态"></a>Shutdown 状态</h4><p>服务退出</p>
+<h4 id="数据库状态切换"><a href="#数据库状态切换" class="headerlink" title="数据库状态切换"></a>数据库状态切换</h4><p>也是通过 <code>SQL</code> 语句切换，先进入 <code>disql as SYSDBA/SYSDBA</code> </p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 修改为 Open 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span>;</span><br><span class="line"><span class="comment">-- 如果当前处于 Primary \ Standby 模式，则需要加上 Force 子句</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span> FORCE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改为 Mount 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE MOUNT;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="Redo-日志-1"><a href="#Redo-日志-1" class="headerlink" title="Redo 日志"></a>Redo 日志</h3><p>就前边说的，包括了 DML 和 DDL 操作的记录</p>
+<h4 id="Redo-日志包"><a href="#Redo-日志包" class="headerlink" title="Redo 日志包"></a>Redo 日志包</h4><p><code>RLOG_PKG</code> Redo日志包，主句发送日志到备库，就是通过日志包的形式发送的</p>
+<h4 id="联机-Redo-日志文件"><a href="#联机-Redo-日志文件" class="headerlink" title="联机 Redo 日志文件"></a>联机 Redo 日志文件</h4><p>达梦数据库初始化实例后，是默认有两个联机 Redo 日志文件：<code>DAMENG01.log</code> <code>DAMENG02.log</code> </p>
+<p>01 是 Redo 日志主文件</p>
+<h3 id="归档"><a href="#归档" class="headerlink" title="归档"></a>归档</h3><ul>
+<li>本地归档</li>
+<li>远程归档</li>
+<li>实时归档</li>
+<li>即时归档</li>
+<li>异步归档</li>
+<li>同步归档</li>
+</ul>
+<p>归档模式的不同，只是在于发送 Redo 日志到备库的时机不同</p>
+<h4 id="本地归档"><a href="#本地归档" class="headerlink" title="本地归档"></a>本地归档</h4><p>归档文件其实保存的就是 Redo 日志</p>
+<p>在本地归档情况下，Normal 、Primary 模式在 Redo 日志写入联机 Redo 日志文件后，由 Redo 日志包 <code>RLOG_PKG</code></p>
+<p>写入本地归档日志文件中，Standby 模式则是直接写到本地归档日志中</p>
+<p>归档日志一般在 <code>arch</code> 目录，配置了归档才有</p>
+<p>归档日志文件是不能覆盖的，每天都会生成很多份归档日志文件，而且是不会主动删掉的，如果删掉最好配置归档日志空间上限（配置后，系统会自动删除早期的归档日志文件）</p>
+<p>但是在守护系统中，如果删除归档文件，需要主备都同时删，否则会发生备库接收到的日志缺失，导致主备库无法正常同步数据</p>
+<h4 id="实时归档"><a href="#实时归档" class="headerlink" title="实时归档"></a>实时归档</h4><p>本地归档是写入磁盘中的日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
+<p>实时归档是将主库产生的 Redo 日志通过 MAL 系统传递到备库</p>
+<p>流程大致：</p>
+<p>主库 Redo 日志 &gt;&gt; 先传到备库并重演 &gt;&gt; 重演完成后，备库响应主库 &gt;&gt; 主库再把 Redo 日志写入联机日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
+<h4 id="即时归档"><a href="#即时归档" class="headerlink" title="即时归档"></a>即时归档</h4><p>主库把 Redo 日志写入联机日志文件 &gt;&gt; 然后再通过 MAL 发生 Redo 日志到备库</p>
+<h1 id="达梦配置文件说明"><a href="#达梦配置文件说明" class="headerlink" title="达梦配置文件说明"></a>达梦配置文件说明</h1><h2 id="端口配置"><a href="#端口配置" class="headerlink" title="端口配置"></a>端口配置</h2><p>在 <code>dm.ini</code> 中有两个参数，用来配置端口：<code>PORT_NUM</code> <code>DW_PORT</code> </p>
+<h3 id="PORT-NUM"><a href="#PORT-NUM" class="headerlink" title="PORT_NUM"></a>PORT_NUM</h3><p>这个参数是实例的监听端口，也就是连接数据库时，需要输入的端口</p>
+<h3 id="DW-PORT"><a href="#DW-PORT" class="headerlink" title="DW_PORT"></a>DW_PORT</h3><p>这个是守护进程的端口，用于守护进程监听数据库</p>
+<h2 id="服务名配置"><a href="#服务名配置" class="headerlink" title="服务名配置"></a>服务名配置</h2><p>看 《DM8数据守护与读写分离集群V4.0.PDF》 5.8 章节</p>
+<h1 id="数据守护的多种方案"><a href="#数据守护的多种方案" class="headerlink" title="数据守护的多种方案"></a>数据守护的多种方案</h1><ul>
+<li>实时主备</li>
+<li>MPP主备</li>
+<li>DMDSC主备</li>
+<li>读写分离集群</li>
+</ul>
+<h2 id="实时主备"><a href="#实时主备" class="headerlink" title="实时主备"></a>实时主备</h2><p>实时主备由一个主库、一个或多个被配了实时归档的备库组成，保障数据库的高可用和数据的安全</p>
+<p>主库提供完整的数据库服务，而备库提供只读服务</p>
+<p>在主库修改的数据，会产生 <code>Redo</code> 日志，通过实时归档机制，发送到备库，然后备库通过重演 <code>Redo</code> 日志，将修改操作在备库执行一遍，依次保持与主库的数据同步</p>
+<p>实时主备系统主要由：主库、备库、守护进程、监视器组成</p>
+<p>但是多数项目中，并没有部署监视器，都是主备库 + 守护进程的模式</p>
+<p>监视器是能在故障发生时自动切换主备的</p>
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>信创</category>
+      </categories>
+      <tags>
+        <tag>达梦</tag>
       </tags>
   </entry>
   <entry>
@@ -709,75 +1006,183 @@
       </tags>
   </entry>
   <entry>
-    <title>SQL-日期时间转换问题</title>
-    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
-<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
-<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
+    <title>实施部署-达梦数据库linux版的安装（二）</title>
+    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
+<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
 <span id="more"></span>
 
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
-<p>查看上游的数据，交易时间为：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
-
-<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
-<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
-
-<p>然后再将利用<code>to_date</code> 进行转换</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
-
-<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
+<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
+<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
+<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
 
 
 
-<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
-<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
-<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
-<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
+
+<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
 
 
 
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
 
 
 
-<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
-<p>当时尝试了很多</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
+<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
 
 
 
-<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
-<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
+<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
 
-<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
-<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
-<p>查看本地库的NLS_LANGUAGE参数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
+<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
 
-<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
-<p>在本地尝试</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
 
 
 
-<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
-<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
+<p>显示安装结束后，切换到root用户</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
+<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
+<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># -t dmserver 就是达梦自己的server服务</span></span><br><span class="line"><span class="comment"># -p DMSERVER 这个就是数据库服务的名称，执行上边命令就是生成了 DmServiceDMSERVER 的命令</span></span><br><span class="line"><span class="comment"># 如果 -p DMtest 就会生成 DmServiceDMtest 的命令</span></span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
+
+<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
+<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
+<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
+<p>必须使用 <code>root</code> 用户，先把数据库服务先关掉</p>
+<p><code>./dm_service_uninstaller.sh -n DmServiceDMSERVER</code> 这里的实例名，主要是看 bin 目录中是用哪个命令来启动的，这个命令通常就是这个服务的名称</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -n DmServiceDMSERVER</span></span><br></pre></td></tr></table></figure>
+
+<p>然后把对应的实例数据目录删除即可</p>
+<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
+<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
+<p>或者上传任意目录，使用cp命令替换</p>
+<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
+
+
+
+<p>生产上，一般会安装达梦的监控守护模式</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
+<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>配置说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>LOGIN_MODE</th>
+<th>服务名方式登录，始终会优先登录主库；</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LOGIN_MODE</td>
+<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_TIME</td>
+<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_INTERVAL</td>
+<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
+</tr>
+</tbody></table>
 ]]></content>
       <categories>
-        <category>数据库</category>
+        <category>实施部署</category>
+        <category>信创</category>
       </categories>
       <tags>
-        <tag>SQL</tag>
+        <tag>达梦</tag>
+        <tag>实施</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>经验杂谈-面对个性化的产品如何下手</title>
+    <url>/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/</url>
+    <content><![CDATA[<p>《吐槽一下，让心情发泄一下》</p>
+<p>今天在工作的时候，烦恼的时候突然蹦出来一个思路。针对单个功能个性化的思路。</p>
+<p>现在的工作的公司，多数都是靠着个性化服务来做产品，导致了一个产品的标准版，到了客户现场环境，会根据客户的实际使用要求，对产品的功能、转换去做个性化开发。导致了刚到现场接触这个产品的时候常常因为困惑感到无从下手。</p>
+<span id="more"></span>
+
+<p>特别是，一上来就让你排查生产问题的时候。。。。</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212748892.png" class="" title="image-20240604212748892">
+
+<p>但是表面还是要装作很谈定，装作很熟悉的样子，打开控制台，看看功能背后用了什么支持的文件或者代码，，，</p>
+<p>打开数据库看看对应的SP，看看主表join表有没有数据，关联条件是不是导致了数据重复，会不会过滤掉部分数据，看看where条件是不是把数据过滤掉，，，</p>
+<p>看看上游数据是不是正常的，转换后数据是不是正常的，，，</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604213252623.png" class="" title="image-20240604213252623">
+
+
+
+
+
+<p> 一个经过多年完善的产品，越成熟意味着越复杂。刚进公司的第一年，做着游走打支援的活，基本是哪里有活就去哪，哪里缺人手就去哪。做多以后呢，好像上级对我的要求就一下子就拔高了？？？总是会默认你是会的。这一点就很奇怪，支援式的工作，无法有长久的时间去深入了解一个产品。特别是一些反洗钱、异常交易这种与业务勾稽关系多，模块又多的产品。<del>因为公司对这些产品是没有文档介绍的（至少我没见过，辣鸡）~~~~做了一年半没见过公司的标准版产品长啥样，现场实施的痛！</del></p>
+<p>没接触一个项目得自己摸索，摸索一点门道，还没咋熟悉，又换一个项目（对于我而言是新的），特别是公司极度缺人，交接也没交接，技术支持也没有，内心：</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212459209.png" class="" title="image-20240604212459209">
+
+
+
+<p>而且每天都在苦恼业务的提问<del>刁难！</del>，心里只有：</p>
+<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212233306.png" class="" title="image-20240604212233306">
+
+
+
+
+
+
+
+<p>之前在看期货风险度监控的时候，这个功能总是只出了一个来源期货数仓的期货账户数据，还有好几个O32的期货账户数据监控不出来，纳闷了好久，里边三段逻辑有一段限制了日期，有一段限制了账户，只有一段是没有做限制的。</p>
+<p>上一个人做了一半，就走了。。。</p>
+<p>我就被急急忙忙拉过来继续完成上一个人的工作，我也不知道现场这边是怎么做的，反正看仿真环境代码里有2个限制，再对比一下生产环境，好家伙，也有2个限制。我也不知道一段限制日期，一段限制账户。看着生产也这样，想想接触的个性化的转换代码，功能代码多了去了。只是当这是个性化的一部分。</p>
+<p>为了能让其他的期货账户的数据被监控出来，我前前后后看了上游数据、转换后的数据、以及业务表的数据，看了转换的条件，看了监控的逻辑条件。纳闷，代码、数据没什么问题啊，为什么没出来。。。</p>
+<p>怎么我一来就没数据。没做完，又被拉去做另一个更紧急的项目上了，这个就搁置了。</p>
+<p>今天又过去，继续看。找了熟悉现场的同事问了问，同事已经不记得了。问了产品部，产品部答复该代码非标准版代码，应该为现场实施修改的，具体需要咨询现场的实施。</p>
+<p>卧槽，哪还有人咨询。</p>
+<p>后边我突然想到，我也没见过标准版代码是啥，我找产品部拿不就好了，我之前咋脑子不灵光</p>
+<p>看了标准版，代码里没有对期货账户做限制，这里为啥要限制，尝试注释掉，然后重新跑一下监控，其他期货账户数据被监控出来。。。。</p>
+<p>啊~</p>
+<p><strong>以后遇到个性化的代码，一定先跟标准版对比，然后去问熟悉的人（同事或者客户）看看为什么要这么做个性化，搞懂原因后，看这个代码就顺眼多了，问题自然好解决。</strong></p>
+]]></content>
+      <categories>
+        <category>工作思考</category>
+      </categories>
+      <tags>
+        <tag>经验记录</tag>
       </tags>
   </entry>
   <entry>
@@ -1121,8 +1526,8 @@
         <category>信创</category>
       </categories>
       <tags>
-        <tag>实施</tag>
         <tag>达梦</tag>
+        <tag>实施</tag>
       </tags>
   </entry>
   <entry>
@@ -1362,98 +1767,6 @@
       </tags>
   </entry>
   <entry>
-    <title>kafka-基础知识与实际项目的问题</title>
-    <url>/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p>最近异常交易的项目中，使用到了<code>kafka</code> ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触<code>kafka</code> ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用<code>kafka</code> 读取数据，做一个流式处理，供下游应用使用数据。</p>
-<span id="more"></span>
-
-<h2 id="kafka-主要组件"><a href="#kafka-主要组件" class="headerlink" title="kafka 主要组件"></a>kafka 主要组件</h2><h3 id="1-broker-服务器"><a href="#1-broker-服务器" class="headerlink" title="1 broker  服务器"></a>1 broker  服务器</h3><p>kafka集群的服务器，一台服务器就是一个 broker 。</p>
-<h3 id="2-producer-生产者"><a href="#2-producer-生产者" class="headerlink" title="2 producer 生产者"></a>2 producer 生产者</h3><p>producer 主要是用于生产消息，是 kafka 当中的消息生产者，生产的消息通过 topic 进行归类，保存到 kafka 的 broker 里面去。</p>
-<p>项目上我们的数据平台就是作为一个生产者，通过将上游数据推送到topic里。</p>
-<h3 id="3-topic-主题"><a href="#3-topic-主题" class="headerlink" title="3 topic 主题"></a>3 topic 主题</h3><p>kafka 将消息（数据）以 topic 为单位进行归类。在项目里边，一张表推到一个 topic ，需要推几张表就是建几个 topic 。</p>
-<h3 id="4-partition-分区"><a href="#4-partition-分区" class="headerlink" title="4 partition 分区"></a>4 partition 分区</h3><p>kafka 里，一个 topic 是可以有多个分区。比如说创建一个有 3 个分区的 topic ，那么整个 topic 的数据都存放在这 3 个分区内（就是说每个分区都存放一部分 topic 的数据）。</p>
-<h3 id="5-consumer-消费者"><a href="#5-consumer-消费者" class="headerlink" title="5 consumer 消费者"></a>5 consumer 消费者</h3><p>消费者主要就是消费 kafka topic 里的数据</p>
-<h3 id="6-consumer-group-消费者"><a href="#6-consumer-group-消费者" class="headerlink" title="6 consumer group 消费者"></a>6 consumer group 消费者</h3><p>消费者组里可以有多个消费者，同一个组里的消费者，对于同一条数据，只能消费 1 次。</p>
-<p>比如：一个消费者组里有 A 和 B 两个消费者，A 消费了 topic 里的第一条数据，那么 B 就无法消费该 topic 里的第一条数据，因为已经被消费过了。</p>
-<p>但是不同的消费者组，还是可以共同消费某个 topic 里的数据的。</p>
-<h4 id="6-1-消费者组与分区的关系"><a href="#6-1-消费者组与分区的关系" class="headerlink" title="6.1 消费者组与分区的关系"></a>6.1 消费者组与分区的关系</h4><img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624230047447.png" class="" title="image-20240624230047447">
-
-<p>如果 topic 只有 2 个分区，消费者组里有 4 个消费者，那么也只能供 2 个消费者消费。</p>
-<p>如果 topic 有 4 个分区，消费者组里的 4 个消费者都能消费数据，并发量就上来了。</p>
-<p>所以 topic 里的分区越多，消费的并发越高，处理速度也越快。</p>
-<h3 id="7-partition-replicas-分区副本"><a href="#7-partition-replicas-分区副本" class="headerlink" title="7 partition replicas 分区副本"></a>7 partition replicas 分区副本</h3><p>每个分区的副本，用来控制数据保存在几个 broker 服务器上，通常是几台 broker 就设置几个副本。</p>
-<h3 id="8-segment-文件"><a href="#8-segment-文件" class="headerlink" title="8 segment 文件"></a>8 segment 文件</h3><p>一个 partition 分区中由多个 segment 文件组成的。每个 segment 文件又包含了 <code>.log</code> 文件和<code>.index</code> 文件，<code>.log</code> 文件是存放推送的数据，<code>.index</code> 文件存放数据的索引值，用来加快数据的查询速度的。</p>
-<p><code>.index</code> 文件里存的索引值，是与<code>.log</code>文件里的数据位置是对应的。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># .index 是 key-value 存放方式</span></span><br><span class="line"><span class="number">1</span>,<span class="number">0</span>	<span class="comment"># 对应 .log 的第一条数据，值是0</span></span><br><span class="line"><span class="number">2</span>,<span class="number">2</span>	<span class="comment"># 对应 .log 的第二条数据，值是2</span></span><br><span class="line"><span class="number">3</span>,<span class="number">9</span>	<span class="comment"># 对应 .log 的第三条数据，值是9</span></span><br></pre></td></tr></table></figure>
-
-
-
-<p><code>.log</code> 文件里会记录<code>offset</code> 偏移量，用于标记消费者读取消息的位置。</p>
-<h2 id="kafka-基础操作"><a href="#kafka-基础操作" class="headerlink" title="kafka 基础操作"></a>kafka 基础操作</h2><h3 id="1-kafka启停"><a href="#1-kafka启停" class="headerlink" title="1 kafka启停"></a>1 kafka启停</h3><p>kafka 与 zookeeper 强依赖，启动 kafka 之前必须先启动 zookeeper ，否则会报错的</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># zookeeper 启动，后边接配置文件</span></span><br><span class="line">./zookeeper-server-start.sh ../config/zookeeper.properties</span><br><span class="line"><span class="comment"># zookeeper 停止</span></span><br><span class="line">./zookeeper-server-stop.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># kafka 启动，后边接配置文件</span></span><br><span class="line">./kafka-server-start.sh ../config/server.properties</span><br><span class="line"><span class="comment"># kafka 停止</span></span><br><span class="line">./kafka-server-stop.sh</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234319800.png" class="" title="image-20240624234319800">
-
-
-
-<h3 id="2-创建-topic"><a href="#2-创建-topic" class="headerlink" title="2 创建 topic"></a>2 创建 topic</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建语句 模板</span></span><br><span class="line">./kafka-topics.sh --create --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --replication-factor <span class="number">1</span> --partitions <span class="number">1</span> --topic topic_name</span><br><span class="line"><span class="comment"># bootstrap-server 指定 kafka 服务器地址和端口</span></span><br><span class="line"><span class="comment"># replication-factor 指定分区的副本个数</span></span><br><span class="line"><span class="comment"># partitions 指定topic的分区个数</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="2-1-删除-topic"><a href="#2-1-删除-topic" class="headerlink" title="2.1 删除 topic"></a>2.1 删除 topic</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --<span class="keyword">delete</span> --topic topic_name</span><br></pre></td></tr></table></figure>
-
-<h4 id="2-2-增加-topic-partition"><a href="#2-2-增加-topic-partition" class="headerlink" title="2.2 增加 topic partition"></a>2.2 增加 topic partition</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --zookeeper <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">2181</span> --alter --topic topic_name --partition <span class="number">2</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-查看-topic-数据"><a href="#3-查看-topic-数据" class="headerlink" title="3 查看 topic 数据"></a>3 查看 topic 数据</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-console-consumer.sh --bootstrap-server <span class="number">10.84</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9092</span> --topic your_topic_name --from-beginning [--max-messages <span class="number">10</span>]</span><br><span class="line"><span class="comment"># --max-messages 查看几条消息</span></span><br><span class="line"><span class="comment"># --from-beginning 查看最新的消息</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-查询-topic-列表"><a href="#4-查询-topic-列表" class="headerlink" title="4 查询 topic 列表"></a>4 查询 topic 列表</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">./kafka-topics.sh --list --zookeeper localhost</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="kafka-相关问题及解决方案"><a href="#kafka-相关问题及解决方案" class="headerlink" title="kafka 相关问题及解决方案"></a>kafka 相关问题及解决方案</h2><h3 id="1-报错-Error-while-fetching-metadata-with-correlation-id"><a href="#1-报错-Error-while-fetching-metadata-with-correlation-id" class="headerlink" title="1 报错 Error while fetching metadata with correlation id"></a>1 报错 Error while fetching metadata with correlation id</h3><p>这个报错是在 kafka 查看 topic 里的数据时，出现的错误。查了下资料，它是无法识别到 hostname 导致。</p>
-<p><strong>解决方案：</strong></p>
-<p>修改 <code>server.properties</code> 配置文件，增加 listeners 。默认的配置是没有这两行的，手动加上。</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234112411.png" class="" title="image-20240624234112411">
-
-
-
-<h3 id="2-报错-exiting-abnormally"><a href="#2-报错-exiting-abnormally" class="headerlink" title="2 报错 exiting abnormally"></a>2 报错 exiting abnormally</h3><p>这个是在启动 zookeeper 的时候出现，报错如下图所示：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234427279.png" class="" title="image-20240624234427279">
-
-<p><strong>解决方案：</strong></p>
-<p>在<code>zookeeper.properties</code>配置文件中，有个 <code>dataDir=/path</code> ，把 <code>/path</code> 路径下的<code>version-2</code> 文件夹删掉，然后重新启动即可。</p>
-<h3 id="3-报错-during-kafkaserver-startup"><a href="#3-报错-during-kafkaserver-startup" class="headerlink" title="3 报错 during kafkaserver startup"></a>3 报错 during kafkaserver startup</h3><p>启动 kafka 的时候出现，报错如下图所示：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234731914.png" class="" title="image-20240624234731914">
-
-<p>注意这个：</p>
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234814208.png" class="" title="image-20240624234814208">
-
-<p>由于启动的 id 和 <code>meta.properties</code> 里边的 id 不一致导致报错。通常是因为关闭 kafka 的时候出现了异常（虽然不知道有什么异常）</p>
-<p><strong>解决方案：</strong></p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 找到该文件</span></span><br><span class="line">find / -name <span class="string">&quot;meta.properties&quot;</span></span><br><span class="line"><span class="comment"># 修改里边的 cluster.id= 一串字符串id</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624235112007.png" class="" title="image-20240624235112007">
-
-<p>修改为报错里出现的那个括号里的一串id即可。</p>
-<h3 id="4-新增消费者组时数据显示不一致"><a href="#4-新增消费者组时数据显示不一致" class="headerlink" title="4 新增消费者组时数据显示不一致"></a>4 新增消费者组时数据显示不一致</h3><p>在做迁移的时候，为了对比迁移前后的数据量是否一致。在迁移后的环境中新增一个消费者组 B，用来消费同一个 topic 数据，发现跟迁移前的消费者组 A 的数据不一致。</p>
-<p>消费者组A的数据是当天的数据，但是消费者组B的数据却是几天前的。为啥？</p>
-<p>kafka每个消费者组都是独立消费数据，只要是消费同一个 topic，那么数据肯定是一致的。由于一般 kafka 的配置是保留 7 天的数据，所以在新增的消费者组消费同一个 topic 时，它会重头开始消费，即从所以就出现了，消费者组B里是几天前的数据，这是无可避免的。</p>
-<h3 id="5-配置流水字段"><a href="#5-配置流水字段" class="headerlink" title="5 配置流水字段"></a>5 配置流水字段</h3><p>由于当时第一次配置的时候，没有配置流水字段，导致了推送数据到 kafka topic 的任务，每次实时推送全量数据过去，导致了数据平台每次启动推送 kafka 的任务，就会迅速占满服务器内存，然后应用挂掉。</p>
-<p>后边加入流水字段，将任务配置为增量推送，内存占比就好了很多。</p>
-<p>通常是用线性递增的字段，作为流水字段。比如，实时成交表里有成交时间，委托流水表里有委托时间。</p>
-<h3 id="6-配置主键"><a href="#6-配置主键" class="headerlink" title="6 配置主键"></a>6 配置主键</h3><p>通过配置主键用来去重，避免推送重复数据到 topic 里。比如：实时成交表里的成交编号，委托流水表里的委托编号，编号是唯一的，那么可以使用编号作为主键。</p>
-]]></content>
-      <categories>
-        <category>大数据</category>
-        <category>kafka</category>
-      </categories>
-      <tags>
-        <tag>kafka</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>实施部署-信创项目环境搭建准备（一）</title>
     <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</url>
     <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B&#x2F;S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用javascrpit做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。</p>
@@ -1612,319 +1925,6 @@
       </categories>
       <tags>
         <tag>实施</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>经验杂谈-面对个性化的产品如何下手</title>
-    <url>/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/</url>
-    <content><![CDATA[<p>《吐槽一下，让心情发泄一下》</p>
-<p>今天在工作的时候，烦恼的时候突然蹦出来一个思路。针对单个功能个性化的思路。</p>
-<p>现在的工作的公司，多数都是靠着个性化服务来做产品，导致了一个产品的标准版，到了客户现场环境，会根据客户的实际使用要求，对产品的功能、转换去做个性化开发。导致了刚到现场接触这个产品的时候常常因为困惑感到无从下手。</p>
-<span id="more"></span>
-
-<p>特别是，一上来就让你排查生产问题的时候。。。。</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212748892.png" class="" title="image-20240604212748892">
-
-<p>但是表面还是要装作很谈定，装作很熟悉的样子，打开控制台，看看功能背后用了什么支持的文件或者代码，，，</p>
-<p>打开数据库看看对应的SP，看看主表join表有没有数据，关联条件是不是导致了数据重复，会不会过滤掉部分数据，看看where条件是不是把数据过滤掉，，，</p>
-<p>看看上游数据是不是正常的，转换后数据是不是正常的，，，</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604213252623.png" class="" title="image-20240604213252623">
-
-
-
-
-
-<p> 一个经过多年完善的产品，越成熟意味着越复杂。刚进公司的第一年，做着游走打支援的活，基本是哪里有活就去哪，哪里缺人手就去哪。做多以后呢，好像上级对我的要求就一下子就拔高了？？？总是会默认你是会的。这一点就很奇怪，支援式的工作，无法有长久的时间去深入了解一个产品。特别是一些反洗钱、异常交易这种与业务勾稽关系多，模块又多的产品。<del>因为公司对这些产品是没有文档介绍的（至少我没见过，辣鸡）~~~~做了一年半没见过公司的标准版产品长啥样，现场实施的痛！</del></p>
-<p>没接触一个项目得自己摸索，摸索一点门道，还没咋熟悉，又换一个项目（对于我而言是新的），特别是公司极度缺人，交接也没交接，技术支持也没有，内心：</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212459209.png" class="" title="image-20240604212459209">
-
-
-
-<p>而且每天都在苦恼业务的提问<del>刁难！</del>，心里只有：</p>
-<img src="/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/image-20240604212233306.png" class="" title="image-20240604212233306">
-
-
-
-
-
-
-
-<p>之前在看期货风险度监控的时候，这个功能总是只出了一个来源期货数仓的期货账户数据，还有好几个O32的期货账户数据监控不出来，纳闷了好久，里边三段逻辑有一段限制了日期，有一段限制了账户，只有一段是没有做限制的。</p>
-<p>上一个人做了一半，就走了。。。</p>
-<p>我就被急急忙忙拉过来继续完成上一个人的工作，我也不知道现场这边是怎么做的，反正看仿真环境代码里有2个限制，再对比一下生产环境，好家伙，也有2个限制。我也不知道一段限制日期，一段限制账户。看着生产也这样，想想接触的个性化的转换代码，功能代码多了去了。只是当这是个性化的一部分。</p>
-<p>为了能让其他的期货账户的数据被监控出来，我前前后后看了上游数据、转换后的数据、以及业务表的数据，看了转换的条件，看了监控的逻辑条件。纳闷，代码、数据没什么问题啊，为什么没出来。。。</p>
-<p>怎么我一来就没数据。没做完，又被拉去做另一个更紧急的项目上了，这个就搁置了。</p>
-<p>今天又过去，继续看。找了熟悉现场的同事问了问，同事已经不记得了。问了产品部，产品部答复该代码非标准版代码，应该为现场实施修改的，具体需要咨询现场的实施。</p>
-<p>卧槽，哪还有人咨询。</p>
-<p>后边我突然想到，我也没见过标准版代码是啥，我找产品部拿不就好了，我之前咋脑子不灵光</p>
-<p>看了标准版，代码里没有对期货账户做限制，这里为啥要限制，尝试注释掉，然后重新跑一下监控，其他期货账户数据被监控出来。。。。</p>
-<p>啊~</p>
-<p><strong>以后遇到个性化的代码，一定先跟标准版对比，然后去问熟悉的人（同事或者客户）看看为什么要这么做个性化，搞懂原因后，看这个代码就顺眼多了，问题自然好解决。</strong></p>
-]]></content>
-      <categories>
-        <category>工作思考</category>
-      </categories>
-      <tags>
-        <tag>经验记录</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>主备集群-达梦数据库数据守护（一）</title>
-    <url>/2024/07/21/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4/</url>
-    <content><![CDATA[<p>为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。</p>
-<p>总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。</p>
-<span id="more"></span>
-
-<h1 id="达梦数据守护概念"><a href="#达梦数据守护概念" class="headerlink" title="达梦数据守护概念"></a>达梦数据守护概念</h1><p>达梦数据守护，为数据库容灾方案，通过数据库主备集群，进行实时主备切换，在主库出现异常时，自带切换备库对应用提供数据库服务。</p>
-<h2 id="数据守护原理"><a href="#数据守护原理" class="headerlink" title="数据守护原理"></a>数据守护原理</h2><p>DM数据守护 <code>DM DATA WATCH</code> 原理：</p>
-<p>主库产生的 <code>Redo</code> 日志 &gt;&gt; 传到备库 &gt;&gt; 备库重演 <code>Redo</code> 日志，实现主备库数据同步</p>
-<h2 id="数据守护组成"><a href="#数据守护组成" class="headerlink" title="数据守护组成"></a>数据守护组成</h2><ul>
-<li><p>主库</p>
-</li>
-<li><p>备库</p>
-</li>
-<li><p>Redo 日志</p>
-</li>
-<li><p>Redo 日志传输</p>
-</li>
-<li><p>Redo 日志重演</p>
-</li>
-<li><p>守护进程 DmWatcher</p>
-</li>
-<li><p>监视器 DmMonitor</p>
-</li>
-</ul>
-<h3 id="主库"><a href="#主库" class="headerlink" title="主库"></a>主库</h3><p>主库使用 <code>Primary</code> 模式，有完整的数据库服务</p>
-<h3 id="备库"><a href="#备库" class="headerlink" title="备库"></a>备库</h3><p>使用 <code>Standby</code> 模式，提供只读服务</p>
-<h3 id="Redo-日志"><a href="#Redo-日志" class="headerlink" title="Redo 日志"></a>Redo 日志</h3><p><code>Redo</code> 日志里，记录了物理数据页内容变动的情况（在部署时，确定页大小，就是为了单页能够记录更多的内容）</p>
-<p>Inert \ Update \ Delete \ Create 等 <code>DML</code> 和 <code>DDL</code> 操作都会记录到 Redo 日志里</p>
-<h3 id="Redo-日志重演"><a href="#Redo-日志重演" class="headerlink" title="Redo 日志重演"></a>Redo 日志重演</h3><p>达梦有专门的 Redo 日志重演的服务</p>
-<h3 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h3><p><code>DmWatcher</code> 用来监控数据库实例的运行状态和主备库同步情况的，它接收各种消息（数据库实例、监视器的消息）</p>
-<h3 id="监视器"><a href="#监视器" class="headerlink" title="监视器"></a>监视器</h3><p><code>DmMonitor</code> 用来监控守护进程、数据库实例的信息，监控实例故障、自动切换主备的。</p>
-<p>现有的接触项目的情况，是没有这个的，监视器需要单独一台服务器，来监控数据库实例和守护进程。</p>
-<p>不过要是配置在数据库服务器上，应该也是可以的，就是服务器不能异常就行，这种情况只允许进程异常。</p>
-<p>普通的项目，通常是一主一备，并没有多余的机器部署 <code>DmMonitor</code> ，所以还是不能实现主备自动切换的，只能手动切换主备</p>
-<h2 id="数据库与数据库实例"><a href="#数据库与数据库实例" class="headerlink" title="数据库与数据库实例"></a>数据库与数据库实例</h2><p>数据库是一个文件集合，包括数据文件、日志文件、控制文件等，保存在磁盘中</p>
-<p>数据库实例，则是一个操作系统进程。通过数据库实例来操作数据库（说白了，我们只需要操作实例，实例会对数据库进行操作）</p>
-<h2 id="数据守护需要了解的基本概念"><a href="#数据守护需要了解的基本概念" class="headerlink" title="数据守护需要了解的基本概念"></a>数据守护需要了解的基本概念</h2><h3 id="数据库模式"><a href="#数据库模式" class="headerlink" title="数据库模式"></a>数据库模式</h3><ul>
-<li>Normal 模式</li>
-<li>Primary 模式</li>
-<li>Standby 模式</li>
-</ul>
-<h4 id="Normal-模式"><a href="#Normal-模式" class="headerlink" title="Normal 模式"></a>Normal 模式</h4><p>正常模式，操作没有限制</p>
-<p>生成本地归档</p>
-<h4 id="Primary-模式"><a href="#Primary-模式" class="headerlink" title="Primary 模式"></a>Primary 模式</h4><p>主库的模式</p>
-<p>不支持修改表空间文件名，不支持修改归档 <code>arch_ini</code> 参数</p>
-<p>生成本地归档，支持实时归档、即时归档、异步归档</p>
-<p>临时表空间以外的所有操作都生成 <code>Redo</code> 日志</p>
-<h4 id="Standby-模式"><a href="#Standby-模式" class="headerlink" title="Standby 模式"></a>Standby 模式</h4><p>备库模式，只读模式</p>
-<h4 id="数据库模式切换"><a href="#数据库模式切换" class="headerlink" title="数据库模式切换"></a>数据库模式切换</h4><p>在数据库服务器上，进入 <code>disql as SYSDBA/SYSDBA</code>  ，使用 <code>SQL</code> 语句切换</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 先将数据库切换为 Mount 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE MOUNT;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 切换为 Primary 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">PRIMARY</span>;</span><br><span class="line"><span class="comment">-- 切换为 Standby 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE STANDBY;</span><br><span class="line"><span class="comment">-- 切换为 Normal 模式</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE NORMAL;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 执行完毕后将数据库实例打开</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span>;</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="数据库状态"><a href="#数据库状态" class="headerlink" title="数据库状态"></a>数据库状态</h3><ul>
-<li><p>Startup 状态</p>
-</li>
-<li><p>After Redo 状态</p>
-</li>
-<li><p>Open 状态</p>
-</li>
-<li><p>Mount 状态</p>
-</li>
-<li><p>Suspend 状态</p>
-</li>
-<li><p>Shutdown 状态</p>
-</li>
-</ul>
-<h4 id="Mount-状态"><a href="#Mount-状态" class="headerlink" title="Mount 状态"></a>Mount 状态</h4><p>这个状态下，不能修改数据，不能访问数据库对象</p>
-<p>可以执行<strong>修改归档配置、控制文件、修改数据库模式</strong></p>
-<p>修改为 <code>Mount</code> 状态时，会回滚所有活动事务，已提交事务不影响</p>
-<h4 id="Startup-状态"><a href="#Startup-状态" class="headerlink" title="Startup 状态"></a>Startup 状态</h4><p>数据库刚启动时默认为这个状态</p>
-<h4 id="Open-状态"><a href="#Open-状态" class="headerlink" title="Open 状态"></a>Open 状态</h4><p>这个状态，数据库才会正常提供服务</p>
-<p>这个状态不能归档操作</p>
-<h4 id="Suspend-状态"><a href="#Suspend-状态" class="headerlink" title="Suspend 状态"></a>Suspend 状态</h4><p>一般是修改归档状态之前将系统切换为 <code>Suspend</code> 状态，它不会像 <code>Mount</code> 状态那样回滚所有活动事务，而是切换后所有事务可以继续执行</p>
-<h4 id="Shutdown-状态"><a href="#Shutdown-状态" class="headerlink" title="Shutdown 状态"></a>Shutdown 状态</h4><p>服务退出</p>
-<h4 id="数据库状态切换"><a href="#数据库状态切换" class="headerlink" title="数据库状态切换"></a>数据库状态切换</h4><p>也是通过 <code>SQL</code> 语句切换，先进入 <code>disql as SYSDBA/SYSDBA</code> </p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 修改为 Open 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span>;</span><br><span class="line"><span class="comment">-- 如果当前处于 Primary \ Standby 模式，则需要加上 Force 子句</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE <span class="keyword">OPEN</span> FORCE;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 修改为 Mount 状态</span></span><br><span class="line"><span class="keyword">ALTER</span> DATABASE MOUNT;</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="Redo-日志-1"><a href="#Redo-日志-1" class="headerlink" title="Redo 日志"></a>Redo 日志</h3><p>就前边说的，包括了 DML 和 DDL 操作的记录</p>
-<h4 id="Redo-日志包"><a href="#Redo-日志包" class="headerlink" title="Redo 日志包"></a>Redo 日志包</h4><p><code>RLOG_PKG</code> Redo日志包，主句发送日志到备库，就是通过日志包的形式发送的</p>
-<h4 id="联机-Redo-日志文件"><a href="#联机-Redo-日志文件" class="headerlink" title="联机 Redo 日志文件"></a>联机 Redo 日志文件</h4><p>达梦数据库初始化实例后，是默认有两个联机 Redo 日志文件：<code>DAMENG01.log</code> <code>DAMENG02.log</code> </p>
-<p>01 是 Redo 日志主文件</p>
-<h3 id="归档"><a href="#归档" class="headerlink" title="归档"></a>归档</h3><ul>
-<li>本地归档</li>
-<li>远程归档</li>
-<li>实时归档</li>
-<li>即时归档</li>
-<li>异步归档</li>
-<li>同步归档</li>
-</ul>
-<p>归档模式的不同，只是在于发送 Redo 日志到备库的时机不同</p>
-<h4 id="本地归档"><a href="#本地归档" class="headerlink" title="本地归档"></a>本地归档</h4><p>归档文件其实保存的就是 Redo 日志</p>
-<p>在本地归档情况下，Normal 、Primary 模式在 Redo 日志写入联机 Redo 日志文件后，由 Redo 日志包 <code>RLOG_PKG</code></p>
-<p>写入本地归档日志文件中，Standby 模式则是直接写到本地归档日志中</p>
-<p>归档日志一般在 <code>arch</code> 目录，配置了归档才有</p>
-<p>归档日志文件是不能覆盖的，每天都会生成很多份归档日志文件，而且是不会主动删掉的，如果删掉最好配置归档日志空间上限（配置后，系统会自动删除早期的归档日志文件）</p>
-<p>但是在守护系统中，如果删除归档文件，需要主备都同时删，否则会发生备库接收到的日志缺失，导致主备库无法正常同步数据</p>
-<h4 id="实时归档"><a href="#实时归档" class="headerlink" title="实时归档"></a>实时归档</h4><p>本地归档是写入磁盘中的日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
-<p>实时归档是将主库产生的 Redo 日志通过 MAL 系统传递到备库</p>
-<p>流程大致：</p>
-<p>主库 Redo 日志 &gt;&gt; 先传到备库并重演 &gt;&gt; 重演完成后，备库响应主库 &gt;&gt; 主库再把 Redo 日志写入联机日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
-<h4 id="即时归档"><a href="#即时归档" class="headerlink" title="即时归档"></a>即时归档</h4><p>主库把 Redo 日志写入联机日志文件 &gt;&gt; 然后再通过 MAL 发生 Redo 日志到备库</p>
-<h1 id="达梦配置文件说明"><a href="#达梦配置文件说明" class="headerlink" title="达梦配置文件说明"></a>达梦配置文件说明</h1><h2 id="端口配置"><a href="#端口配置" class="headerlink" title="端口配置"></a>端口配置</h2><p>在 <code>dm.ini</code> 中有两个参数，用来配置端口：<code>PORT_NUM</code> <code>DW_PORT</code> </p>
-<h3 id="PORT-NUM"><a href="#PORT-NUM" class="headerlink" title="PORT_NUM"></a>PORT_NUM</h3><p>这个参数是实例的监听端口，也就是连接数据库时，需要输入的端口</p>
-<h3 id="DW-PORT"><a href="#DW-PORT" class="headerlink" title="DW_PORT"></a>DW_PORT</h3><p>这个是守护进程的端口，用于守护进程监听数据库</p>
-<h2 id="服务名配置"><a href="#服务名配置" class="headerlink" title="服务名配置"></a>服务名配置</h2><p>看 《DM8数据守护与读写分离集群V4.0.PDF》 5.8 章节</p>
-<h1 id="数据守护的多种方案"><a href="#数据守护的多种方案" class="headerlink" title="数据守护的多种方案"></a>数据守护的多种方案</h1><ul>
-<li>实时主备</li>
-<li>MPP主备</li>
-<li>DMDSC主备</li>
-<li>读写分离集群</li>
-</ul>
-<h2 id="实时主备"><a href="#实时主备" class="headerlink" title="实时主备"></a>实时主备</h2><p>实时主备由一个主库、一个或多个被配了实时归档的备库组成，保障数据库的高可用和数据的安全</p>
-<p>主库提供完整的数据库服务，而备库提供只读服务</p>
-<p>在主库修改的数据，会产生 <code>Redo</code> 日志，通过实时归档机制，发送到备库，然后备库通过重演 <code>Redo</code> 日志，将修改操作在备库执行一遍，依次保持与主库的数据同步</p>
-<p>实时主备系统主要由：主库、备库、守护进程、监视器组成</p>
-<p>但是多数项目中，并没有部署监视器，都是主备库 + 守护进程的模式</p>
-<p>监视器是能在故障发生时自动切换主备的</p>
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>达梦</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>实施部署-达梦数据库linux版的安装（二）</title>
-    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
-    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
-<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
-<span id="more"></span>
-
-<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
-<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
-<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
-
-<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
-
-
-
-<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
-
-<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
-
-
-
-<p>显示安装结束后，切换到root用户</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
-<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
-<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># -t dmserver 就是达梦自己的server服务</span></span><br><span class="line"><span class="comment"># -p DMSERVER 这个就是数据库服务的名称，执行上边命令就是生成了 DmServiceDMSERVER 的命令</span></span><br><span class="line"><span class="comment"># 如果 -p DMtest 就会生成 DmServiceDMtest 的命令</span></span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
-
-<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
-<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
-<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
-<p>必须使用 <code>root</code> 用户，先把数据库服务先关掉</p>
-<p><code>./dm_service_uninstaller.sh -n DmServiceDMSERVER</code> 这里的实例名，主要是看 bin 目录中是用哪个命令来启动的，这个命令通常就是这个服务的名称</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -n DmServiceDMSERVER</span></span><br></pre></td></tr></table></figure>
-
-<p>然后把对应的实例数据目录删除即可</p>
-<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
-<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
-<p>或者上传任意目录，使用cp命令替换</p>
-<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
-
-
-
-<p>生产上，一般会安装达梦的监控守护模式</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
-<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>配置说明如下：</p>
-<table>
-<thead>
-<tr>
-<th>LOGIN_MODE</th>
-<th>服务名方式登录，始终会优先登录主库；</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>LOGIN_MODE</td>
-<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_TIME</td>
-<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_INTERVAL</td>
-<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>实施</tag>
-        <tag>达梦</tag>
       </tags>
   </entry>
 </search>
