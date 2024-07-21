@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/touxiang.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/touxiang.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/touxiang.ico">
+  <link rel="mask-icon" href="/images/touxiang.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"weiqifun.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.20.0","exturl":true,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"default","show_result":true},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="挂载 windows 共享目录在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享） 在 Linux 服务器进行挂载操作： 1234567891011121314151617181920# 创建一个挂载目录 mkdir &#x2F;home&#x2F;aml# 挂载 - 方式一 mount -t cifs -o username&#x3D;@user, password&#x3D;@password">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux-挂载共享文件系统">
+<meta property="og:url" content="https://weiqifun.github.io/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+<meta property="og:site_name" content="WeiQi Blog">
+<meta property="og:description" content="挂载 windows 共享目录在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享） 在 Linux 服务器进行挂载操作： 1234567891011121314151617181920# 创建一个挂载目录 mkdir &#x2F;home&#x2F;aml# 挂载 - 方式一 mount -t cifs -o username&#x3D;@user, password&#x3D;@password">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-07-21T14:25:30.000Z">
+<meta property="article:modified_time" content="2024-07-21T14:29:54.510Z">
+<meta property="article:author" content="Wei Qi">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://weiqifun.github.io/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://weiqifun.github.io/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/","path":"2024/07/21/Linux-挂载共享文件系统/","title":"Linux-挂载共享文件系统"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Linux-挂载共享文件系统 | WeiQi Blog</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">WeiQi Blog</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">前进 & 思考</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD-windows-%E5%85%B1%E4%BA%AB%E7%9B%AE%E5%BD%95"><span class="nav-number">1.</span> <span class="nav-text">挂载 windows 共享目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%82%E8%BD%BD-NFS-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">挂载 NFS 文件系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E5%AE%9E%E8%B7%B5-%E6%8C%82%E8%BD%BD-windows-%E5%85%B1%E4%BA%AB%E7%9B%AE%E5%BD%95"><span class="nav-number">3.</span> <span class="nav-text">生产实践-挂载 windows 共享目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%88%B6%E5%8F%96%E6%B6%88%E6%8C%82%E8%BD%BD%E6%97%B6%E5%87%BA%E7%8E%B0-Busy-%E9%97%AE%E9%A2%98"><span class="nav-number">3.1.</span> <span class="nav-text">强制取消挂载时出现 Busy 问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%A5%E9%94%99-Operation-now-in-progress"><span class="nav-number">3.2.</span> <span class="nav-text">报错 Operation now in progress</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Wei Qi"
+      src="/images/happydog.png">
+  <p class="site-author-name" itemprop="name">Wei Qi</p>
+  <div class="site-description" itemprop="description">一路走来，有点艰难</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <span class="exturl" data-url="aHR0cHM6Ly9naXRodWIuY29tL3dlaXFpZnVuL3dlaXFpZnVuLmdpdGh1Yi5pbw==" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;weiqifun&#x2F;weiqifun.github.io"><i class="fab fa-github fa-fw"></i>GitHub</span>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://weiqifun.github.io/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/happydog.png">
+      <meta itemprop="name" content="Wei Qi">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="WeiQi Blog">
+      <meta itemprop="description" content="一路走来，有点艰难">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Linux-挂载共享文件系统 | WeiQi Blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux-挂载共享文件系统
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-07-21 22:25:30 / 修改时间：22:29:54" itemprop="dateCreated datePublished" datetime="2024-07-21T22:25:30+08:00">2024-07-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Linux%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">Linux运维</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="挂载-windows-共享目录"><a href="#挂载-windows-共享目录" class="headerlink" title="挂载 windows 共享目录"></a>挂载 windows 共享目录</h2><p>在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）</p>
+<p>在 Linux 服务器进行挂载操作：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个挂载目录</span></span><br><span class="line"> mkdir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式一</span></span><br><span class="line"> mount -t cifs -o username=@user, password=@password //IP/share_dir /home/aml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 - 方式二</span></span><br><span class="line"> mount -t cifs -v -o credentials=/var/pwd //IP/d/data/output /home/aml/                                                                                                             Password for usertest,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span></span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> vi /etc/fstab</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">加入以下内容</span></span><br><span class="line"> //IP/share_dir /home/aml cifs username=@user, password=@password 0 0</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">或者</span></span><br><span class="line"> //IP/share_dir /home/aml cifs credentials=/var/pwd 0 0</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">然后给目录读取的权限</span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash"><span class="built_in">chown</span> -R aml:aml /home/aml</span></span><br><span class="line"> chmod -R 444 /home/aml</span><br></pre></td></tr></table></figure>
+
+<p>一般发行版Linux都默认装了 cifs 或者 samba ，可以这么查：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@FXQ-YWYY-57-81 ~]# rpm -qa | grep samba</span><br><span class="line"> samba-common-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> samba-client-4.11.12-3.p01.ky10.aarch64</span><br><span class="line"> [root@FXQ-YWYY-57-81 ~]# rpm -qa | grep cifs</span><br><span class="line"> cifs-utils-6.10-0.ky10.aarch64</span><br></pre></td></tr></table></figure>
+
+<p>卸载共享目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="挂载-NFS-文件系统"><a href="#挂载-NFS-文件系统" class="headerlink" title="挂载 NFS 文件系统"></a>挂载 NFS 文件系统</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建一个共享目录</span></span><br><span class="line"> mkdir /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">挂载</span></span><br><span class="line"> mount -t nfs ip:/path/to/share /mnt/nfs</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">验证</span> </span><br><span class="line"> df -h</span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">自动挂载</span></span><br><span class="line"> ip:/path/to/share /mnt/nfs nfs defaults 0 0</span><br><span class="line"><span class="meta prompt_"> </span></span><br><span class="line"><span class="meta prompt_"> # </span><span class="language-bash">卸载</span></span><br><span class="line"> umount /mnt/nfs</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=gmjjb,password=sxzq@123,vers=2.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Invalid argument</span><br><span class="line"></span><br><span class="line">sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=2.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=2.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内核日志</span></span><br><span class="line">[root@kylinV10arm162 ~]# sudo mount -t cifs -v -o &#x27;username=gmjjb,password=sxzq@123,vers=1.0&#x27; //10.9.97.65/d/data/output /home/aml/99/</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,vers=1.0,user=gmjjb,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># mount -t cifs -v -o credentials=/var/pwd.txt //10.9.97.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.9.97.65/d/data/output:  ********</span></span></span><br><span class="line">mount.cifs kernel mount options: ip=10.9.97.65,unc=\\10.9.97.65\d,user=gmjjb,password=sxzq@123,prefixpath=data/output,pass=********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2781999.432132] CIFS: Unknown mount option &quot;passowrd=sxzq@123&quot;</span><br><span class="line">[2783009.282175] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783282.433585] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2783470.189648] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash"></span></span><br><span class="line"><span class="language-bash">[root@kylinV10arm162 ~]<span class="comment"># vi /etc/samba/smb.conf</span></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">global 加入</span></span><br><span class="line">client min protocol = CORE</span><br><span class="line">client max protocol = SMB3</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# smbclient -L //10.9.97.65/</span><br><span class="line">do_connect: Connection to 10.9.97.65 failed (Error NT_STATUS_IO_TIMEOUT)</span><br><span class="line">[root@kylinV10arm162 ~]# ping 10.9.97.65</span><br><span class="line">PING 10.9.97.65 (10.9.97.65) 56(84) bytes of data.</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=1 ttl=125 time=1.77 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=2 ttl=125 time=1.11 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=3 ttl=125 time=0.870 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=4 ttl=125 time=0.906 ms</span><br><span class="line">64 bytes from 10.9.97.65: icmp_seq=5 ttl=125 time=0.897 ms</span><br><span class="line">^C</span><br><span class="line">--- 10.9.97.65 ping statistics ---</span><br><span class="line">5 packets transmitted, 5 received, 0% packet loss, time 4111ms</span><br><span class="line">rtt min/avg/max/mdev = 0.870/1.109/1.765/0.338 ms</span><br><span class="line">[root@kylinV10arm162 ~]#</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="生产实践-挂载-windows-共享目录"><a href="#生产实践-挂载-windows-共享目录" class="headerlink" title="生产实践-挂载 windows 共享目录"></a>生产实践-挂载 windows 共享目录</h2><p>因为密码中含有特殊字符 <code>@</code> ，所以建立了一个存放 Windows 共享目录的用户密码的文件(pwd文件需要创建)，在命令中使用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@kylinV10arm162 mnt]# cat /var/pwd </span><br><span class="line">user=test</span><br><span class="line">pass=test@123</span><br><span class="line">vers=1.0</span><br><span class="line">[root@kylinV10arm162 mnt]# mount -t cifs -v -o credentials=/var/pwd //10.9.96.195/d/data/output /mnt/B9/  </span><br><span class="line">Credential formatted incorrectly: 1.0</span><br><span class="line">mount.cifs kernel mount options: ip=10.9.96.195,unc=\\10.9.96.195\d,user=test,prefixpath=data/output,pass=********</span><br><span class="line">[root@kylinV10arm162 mnt]# df -h</span><br><span class="line">Filesystem                   Size  Used Avail Use% Mounted on</span><br><span class="line">devtmpfs                      32G     0   32G   0% /dev</span><br><span class="line">tmpfs                         32G  192K   32G   1% /dev/shm</span><br><span class="line">tmpfs                         32G  1.5G   30G   5% /run</span><br><span class="line">tmpfs                         32G     0   32G   0% /sys/fs/cgroup</span><br><span class="line">/dev/mapper/klas-root        483G   38G  446G   8% /</span><br><span class="line">tmpfs                         32G  2.1M   32G   1% /tmp</span><br><span class="line">/dev/vda2                   1014M  222M  793M  22% /boot</span><br><span class="line">/dev/vda1                    599M  6.5M  593M   2% /boot/efi</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/993</span><br><span class="line">tmpfs                        6.3G     0  6.3G   0% /run/user/0</span><br><span class="line">//10.9.96.195/d/data/output  500G  392G  109G  79% /mnt/B9		# 已经挂载好了</span><br></pre></td></tr></table></figure>
+
+<p>然后到 <code>/mnt/B9</code> 目录下查看就行了</p>
+<p>卸载共享目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umount /home/aml</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="强制取消挂载时出现-Busy-问题"><a href="#强制取消挂载时出现-Busy-问题" class="headerlink" title="强制取消挂载时出现 Busy 问题"></a>强制取消挂载时出现 Busy 问题</h3><p>我使用 <code>umount -f /home/aml/B9</code> 后，B9目录就变成了这样： </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">d????????? ? ?    ?       ?            ? B9</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 aml]# ll</span><br><span class="line">ls: cannot access &#x27;B9&#x27;: No such device</span><br><span class="line">total 8</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:10 3K</span><br><span class="line">drwxr-xr-x 2 root root 4096 Jul 12 10:12 99</span><br><span class="line">d????????? ? ?    ?       ?            ? B9</span><br></pre></td></tr></table></figure>
+
+<p>对这块盘进行重新取消挂载即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@kylinV10arm162 aml]# umount -l B9</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="报错-Operation-now-in-progress"><a href="#报错-Operation-now-in-progress" class="headerlink" title="报错 Operation now in progress"></a>报错 Operation now in progress</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -o username=test,password=test@123,vers=1.0 //10.9.97.65/d/data/output /home/aml/99</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# dmesg | grep mount</span><br><span class="line">[    3.424827] XFS (dm-0): Ending clean mount</span><br><span class="line">[    5.906981] audit: type=1130 audit(1717645025.410:51): pid=1 uid=0 auid=4294967295 ses=4294967295 msg=&#x27;unit=systemd-remount-fs comm=&quot;systemd&quot; exe=&quot;/usr/lib/systemd/systemd&quot; hostname=? addr=? terminal=? res=success&#x27;</span><br><span class="line">[    6.702559] XFS (vda2): Ending clean mount</span><br><span class="line">[2777460.243716] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line">[2778936.002401] No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later (e.g. SMB3), from CIFS (SMB1). To use the less secure SMB1 dialect to access old servers which do not support SMB3 (or SMB2.1) specify vers=1.0 on mount.</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用文件的形式也是报错</span></span><br><span class="line">vi /var/pwd</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">加入</span></span><br><span class="line">user=&lt;username&gt;</span><br><span class="line">pass=&lt;password&gt;</span><br><span class="line">vers=1.0</span><br><span class="line"></span><br><span class="line">chown root:root /var/pwd</span><br><span class="line">chmod 600 /etc/pwd</span><br><span class="line"></span><br><span class="line">[root@kylinV10arm162 ~]# mount -t cifs -v -o credentials=/var/pwd //10.9.97.65/d/data/output /home/aml/99/                                                    Password for test,password=test@123@//10.9.97.65/d/data/output:  ********</span><br><span class="line">mount error(115): Operation now in progress</span><br><span class="line">Refer to the mount.cifs(8) manual page (e.g. man mount.cifs) and kernel log messages (dmesg)</span><br></pre></td></tr></table></figure>
+
+
+
+<p><code>ping ip</code>能通，但<code>telnet ip 445</code>也不通，故该服务器访问<code>Windows</code>服务器的共享目录端口是不通的，需要在防火墙上开启端口，需要负责管理网络这块的去开通。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/07/21/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E5%AE%9E%E8%B7%B5/" rel="prev" title="主备集群-达梦实时主备集群搭建与主备切换实践（二）">
+                  <i class="fa fa-angle-left"></i> 主备集群-达梦实时主备集群搭建与主备切换实践（二）
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Wei Qi</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">32k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:58</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
