@@ -1,133 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Linux-工作中常用命令总结与常见错误</title>
-    <url>/2024/07/10/Linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</url>
-    <content><![CDATA[<p>在信创项目上，因为服务器通常是<code>linux</code> 操作系统，所以对<code>linux</code>命令也是经常需要使用。根据实际的项目里，需要经常使用到的<code>linux</code> 命令，做一个总结 。</p>
-<span id="more"></span>
-
-
-
-<h2 id="linux基础命令"><a href="#linux基础命令" class="headerlink" title="linux基础命令"></a>linux基础命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">dir</span> 指目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">file 指文件</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">path 指路径</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出当前目录所有内容</span></span><br><span class="line">ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">cd /path/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上级目录</span></span><br><span class="line">cd ..</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上个目录</span></span><br><span class="line">cd -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示当前路径</span></span><br><span class="line">pwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件内容 <span class="built_in">cat</span></span> </span><br><span class="line">cat /path/file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件末尾 N 行内容，并实时显示文件追加内容</span></span><br><span class="line">tail -fn N file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /path/to/create_dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建文件</span></span><br><span class="line">touch file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以使用 vi 编辑空文件保存，也是一个新文件</span></span><br><span class="line">vi file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除目录、文件</span></span><br><span class="line">rm -rf dir_name</span><br><span class="line">rm -rf file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar.gz</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制</span></span><br><span class="line">cp /path/dir_name /path/to/new_dir_name</span><br><span class="line">cp -r /path/dir_name /path/to/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">mv /path/dir_name /new_path/to/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重命名</span></span><br><span class="line">mv /path/dir_name /path/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀掉进程</span></span><br><span class="line">kill -9 pid</span><br></pre></td></tr></table></figure>
-
-
-
-<p>上述都是基础，当然下边也是基础。</p>
-<p>但是根据我在实际工作中，一个应用的部署过程来做的总结，包括前期应用的搭建，到后期应用服务运维，从一整个项目实施部署的过程，来梳理实际工作中应该掌握哪些命令。</p>
-<h2 id="项目过程中常用命令"><a href="#项目过程中常用命令" class="headerlink" title="项目过程中常用命令"></a>项目过程中常用命令</h2><h3 id="1-验证网络"><a href="#1-验证网络" class="headerlink" title="1 验证网络"></a>1 验证网络</h3><p>先验证应用服务器与数据库服务器网络是否开通，没有开通则沟通走流程开通</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping ip</span><br><span class="line">telnet ip port</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="1-1-配置-Hosts"><a href="#1-1-配置-Hosts" class="headerlink" title="1.1 配置 Hosts"></a>1.1 配置 Hosts</h4><p>当 <code>ping</code> <code>telnet</code> 无法找到对应的主机名或服务时，可以配置 <code>hosts</code> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 ip</span></span><br><span class="line">ip addr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取主机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="1-2-配置-DNS"><a href="#1-2-配置-DNS" class="headerlink" title="1.2 配置 DNS"></a>1.2 配置 DNS</h4><p>在项目上，有时候客户不提供 hosts，而是提供 DNS，比如对接邮箱服务的时候提供一个邮箱服务器的 DNS。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑 DNS 文件</span></span><br><span class="line">vi /etc/resolv.con</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加：nameserver 为固定写法</span></span><br><span class="line">nameserver ip</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">nameserver 127.0.0.1</span><br><span class="line">nameserver www.baidu.com</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2 创建用户"></a>2 创建用户</h3><p>在项目部署时，客户的生产环境是不会提供 root 用户的，测试环境上，需要自己创建相关的中间件、数据库用户，然后使用这个用户进行操作，能够使应用服务在测试和生产环境中保持一致的运行情况。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.创建用户组</span></span><br><span class="line">groupadd -g group_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">groupadd -g dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.创建用户</span></span><br><span class="line">useradd -g group_name -s /bin/bash -d /home/dir_name -m user_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-g：指定用户所属组</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s：指定用户用的 shell</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-d：指定用户的根目录路径</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-m：创建用户的根目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子,创建 dmdba 用户，并设置用户 ID\所属组\指定 SHELL\指定根目录并创建根目录：</span></span><br><span class="line">useradd -g dmdba -s /bin/bash -d /home/dm -m dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3.更改用户主、组</span></span><br><span class="line">chown dmdba:dmdba /home/dm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4.修改用户密码</span></span><br><span class="line">passwd user_name</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-修改权限"><a href="#3-修改权限" class="headerlink" title="3 修改权限"></a>3 修改权限</h3><p>在创建用户后，通常会创建一些目录，用来存放应用包，或者用来安装应用服务。</p>
-<p>如果使用root创建了目录，是需要修改这些目录的权限的</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录所属主、组</span></span><br><span class="line">chown dmdba:dmdba -R /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录权限</span></span><br><span class="line">chmod 755 -R /home/dm</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-解包"><a href="#4-解包" class="headerlink" title="4 解包"></a>4 解包</h3><p>在创建好目录后，上传应用包，一般为<code>tar.gz</code> 或者 <code>zip</code> </p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到当前目录</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到指定目录</span></span><br><span class="line">tar -xzvf file.tar.gz /path/to/dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 zip 包</span></span><br><span class="line">unzip file.zip</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="4-1-挂载"><a href="#4-1-挂载" class="headerlink" title="4.1 挂载"></a>4.1 挂载</h4><p>因为有的安装包，是提供一个 <code>iso</code> 镜像文件的，在 linux 里需要先挂载 <code>iso</code> 文件，里边有安装 <code>.sh</code> 脚本</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 iso 文件，主要挂载目录需要用户能访问，一般在应用主目录下创建一个挂载目录</span></span><br><span class="line">mount -o loop file_name.iso /home/dm/mnt </span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-配置环境变量"><a href="#5-配置环境变量" class="headerlink" title="5 配置环境变量"></a>5 配置环境变量</h3><p>通常的项目是个 java 构建的应用，需要使用 <code>JDK</code> 。如果服务器上没有安装 <code>JDK</code> 包就需要先安装，不过现在发行版的LINUX都是自带了<code>openJDK</code> ，需要根据<code>JDK</code> 的路径去配置环境变量。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通常情况下，我们是不知道一个新服务器的java安装路径在哪里的，所以我们可以通过命令查找</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先看是否安装</span></span><br><span class="line">java -version</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有则找 java 路径，这么找：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">whereis java 或者 <span class="built_in">which</span> java 都可以</span></span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# whereis java</span><br><span class="line">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/java/jdk1.8.0_231/bin/java /usr/share/man/man1/java.1.gz</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /usr/bin/java</span><br><span class="line">lrwxrwxrwx 1 root root 22 Jun  6  2023 /usr/bin/java -&gt; /etc/alternatives/java</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /etc/alternatives/java</span><br><span class="line">lrwxrwxrwx 1 root root 73 Jun  6  2023 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre/bin/java</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">知道了 java 的路径，就可以配置环境变量</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置环境变量有两个文件： /etc/profile 全局环境变量； ~/.bash_profile 当前用户的环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64</span><br><span class="line">export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="6-服务启停"><a href="#6-服务启停" class="headerlink" title="6 服务启停"></a>6 服务启停</h3><h4 id="6-1-启动服务"><a href="#6-1-启动服务" class="headerlink" title="6.1 启动服务"></a>6.1 启动服务</h4><p>一般多是用后台命令启动</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nohup server_name &amp;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-2-启动-java-程序"><a href="#6-2-启动-java-程序" class="headerlink" title="6.2 启动 java 程序"></a>6.2 启动 java 程序</h4><p>有的项目需要单独启动某个 <code>jar</code> 包</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar file.jar </span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-3-查看服务状态"><a href="#6-3-查看服务状态" class="headerlink" title="6.3 查看服务状态"></a>6.3 查看服务状态</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -ef | grep app_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">ps -ef | grep java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 ps -ef 命令的输出结果作为 grep java 的输入</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ps -ef 会查出所有运行的进程，grep java 则在这些进程里查找有关 java 的进程</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回的信息解释</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user  进程归属用户</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PID   进程 ID</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">CPU   CPU 使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MEM   内存使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">STAT  进程状态（R 运行 S 睡眠 Z 卡死）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">START  进程开始运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">TIME  进程运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">COMMAND  进程执行的命令</span></span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h3 id="7-关闭防火墙"><a href="#7-关闭防火墙" class="headerlink" title="7 关闭防火墙"></a>7 关闭防火墙</h3><p>应用服务如果起来了，但是前台地址打不开的情况，拒绝访问或者无相应。需要关闭防火墙</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止自启（可操作也可不操作，不操作的话，机器重启会自启防火墙）</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="8-查看端口占用情况"><a href="#8-查看端口占用情况" class="headerlink" title="8 查看端口占用情况"></a>8 查看端口占用情况</h3><p>项目上，可能存在端口冲突的情况，比如说某个服务关闭异常导致服务关了但是端口没释放，可排查端口由哪个<code>pid</code> 占用着，将它 <code>kill</code> 掉释放端口</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">natstat -ntlp</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-n  显示地址、端口号</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-t  显示 tcp 连接信息</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-l  显示监听</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-p  显示进程</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="9-追踪日志"><a href="#9-追踪日志" class="headerlink" title="9 追踪日志"></a>9 追踪日志</h3><p>在排查问题过程中，经常需要看日志。</p>
-<p>可以直接实时查看日志，看看哪一步报错</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
-
-
-
-<p>也可以使用重定向，将日志先清空，避免冗余信息过多，然后再追踪日志</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&gt; 其实是个重定向，这个命令就是把前边的空内容以覆盖的方式输入到文件里，达到删除效果</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">file.log</span></span><br><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="10-查看服务器资源占用情况"><a href="#10-查看服务器资源占用情况" class="headerlink" title="10 查看服务器资源占用情况"></a>10 查看服务器资源占用情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">top 实时查看资源情况</span></span><br><span class="line">top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内存情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看磁盘情况</span></span><br><span class="line">df -h</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="11-查看历史命令"><a href="#11-查看历史命令" class="headerlink" title="11 查看历史命令"></a>11 查看历史命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示历史执行过的命令</span></span><br><span class="line">history</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="12-判断命令是否被拉起"><a href="#12-判断命令是否被拉起" class="headerlink" title="12 判断命令是否被拉起"></a>12 判断命令是否被拉起</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务器发送请求，判断应用是否被拉起，当操作机与服务器存在网络问题时可用此判断，如果不能访问，排查操作机的网络与服务器 IP 是否通</span></span><br><span class="line">curl URL</span><br></pre></td></tr></table></figure>
-
-
-
-
-
-<h2 id="常见报错"><a href="#常见报错" class="headerlink" title="常见报错"></a>常见报错</h2><h3 id="1-No-such-file-or-directory"><a href="#1-No-such-file-or-directory" class="headerlink" title="1 No such file or directory"></a>1 No such file or directory</h3><p>执行 <code>shell</code> 脚本的是，可能会遇到这个报错，完整的报错类似下边：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/bin/sh: bad interpreter: No such file or directory</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者</span></span><br><span class="line">/usr/bin/env: &quot;sh\r&quot;: 没有那个文件或目录</span><br></pre></td></tr></table></figure>
-
-<p>是因为编写 <code>shell</code> 脚本时，使用的文本编辑器，它用的换行符是 <code>dos</code> ，在 <code>shell</code> 里的换行符应该需要更改为 <code>unix</code> ，如下设置</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi file.sh</span><br><span class="line">:set ff=unix	# :set ff 可以查看当前 shell 脚本的换行符是 dos 还是 unix</span><br><span class="line">:wq				# 保存</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-Permission-denied"><a href="#2-Permission-denied" class="headerlink" title="2 Permission denied"></a>2 Permission denied</h3><p>就是因为权限的原因。在测试环境中使用了 root 用户操作，具有系统所有权，所以操作什么都不会报错。但是到了生产环境，一般是没有 root 的权限的，所以当执行一些需要用到 root 权限的命令时，就会报错。</p>
-<p>通常是因为 <code>shell</code> 脚本中，存在授权 <code>chmod</code> 、创建软链 <code>ln -s</code> 等命令。</p>
-<hr>
-<center>END</center>
-
-]]></content>
-      <categories>
-        <category>Linux运维</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Linux-挂载共享文件系统</title>
     <url>/2024/07/21/Linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</url>
     <content><![CDATA[<h2 id="挂载-windows-共享目录"><a href="#挂载-windows-共享目录" class="headerlink" title="挂载 windows 共享目录"></a>挂载 windows 共享目录</h2><p>在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）</p>
@@ -177,6 +50,78 @@
       </categories>
       <tags>
         <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL-日期时间转换问题</title>
+    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
+<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
+<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
+<span id="more"></span>
+
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
+<p>查看上游的数据，交易时间为：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
+
+<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
+<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
+
+<p>然后再将利用<code>to_date</code> 进行转换</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
+
+<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
+
+
+
+<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
+<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
+<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
+<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
+<p>当时尝试了很多</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
+<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
+
+<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
+<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
+<p>查看本地库的NLS_LANGUAGE参数</p>
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
+
+<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
+<p>在本地尝试</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
+
+
+
+<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
+<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
       </tags>
   </entry>
   <entry>
@@ -582,123 +527,6 @@
       </tags>
   </entry>
   <entry>
-    <title>SQL-日期时间转换问题</title>
-    <url>/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="问题一：非正常时间格式转换问题"><a href="#问题一：非正常时间格式转换问题" class="headerlink" title="问题一：非正常时间格式转换问题"></a>问题一：非正常时间格式转换问题</h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>最近在项目上，使用ETL工具配置任务，将上游数据直接推送到<code>kafka topic</code> 中，让另一个系统去消费这些实时成交的数据。</p>
-<p>之前经验的不足，没有对推送的数据做限制，导致每次推送到<code>topic</code> 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到<code>kafka</code>，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。</p>
-<p>并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。</p>
-<span id="more"></span>
-
-<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>我使用每笔交易的时间去做流水字段，简单的进行了to_date()，发现报错了：非法的时间日期类型数据。</p>
-<p>查看上游的数据，交易时间为：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806.png" class="" title="image-20240602222340806">
-
-<p>我们想要的时间是 <code>15:05:17</code>  <code>09:31:58</code> 时分秒格式的，并且另一个系统所需要的位字符串类型</p>
-<h3 id="解决"><a href="#解决" class="headerlink" title="解决"></a>解决</h3><p>首先，对于10点之前的数据肯定要在前边补充一个0，让它是正常的时间数据格式，使用<code>lpad</code> 函数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222405151.png" class="" title="image-20240602222405151">
-
-<p>然后再将利用<code>to_date</code> 进行转换</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222423533.png" class="" title="image-20240602222423533">
-
-<p> <code>to_date</code> 转换是默认加上了年月日的，还需要再进行一次<code>to_char</code>转换，转换为需要用到的字符串格式</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222440937.png" class="" title="image-20240602222440937">
-
-
-
-<h2 id="问题二：上下游编码不一致产生的日期格式转换问题"><a href="#问题二：上下游编码不一致产生的日期格式转换问题" class="headerlink" title="问题二：上下游编码不一致产生的日期格式转换问题"></a>问题二：上下游编码不一致产生的日期格式转换问题</h2><h3 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h3><p>在某合规系统，利害关系人的数据源变更，我们采集的上游由数据库A变更为数据库B，原先写的SP转换突然就报错了，其中有一段日期转换出错了，经过查看采集过来的数据，发现B库的日期格式与A库的日期格式不一致。</p>
-<p>原先A库的日期格式是<code>YYYY-MM-DD HH24.MI.SS.FF</code></p>
-<p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
-<h3 id="问题-1"><a href="#问题-1" class="headerlink" title="问题"></a>问题</h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> CMSCONFIG.T_XXX_REPORT_XXX</span><br><span class="line">  (app_no ,</span><br><span class="line">   app_emp_no ,</span><br><span class="line">   emp_no ,</span><br><span class="line">   report_type2  ,</span><br><span class="line">   status  ,</span><br><span class="line">   app_time ,</span><br><span class="line">   approve_time</span><br><span class="line">   )</span><br><span class="line"><span class="keyword">select</span> a.id,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       a.brokerid,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">       to_date(to_char(to_timestamp(a.updatetime,<span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),<span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>)</span><br><span class="line">  <span class="keyword">from</span> NC11.ST_EM_XXXXXXON a</span><br><span class="line"> <span class="keyword">where</span> <span class="keyword">not</span> <span class="keyword">exists</span> (<span class="keyword">select</span> <span class="number">1</span> <span class="keyword">from</span> CMSCONFIG.T_XXX_REPORT_XXX t</span><br><span class="line">                    <span class="keyword">where</span> a.id <span class="operator">=</span> t.app_no</span><br><span class="line">                      <span class="keyword">and</span> t.report_type2 <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(to_char(to_timestamp(<span class="string">&#x27;2024-6-1 17.38.54.000000000&#x27;</span>,</span><br><span class="line">                                    <span class="string">&#x27;yyyy-mm-dd hh24:mi:ss.ff&#x27;</span>),</span><br><span class="line">                       <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>),</span><br><span class="line">               <span class="string">&#x27;yyyy/mm/dd hh24:mi:ss&#x27;</span>) <span class="keyword">as</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>但是换库之后，日期格式改变了，变为了如下形式：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
-<p>当时尝试了很多</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 在Oracle中报错日期格式无法识别</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_DATE(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错无效的月份</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MON-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 在Oracle中报错要求AM/A.M.或PM/P.M.</span></span><br><span class="line"><span class="keyword">SELECT</span> TO_TIMESTAMP(<span class="string">&#x27;18-3-24 03.44.12.000000000 PM&#x27;</span>,</span><br><span class="line">                    <span class="string">&#x27;YY-MM-DD HH.MI.SS.FF9 PM&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">FROM</span> dual;</span><br></pre></td></tr></table></figure>
-
-
-
-<p><strong>到底应该如何将 ‘18-MAR-24 03.44.12.000000000 PM’ 转换为 ‘2024&#x2F;3&#x2F;18 15:44:12’ 呢？？？</strong></p>
-<p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222514506.png" class="" title="image-20240602222514506">
-
-<p><strong>语言环境的不一致可能会导致数据不一致，有可能这个原因</strong></p>
-<h3 id="解决-1"><a href="#解决-1" class="headerlink" title="解决"></a>解决</h3><p>有了方向后，开始尝试</p>
-<p>查看本地库的NLS_LANGUAGE参数</p>
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222532274.png" class="" title="image-20240602222532274">
-
-<p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code> </p>
-<p>在本地尝试</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> to_date(</span><br><span class="line">                to_char(</span><br><span class="line">                       to_timestamp(<span class="string">&#x27;18-MAR-24 03.44.12.000000000 PM&#x27;</span>, <span class="string">&#x27;DD-MON-RR HH.MI.SS.FF AM&#x27;</span>, <span class="string">&#x27;NLS_DATE_LANGUAGE = AMERICAN&#x27;</span>), </span><br><span class="line">                <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>),</span><br><span class="line">                                       <span class="string">&#x27;YYYY/MM/DD HH24:MI:SS&#x27;</span>) <span class="keyword">AS</span> datetime</span><br><span class="line">  <span class="keyword">from</span> dual;</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/02/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png" class="" title="image-20240602222547069">
-
-
-
-<p>可以转换出结果，没问题。就是这样，在<code>to_timestamp</code>里加入<code>NLS_LANGUAGE=AMERICAN</code> 参数可以解决。</p>
-<p>把这段逻辑替换到SP对应的代码里，成功解决日期报错的问题。</p>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>SQL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SQL-违反表的唯一约束条件（主键冲突）问题</title>
-    <url>/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>实际的项目中，采集上游数据到数据集市的贴源层 &gt;&gt; 跑数据转换任务，将数据写入到我们的业务表，在跑转换任务的时候，时不时会报错主键冲突。转换里，通常写着<code>insert</code> <code>update</code> 语句，当向表执行插入和更新操作，时不时出现报错：违反表的唯一约束条件。</p>
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603204053362.png" class="" title="image-20240603204053362">
-
-<p>因为在实际业务中，中间层或者业务层表，通常情况下，是具有主键的（可能是单一主键，可能是复合主键）。</p>
-<span id="more"></span>
-
-<h2 id="常见的两种情况"><a href="#常见的两种情况" class="headerlink" title="常见的两种情况"></a>常见的两种情况</h2><p>1）目标表里已经有了一条数据A，但是转换任务又往目标表里写入一条数据A，导致的报错；</p>
-<p>2）目标表里没有数据，但是转换里，使用的关联条件产生了多条重复数据，导致的报错。</p>
-<p>根据这两种情况对数据进行排查，看看是哪些数据重复了。</p>
-<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1.根据报错的主键名称，查找该索引名是哪张表的主键名</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> all_indexes a</span><br><span class="line"> <span class="keyword">where</span> a.index_name <span class="operator">=</span> <span class="string">&#x27;报错的主键名&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212340949.png" class="" title="image-20240603212340949">
-
-
-
-<p>2.查看该表，查看该主键由哪些字段组成</p>
-<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212455621.png" class="" title="image-20240603212455621">
-
-
-
-<p>3.对于第一种情况，根据这些字段，将目标表与转换里源表进行<code>join</code>，对索引字段进行<code>count</code>，查看是否有重复数据</p>
-<p>例如这张表在转换里源表（from的表）为 <code>ct.st_xxx</code>，那么可以如下，查到重复的数据</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.contract_no, a.stock_account, <span class="built_in">count</span>(<span class="operator">*</span>)</span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
-
-<p>然后，对比该数据，是否完全一致（因为数据可能出现只有主键字段是相同的，但是其他字段不同的情况）</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.<span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">where</span> a.contract_no <span class="operator">=</span> <span class="string">&#x27;查到的contract_no&#x27;</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> <span class="string">&#x27;查到的stock_account&#x27;</span></span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account;</span><br></pre></td></tr></table></figure>
-
-<p>3.1）若一致，则可将目标表里的数据删掉</p>
-<p>3.2）若不一致，应咨询业务，它们是否有区别，根据业务沟通后的方案，将数据备份后，对其更改或删除等操作</p>
-<p>4.对于第二种情况，则需要看转换里，它的<code>insert</code> 或者<code>update</code> 的逻辑，类似：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> table_a (</span><br><span class="line">	col_1,</span><br><span class="line">    col_2,</span><br><span class="line">    ...</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> col_a,</span><br><span class="line">	   col_b,</span><br><span class="line">	   ...</span><br><span class="line">  <span class="keyword">from</span> table_b t1</span><br><span class="line">  <span class="keyword">join</span> table_c t2</span><br><span class="line">    <span class="keyword">on</span> t1.col_a <span class="operator">=</span> t2.col_a</span><br><span class="line">   <span class="keyword">and</span> t1.col_b <span class="operator">=</span> t2.col_b;</span><br></pre></td></tr></table></figure>
-
-<p>然后对关联条件进行检查，看看是不是关联条件出现了 <code>1:N</code> <code>N:N</code> 的情况，如果是，则根据代码的逻辑，对该数据产生的原因进行定位，根据实际情况进行解决。</p>
-]]></content>
-      <categories>
-        <category>数据库</category>
-      </categories>
-      <tags>
-        <tag>SQL</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>kafka-基础知识与实际项目的问题</title>
     <url>/2024/06/24/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/</url>
     <content><![CDATA[<p>最近异常交易的项目中，使用到了<code>kafka</code> ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触<code>kafka</code> ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用<code>kafka</code> 读取数据，做一个流式处理，供下游应用使用数据。</p>
@@ -788,6 +616,133 @@
       </categories>
       <tags>
         <tag>kafka</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux-工作中常用命令总结与常见错误</title>
+    <url>/2024/07/10/Linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/</url>
+    <content><![CDATA[<p>在信创项目上，因为服务器通常是<code>linux</code> 操作系统，所以对<code>linux</code>命令也是经常需要使用。根据实际的项目里，需要经常使用到的<code>linux</code> 命令，做一个总结 。</p>
+<span id="more"></span>
+
+
+
+<h2 id="linux基础命令"><a href="#linux基础命令" class="headerlink" title="linux基础命令"></a>linux基础命令</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash"><span class="built_in">dir</span> 指目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">file 指文件</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">path 指路径</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出当前目录所有内容</span></span><br><span class="line">ll</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">cd /path/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上级目录</span></span><br><span class="line">cd ..</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回上个目录</span></span><br><span class="line">cd -</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示当前路径</span></span><br><span class="line">pwd</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件内容 <span class="built_in">cat</span></span> </span><br><span class="line">cat /path/file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看文件末尾 N 行内容，并实时显示文件追加内容</span></span><br><span class="line">tail -fn N file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /path/to/create_dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建文件</span></span><br><span class="line">touch file_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以使用 vi 编辑空文件保存，也是一个新文件</span></span><br><span class="line">vi file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">删除目录、文件</span></span><br><span class="line">rm -rf dir_name</span><br><span class="line">rm -rf file_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar.gz</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">复制</span></span><br><span class="line">cp /path/dir_name /path/to/new_dir_name</span><br><span class="line">cp -r /path/dir_name /path/to/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">移动</span></span><br><span class="line">mv /path/dir_name /new_path/to/dir_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重命名</span></span><br><span class="line">mv /path/dir_name /path/new_dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀掉进程</span></span><br><span class="line">kill -9 pid</span><br></pre></td></tr></table></figure>
+
+
+
+<p>上述都是基础，当然下边也是基础。</p>
+<p>但是根据我在实际工作中，一个应用的部署过程来做的总结，包括前期应用的搭建，到后期应用服务运维，从一整个项目实施部署的过程，来梳理实际工作中应该掌握哪些命令。</p>
+<h2 id="项目过程中常用命令"><a href="#项目过程中常用命令" class="headerlink" title="项目过程中常用命令"></a>项目过程中常用命令</h2><h3 id="1-验证网络"><a href="#1-验证网络" class="headerlink" title="1 验证网络"></a>1 验证网络</h3><p>先验证应用服务器与数据库服务器网络是否开通，没有开通则沟通走流程开通</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ping ip</span><br><span class="line">telnet ip port</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-1-配置-Hosts"><a href="#1-1-配置-Hosts" class="headerlink" title="1.1 配置 Hosts"></a>1.1 配置 Hosts</h4><p>当 <code>ping</code> <code>telnet</code> 无法找到对应的主机名或服务时，可以配置 <code>hosts</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 ip</span></span><br><span class="line">ip addr</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取主机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-2-配置-DNS"><a href="#1-2-配置-DNS" class="headerlink" title="1.2 配置 DNS"></a>1.2 配置 DNS</h4><p>在项目上，有时候客户不提供 hosts，而是提供 DNS，比如对接邮箱服务的时候提供一个邮箱服务器的 DNS。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">编辑 DNS 文件</span></span><br><span class="line">vi /etc/resolv.con</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加：nameserver 为固定写法</span></span><br><span class="line">nameserver ip</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">nameserver 127.0.0.1</span><br><span class="line">nameserver www.baidu.com</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-创建用户"><a href="#2-创建用户" class="headerlink" title="2 创建用户"></a>2 创建用户</h3><p>在项目部署时，客户的生产环境是不会提供 root 用户的，测试环境上，需要自己创建相关的中间件、数据库用户，然后使用这个用户进行操作，能够使应用服务在测试和生产环境中保持一致的运行情况。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1.创建用户组</span></span><br><span class="line">groupadd -g group_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">groupadd -g dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2.创建用户</span></span><br><span class="line">useradd -g group_name -s /bin/bash -d /home/dir_name -m user_name</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-g：指定用户所属组</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-s：指定用户用的 shell</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-d：指定用户的根目录路径</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-m：创建用户的根目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子,创建 dmdba 用户，并设置用户 ID\所属组\指定 SHELL\指定根目录并创建根目录：</span></span><br><span class="line">useradd -g dmdba -s /bin/bash -d /home/dm -m dmdba</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3.更改用户主、组</span></span><br><span class="line">chown dmdba:dmdba /home/dm</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4.修改用户密码</span></span><br><span class="line">passwd user_name</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-修改权限"><a href="#3-修改权限" class="headerlink" title="3 修改权限"></a>3 修改权限</h3><p>在创建用户后，通常会创建一些目录，用来存放应用包，或者用来安装应用服务。</p>
+<p>如果使用root创建了目录，是需要修改这些目录的权限的</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">mkdir -p /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录所属主、组</span></span><br><span class="line">chown dmdba:dmdba -R /home/dm</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更改目录权限</span></span><br><span class="line">chmod 755 -R /home/dm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-解包"><a href="#4-解包" class="headerlink" title="4 解包"></a>4 解包</h3><p>在创建好目录后，上传应用包，一般为<code>tar.gz</code> 或者 <code>zip</code> </p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到当前目录</span></span><br><span class="line">tar -xzvf file.tar.gz</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 tar 包到指定目录</span></span><br><span class="line">tar -xzvf file.tar.gz /path/to/dir_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压 zip 包</span></span><br><span class="line">unzip file.zip</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="4-1-挂载"><a href="#4-1-挂载" class="headerlink" title="4.1 挂载"></a>4.1 挂载</h4><p>因为有的安装包，是提供一个 <code>iso</code> 镜像文件的，在 linux 里需要先挂载 <code>iso</code> 文件，里边有安装 <code>.sh</code> 脚本</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">挂载 iso 文件，主要挂载目录需要用户能访问，一般在应用主目录下创建一个挂载目录</span></span><br><span class="line">mount -o loop file_name.iso /home/dm/mnt </span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-配置环境变量"><a href="#5-配置环境变量" class="headerlink" title="5 配置环境变量"></a>5 配置环境变量</h3><p>通常的项目是个 java 构建的应用，需要使用 <code>JDK</code> 。如果服务器上没有安装 <code>JDK</code> 包就需要先安装，不过现在发行版的LINUX都是自带了<code>openJDK</code> ，需要根据<code>JDK</code> 的路径去配置环境变量。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">通常情况下，我们是不知道一个新服务器的java安装路径在哪里的，所以我们可以通过命令查找</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先看是否安装</span></span><br><span class="line">java -version</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">有则找 java 路径，这么找：</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">whereis java 或者 <span class="built_in">which</span> java 都可以</span></span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# whereis java</span><br><span class="line">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/java/jdk1.8.0_231/bin/java /usr/share/man/man1/java.1.gz</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /usr/bin/java</span><br><span class="line">lrwxrwxrwx 1 root root 22 Jun  6  2023 /usr/bin/java -&gt; /etc/alternatives/java</span><br><span class="line">[root@FXQ-YWYY-57-81 ~]# ls -lrt /etc/alternatives/java</span><br><span class="line">lrwxrwxrwx 1 root root 73 Jun  6  2023 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre/bin/java</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">知道了 java 的路径，就可以配置环境变量</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置环境变量有两个文件： /etc/profile 全局环境变量； ~/.bash_profile 当前用户的环境变量</span></span><br><span class="line">vi /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64</span><br><span class="line">export JRE_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre</span><br><span class="line">export CLASSPATH=.:$JAVA_HOME/lib:$JRE_HOME/lib</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量生效</span></span><br><span class="line">source /etc/profile</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-服务启停"><a href="#6-服务启停" class="headerlink" title="6 服务启停"></a>6 服务启停</h3><h4 id="6-1-启动服务"><a href="#6-1-启动服务" class="headerlink" title="6.1 启动服务"></a>6.1 启动服务</h4><p>一般多是用后台命令启动</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">nohup server_name &amp;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-2-启动-java-程序"><a href="#6-2-启动-java-程序" class="headerlink" title="6.2 启动 java 程序"></a>6.2 启动 java 程序</h4><p>有的项目需要单独启动某个 <code>jar</code> 包</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -jar file.jar </span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-查看服务状态"><a href="#6-3-查看服务状态" class="headerlink" title="6.3 查看服务状态"></a>6.3 查看服务状态</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">ps -ef | grep app_name</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">例子</span></span><br><span class="line">ps -ef | grep java</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">将 ps -ef 命令的输出结果作为 grep java 的输入</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">ps -ef 会查出所有运行的进程，grep java 则在这些进程里查找有关 java 的进程</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">返回的信息解释</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">user  进程归属用户</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">PID   进程 ID</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">CPU   CPU 使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">MEM   内存使用率</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">STAT  进程状态（R 运行 S 睡眠 Z 卡死）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">START  进程开始运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">TIME  进程运行时间</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">COMMAND  进程执行的命令</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h3 id="7-关闭防火墙"><a href="#7-关闭防火墙" class="headerlink" title="7 关闭防火墙"></a>7 关闭防火墙</h3><p>应用服务如果起来了，但是前台地址打不开的情况，拒绝访问或者无相应。需要关闭防火墙</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止自启（可操作也可不操作，不操作的话，机器重启会自启防火墙）</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="8-查看端口占用情况"><a href="#8-查看端口占用情况" class="headerlink" title="8 查看端口占用情况"></a>8 查看端口占用情况</h3><p>项目上，可能存在端口冲突的情况，比如说某个服务关闭异常导致服务关了但是端口没释放，可排查端口由哪个<code>pid</code> 占用着，将它 <code>kill</code> 掉释放端口</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">natstat -ntlp</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-n  显示地址、端口号</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-t  显示 tcp 连接信息</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-l  显示监听</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-p  显示进程</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="9-追踪日志"><a href="#9-追踪日志" class="headerlink" title="9 追踪日志"></a>9 追踪日志</h3><p>在排查问题过程中，经常需要看日志。</p>
+<p>可以直接实时查看日志，看看哪一步报错</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<p>也可以使用重定向，将日志先清空，避免冗余信息过多，然后再追踪日志</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">&gt; 其实是个重定向，这个命令就是把前边的空内容以覆盖的方式输入到文件里，达到删除效果</span></span><br><span class="line"><span class="meta prompt_">&gt;</span><span class="language-bash">file.log</span></span><br><span class="line">tail -fn 200 file.log</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="10-查看服务器资源占用情况"><a href="#10-查看服务器资源占用情况" class="headerlink" title="10 查看服务器资源占用情况"></a>10 查看服务器资源占用情况</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">top 实时查看资源情况</span></span><br><span class="line">top</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看内存情况</span></span><br><span class="line">free -h</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看磁盘情况</span></span><br><span class="line">df -h</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="11-查看历史命令"><a href="#11-查看历史命令" class="headerlink" title="11 查看历史命令"></a>11 查看历史命令</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">显示历史执行过的命令</span></span><br><span class="line">history</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="12-判断命令是否被拉起"><a href="#12-判断命令是否被拉起" class="headerlink" title="12 判断命令是否被拉起"></a>12 判断命令是否被拉起</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">服务器发送请求，判断应用是否被拉起，当操作机与服务器存在网络问题时可用此判断，如果不能访问，排查操作机的网络与服务器 IP 是否通</span></span><br><span class="line">curl URL</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="常见报错"><a href="#常见报错" class="headerlink" title="常见报错"></a>常见报错</h2><h3 id="1-No-such-file-or-directory"><a href="#1-No-such-file-or-directory" class="headerlink" title="1 No such file or directory"></a>1 No such file or directory</h3><p>执行 <code>shell</code> 脚本的是，可能会遇到这个报错，完整的报错类似下边：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/bin/sh: bad interpreter: No such file or directory</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者</span></span><br><span class="line">/usr/bin/env: &quot;sh\r&quot;: 没有那个文件或目录</span><br></pre></td></tr></table></figure>
+
+<p>是因为编写 <code>shell</code> 脚本时，使用的文本编辑器，它用的换行符是 <code>dos</code> ，在 <code>shell</code> 里的换行符应该需要更改为 <code>unix</code> ，如下设置</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi file.sh</span><br><span class="line">:set ff=unix	# :set ff 可以查看当前 shell 脚本的换行符是 dos 还是 unix</span><br><span class="line">:wq				# 保存</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-Permission-denied"><a href="#2-Permission-denied" class="headerlink" title="2 Permission denied"></a>2 Permission denied</h3><p>就是因为权限的原因。在测试环境中使用了 root 用户操作，具有系统所有权，所以操作什么都不会报错。但是到了生产环境，一般是没有 root 的权限的，所以当执行一些需要用到 root 权限的命令时，就会报错。</p>
+<p>通常是因为 <code>shell</code> 脚本中，存在授权 <code>chmod</code> 、创建软链 <code>ln -s</code> 等命令。</p>
+<hr>
+<center>END</center>
+
+]]></content>
+      <categories>
+        <category>Linux运维</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
       </tags>
   </entry>
   <entry>
@@ -1006,163 +961,409 @@
       </tags>
   </entry>
   <entry>
-    <title>实施部署-信创项目环境搭建准备（一）</title>
-    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</url>
-    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B&#x2F;S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用javascrpit做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。</p>
+    <title>实施部署-东方通中间件、宝兰德部署应用（三）</title>
+    <url>/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/</url>
+    <content><![CDATA[<p>本文总结在信创项目中，使用最多的中间件：东方通、宝兰德。</p>
+<p>在安装中间件之前，应先在服务器创建一个应用用户，这里并不是说不能用root用户安装，开发环境和测试环境可以直接安装，但是生产上是无特殊情况是不提供root用户的。为了避免因为用户差异导致的文件执行问题，这里先创建一个用户，上线时，可以保证我们的操作一致，以及后续方便排查部署过程中可能产生的报错。</p>
 <span id="more"></span>
 
-<p>那运行产品的环境的搭建就主要包括：WEB服务的部署、数据库的部署。当然也有其他的服务，但其他服务需要根据产品的需要进行部署的。我主要负责信创类项目的实施部署，都是在LINUX服务器上部署。</p>
-<p>一个环境搭建的思路：</p>
-<p>前期环境的准备 &gt;&gt; 数据库部署 &gt;&gt; 中间件与应用部署 &gt;&gt; ETL工具部署</p>
-<p>本文总结前期环境的准备</p>
-<h2 id="1-信创项目知识"><a href="#1-信创项目知识" class="headerlink" title="1 信创项目知识"></a>1 信创项目知识</h2><p>信创类产品的实施部署从 0 到 1 ，实施部署前期需要了解什么，作为跟客户沟通的技术知识保障。</p>
-<h3 id="1-1-信创软硬件"><a href="#1-1-信创软硬件" class="headerlink" title="1.1 信创软硬件"></a>1.1 信创软硬件</h3><p>数据库：达梦<br>中间件：东方通、宝兰德<br>服务器操作系统：麒麟、统信<br>硬件平台：飞腾、华为、龙芯、海光、鲲鹏……<br>内核：AMD、ARM</p>
-<h3 id="1-2-确认服务器架构信息"><a href="#1-2-确认服务器架构信息" class="headerlink" title="1.2 确认服务器架构信息"></a>1.2 确认服务器架构信息</h3><p>信创，产品的框架与数据平台均做了适配，都需要根据内核来确认使用哪个版本。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span></span><br><span class="line"><span class="comment"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span></span><br><span class="line"><span class="comment"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回内核版本、架构</span></span><br><span class="line">uname -a</span><br><span class="line"><span class="comment"># 返回内核版本</span></span><br><span class="line">cat /proc/version</span><br><span class="line"><span class="comment"># 返回系统信息（包括内核、操作系统版本）</span></span><br><span class="line">hostnamectl</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="安装前准备"><a href="#安装前准备" class="headerlink" title="安装前准备"></a>安装前准备</h2><h3 id="1-创建中间件用户"><a href="#1-创建中间件用户" class="headerlink" title="1 创建中间件用户"></a>1 创建中间件用户</h3><p>在应用服务器上使用root用户</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建用户组</span></span><br><span class="line">groupadd -g 1051 test</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建用户</span></span><br><span class="line">useradd -g test -m -d /home/test -s /bin/bash test</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">修改密码</span></span><br><span class="line">passwd test</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="1-3-确认服务器内存信息"><a href="#1-3-确认服务器内存信息" class="headerlink" title="1.3 确认服务器内存信息"></a>1.3 确认服务器内存信息</h3><p>JAVA服务端通常需要设置服务的 JVM ，生产环境通常推荐 JVM &gt; 16G</p>
-<p>开发环境、测试环境 JVM 减半作为参考即可</p>
-<p>比如：在部署中间件、宝兰德中间件的时候，默认的 JVM 都是 2G，测试服务器只有8G内存的情况下，中间件的JVM修改为4G。</p>
-<h3 id="1-4-确认数据库参数"><a href="#1-4-确认数据库参数" class="headerlink" title="1.4 确认数据库参数"></a>1.4 确认数据库参数</h3><p>我所遇到的信创项目种，数据库通常使用达梦数据库。达梦数据库，有几个参数是在初始化实例的时候就需要确定的，且初始化实例后无法进行修改，除非重新初始化实例：</p>
+<h3 id="2-hosts配置"><a href="#2-hosts配置" class="headerlink" title="2 hosts配置"></a>2 hosts配置</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看本机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看本机IP</span></span><br><span class="line">hostname -i</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置hosts</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-修改文件打开最大数"><a href="#3-修改文件打开最大数" class="headerlink" title="3 修改文件打开最大数"></a>3 修改文件打开最大数</h3><p>说明：此步骤，安装东方通时可跳过的，宝兰德需要操作（以我接触的项目情况是这样的）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">* soft nofile 65535</span><br><span class="line">* hard nofile 65535</span><br><span class="line">* soft nproc 65535</span><br><span class="line">* hard nproc 65535</span><br></pre></td></tr></table></figure>
+
+<p>保存后重新连接服务器</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否生效</span></span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204654771.png" class="" title="image-20240610204654771">
+
+
+
+<h3 id="4-配置JDK"><a href="#4-配置JDK" class="headerlink" title="4 配置JDK"></a>4 配置JDK</h3><p>没有则安装，一般信创的机器是自带的。但是有时候，为了确保这个版本的JDK是中间件以及应用服务都可用，采用自己安装，多为安装 JDK1.8 版本（自己安装需要上传jdk到服务器并解压tar包）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否安装</span></span><br><span class="line">java -version</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204935579.png" class="" title="image-20240610204935579">
+
+
+
+<p>已经有了，则可以直接配置环境变量，当然，得知道路径才能配置环境变量</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看 JDK 的安装路径</span></span><br><span class="line">which java</span><br><span class="line">ls -l /usr/bin/java</span><br><span class="line">ls -l /etc/alternatives/java</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205138494.png" class="" title="image-20240610205138494">
+
+<p>最下边返回的，就是 JDK 真是的安装路径</p>
+<p>找到JDK安装路径后，添加环境变量：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.bashrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在末尾加入</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.x86_64/jre</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量</span></span><br><span class="line">source ~/.bashrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">输出配置的环境变量</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205434632.png" class="" title="image-20240610205434632">
+
+
+
+<p>配置好环境变量后，就可以进行中间件的安装了</p>
+<h2 id="东方通部署应用"><a href="#东方通部署应用" class="headerlink" title="东方通部署应用"></a>东方通部署应用</h2><p>东方通中间件部署应用的详细步骤，从东方通安装到管理控制台配置的过程。</p>
+<h3 id="1-东方通的安装"><a href="#1-东方通的安装" class="headerlink" title="1 东方通的安装"></a>1 东方通的安装</h3><p>东方通在LINUX上安装，需要通过命令的方式安装。（PS：这个已经是22年的版本了，当时接触东方通的时候，安装包是一个.bin文件，但是到了23年，东方通的安装包基本都是提供一个tar包，安装只需要解压tar包即可。方便很多，但是既然是自己安装的中间件，当然要记录啦）</p>
+<h4 id="1-1-bin包安装"><a href="#1-1-bin包安装" class="headerlink" title="1.1 bin包安装"></a>1.1 bin包安装</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 运行安装包</span></span><br><span class="line">sh Install_TW7.*.*.*_Enterprise_Linux.bin -i console</span><br><span class="line"><span class="comment"># 选择语言</span></span><br><span class="line">中文简体</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180330666.png" class="" title="image-20240610180330666">
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 中间会出现 【按回车键继续安装】【PRESS &lt;ENTER&gt; TO CONTINUE】</span></span><br><span class="line">按回车就行</span><br><span class="line"><span class="comment"># 然后回出现 【是否接受此许可协议条款】</span></span><br><span class="line"><span class="keyword">y</span></span><br><span class="line"><span class="comment"># 选择 JDK</span></span><br><span class="line">选择系统自带的 JDK 即可，当然也可以使用自己安装的，图上是使用自己安装的（最好是适配应用的 JDK 版本）</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180404626.png" class="" title="image-20240610180404626">
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择安装位置</span></span><br><span class="line">输入一个安装路径</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180524062.png" class="" title="image-20240610180524062">
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择链接位置</span></span><br><span class="line">这里常链接到主文件夹中</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180543262.png" class="" title="image-20240610180543262">
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 出现预安装信息</span></span><br><span class="line">回车即可</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180615157.png" class="" title="image-20240610180615157">
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改端口</span></span><br><span class="line">此步骤，可修改可不改。无特殊要求可直接使用默认（回车）。有特殊要求，则更改端口，这里也可以安装好后在配置文件中修改（$TONGWEB_HOME/conf/tongweb.xml)</span><br><span class="line">通常我们关注以下两个</span><br><span class="line">tong-http-listener，此为访问应用端口</span><br><span class="line"><span class="keyword">system</span>-http-listener，此为东方通控制台端口</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180647406.png" class="" title="image-20240610180647406">
+
+<p>回车后就安装完成了。</p>
+<h4 id="1-2-tar包安装"><a href="#1-2-tar包安装" class="headerlink" title="1.2 tar包安装"></a>1.2 tar包安装</h4><p>提供的tar包，只需要解压到目标目录即可。当然，tar有多种压缩格式，最常碰见的就是 <code>tar.gz</code> </p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">tar -xzvf tongweb_version_7.x.x.x /home/tongweb</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="1-3-授权"><a href="#1-3-授权" class="headerlink" title="1.3 授权"></a>1.3 授权</h4><p>将安装后的目录，授权给中间件用户</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chown test:test -R /home/tongweb</span><br><span class="line">chmod 755 -R /home/tongweb</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-启动配置"><a href="#2-启动配置" class="headerlink" title="2 启动配置"></a>2 启动配置</h3><p>以下常见配置，均为在项目上能够实际遇到的</p>
+<h4 id="2-1-修改端口"><a href="#2-1-修改端口" class="headerlink" title="2.1 修改端口"></a>2.1 修改端口</h4><p>根据客户要求，或者应用要求，配置我们的应用端口。（如果是使用默认端口则不需要修改）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">假设安装到 /home/tongweb</span></span><br><span class="line">vi /home/tongweb/conf/tongweb.xml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">修改 tong-http-listener 的 port</span></span><br><span class="line">port = 8080</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-2-关闭防火墙"><a href="#2-2-关闭防火墙" class="headerlink" title="2.2 关闭防火墙"></a>2.2 关闭防火墙</h4><p>在启动东方通控制台之前，需要关闭防火墙，否则操作机器无法访问到控制台地址。（在第一次接触东方通的时候，当时服务已经启动了，但是打不开控制台，我还以为是网络没打通，结果一查是防火墙导致）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭防火墙</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止防火墙自启，通常情况下，不需要禁止，但是如果遇到服务器重启的情况，首先还是需要手动关闭</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-3-启停服务"><a href="#2-3-启停服务" class="headerlink" title="2.3 启停服务"></a>2.3 启停服务</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">正常启动</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startserver.sh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">后台启动（常用）</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startservernohup.sh </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">停止</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./stopserver.sh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者手动 <span class="built_in">kill</span></span></span><br><span class="line">kill -9 &#123;pid&#125;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startservernohup.sh restart</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="2-4-打开控制台"><a href="#2-4-打开控制台" class="headerlink" title="2.4 打开控制台"></a>2.4 打开控制台</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">http:<span class="regexp">//ip</span>:port/console</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="3-控制台配置"><a href="#3-控制台配置" class="headerlink" title="3 控制台配置"></a>3 控制台配置</h3><h4 id="3-1-修改服务器可选目录"><a href="#3-1-修改服务器可选目录" class="headerlink" title="3.1 修改服务器可选目录"></a>3.1 修改服务器可选目录</h4><p>此步骤是确保在部署应用的时候，可以访问到应用所在的位置，不然找不到</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610182051772.png" class="" title="image-20240610182051772">
+
+
+
+<h4 id="3-2-JDBC-配置"><a href="#3-2-JDBC-配置" class="headerlink" title="3.2 JDBC 配置"></a>3.2 JDBC 配置</h4><p>JDBC配置就是让中间件连接到数据库，让应用能够与数据库进行交互。</p>
+<p>需要注意的地方：</p>
 <ul>
-<li>页大小 (page_size)</li>
-<li>簇大小 (extent_size)</li>
-<li>大小写敏感 (case_sensitive)</li>
-<li>字符集 (charset)</li>
+<li>达梦JDBC驱动，最好使用新版，或者应用做了适配的版本。</li>
+<li>JDBC连接名称，需要与应用中的<code>jndiName</code> 一致，一般的java服务会有一个<code>xml</code>文件配置<code>dispatcher-servlet</code> 的地方，否则可能会报错在应用中找不到 <code>jndiName</code> 。特别是在做信创迁移的时候，会出现一种情况：tomcat里使用的jndiName与东方通里使用的jndiName名称不一致，此时需要注意修改为一致。</li>
 </ul>
-<p>下表为这几个参数的具体含义：</p>
-<table>
-<thead>
-<tr>
-<th>名称</th>
-<th>含义</th>
-<th>可设置值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>page_size</td>
-<td>数据文件使用的页大小</td>
-<td>4&#x2F;8&#x2F;16&#x2F;32</td>
-</tr>
-<tr>
-<td>extent_size</td>
-<td>簇大小，每次分配新的段空间时连续的页面</td>
-<td>16&#x2F;32&#x2F;64</td>
-</tr>
-<tr>
-<td>case_sensitive</td>
-<td>标识符大小写敏感。当大小写敏感时，小写的标识符要用双引号括起，否则被转换为大写；当大小写不敏感时，系统不自动转换标识符的大小写，在标识符比较时也不区分大小写。默认 Y （1）敏感</td>
-<td>Y&#x2F;N（1&#x2F;0）</td>
-</tr>
-<tr>
-<td>charset</td>
-<td>字符集选项，0：GB18030；1：UTF-8（默认0）</td>
-<td>0&#x2F;1</td>
-</tr>
-<tr>
-<td>length_in_char</td>
-<td>VARCHAR类型长度是否以字符为单位（默认为N   0 ）</td>
-<td>Y&#x2F;N（1&#x2F;0）</td>
-</tr>
-</tbody></table>
-<p>页大小与字段长度有关，簇大小与表空间有关，但是这两个都与我们没有关系，我们需要注意的只有 2 个：</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610182141313.png" class="" title="image-20240610182141313">
+
+
+
+<p>另外，基于项目经验猜测，基于 webbuilder 的框架，都有 WEB-INF&#x2F;dispatcher-servlet.xml 文件，同样的，也会有变量配置，变量配置可能是落到数据库中，也可能使用 <code>var.json</code> 文件进行配置。差异不大，都是会有 jndiName 的配置</p>
+<h4 id="3-3-部署应用"><a href="#3-3-部署应用" class="headerlink" title="3.3 部署应用"></a>3.3 部署应用</h4><p>如果没有【3.1修改服务器可选目录】，这里是访问不到应用所在的目录的</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610183424898.png" class="" title="image-20240610183424898">
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610183438301.png" class="" title="image-20240610183438301">
+
+
+
+<p>点击开始部署，一般这里没什么多大的问题，都取默认即可。</p>
+<h4 id="3-4-访问应用"><a href="#3-4-访问应用" class="headerlink" title="3.4 访问应用"></a>3.4 访问应用</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">http://ip:port/app_name</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-多种部署情况说明"><a href="#4-多种部署情况说明" class="headerlink" title="4 多种部署情况说明"></a>4 多种部署情况说明</h3><h4 id="4-1-一个东方通部署多个应用"><a href="#4-1-一个东方通部署多个应用" class="headerlink" title="4.1 一个东方通部署多个应用"></a>4.1 一个东方通部署多个应用</h4><p>遇到过客户为了节省开发环境或者测试环境的资源，会让我们在一个东方通部署多个应用（就是与其他应用共享资源）。对于不同的应用，是可以的。</p>
+<p>针对是部署相同的应用，需要</p>
 <ul>
-<li>大小写敏感</li>
-<li>字符集编码</li>
+<li>建立新的连接池，修改<code>jndiName</code> ，以防应用访问错数据库</li>
 </ul>
-<p>产品多为oracle开发，从oracle移植过来，为了更好的兼容，通常开启大小写敏感；字符集编码是GB18030还是UTF-8没关系，但是开发环境、测试环境、生产环境需要字符集编码一致。</p>
-<p>在实际的项目实施部署中，客户的开发环境、测试环境通常由我们厂商维护，只有生产环境是由DBA维护。所以在前期的沟通中，我们需要跟DBA确认好达梦数据库里的上述参数，确保开发环境、测试环境、生产环境保持一致。</p>
-<p>总结了一份模板如下，页大小和簇大小根据在生产上通常建议设置为32</p>
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/image-20240606222536306.png" class="" title="image-20240606222536306">
+<h5 id="直接部署"><a href="#直接部署" class="headerlink" title="直接部署"></a>直接部署</h5><p>直接部署则按照【3.1-3.3】步骤，部署应用即可</p>
+<p>注意：直接部署，东方通是按顺序拉起应用的，启动会慢一些，并且公用 IP 和 PORT ，东方通服务停掉会影响所有应用。</p>
+<h5 id="域部署"><a href="#域部署" class="headerlink" title="域部署"></a>域部署</h5><p>通过创建域，让各个应用启动和配置不相互影响。使用 <code>TONGWEB_HOME/bin</code> 下的启停命令不会影响到域里边的应用，域里的应用独立启停和配置，且端口不会冲突</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建域</span></span><br><span class="line">cd TONGWEB_HOME/bin</span><br><span class="line">./domain.sh create AppName</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">执行后，在东方通的根目录下会出现 domains 目录，目录里边的结构与根目录完全一致，有 /bin /conf /logs 等等</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">域的启停，与东方通完全一致，不过是在 /domains/bin 下</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置文件也在 /domains/conf 下</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置域的端口</span></span><br><span class="line">cd TONGWEB_HOME/domains/conf</span><br><span class="line">vi tongweb.xml        # 域的默认端口是东方通默认的端口+1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启停</span></span><br><span class="line">cd TONGWEB_HOME/domains/bin</span><br><span class="line">./startservernohup.sh          # 启动</span><br><span class="line">./stopserver.sh                # 停止</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">默认的域管理控制台：</span></span><br><span class="line">http://IP:PORT+1/console       # 比如东方通默认端口 9060，域端口则为 9061</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">应用访问：</span></span><br><span class="line">http://IP:PORT+1/app_name      # 比如应用默认端口 8088，域端口则为 8089</span><br></pre></td></tr></table></figure>
 
 
 
-<h4 id="1-4-1-参数带来的影响"><a href="#1-4-1-参数带来的影响" class="headerlink" title="1.4.1 参数带来的影响"></a>1.4.1 参数带来的影响</h4><h5 id="1）编码不一致"><a href="#1）编码不一致" class="headerlink" title="1）编码不一致"></a>1）编码不一致</h5><p>当开发环境或者测试环境，与生产环境的字符集编码不一致时，可能会产生字符串长度相关的报错。</p>
-<p>比如：</p>
-<p>测试环境上是 GB18030 编码，但是生产环境上是 UTF8 编码，因为 GB 编码存一个中文需要的 1 个字节少于 UTF8 存一个中文需要的 3 个字节，测试后的产品功能上了生产环境可能会报出字符串截断的错误。</p>
-<h5 id="2）大小写敏感不一致"><a href="#2）大小写敏感不一致" class="headerlink" title="2）大小写敏感不一致"></a>2）大小写敏感不一致</h5><p>大小写敏感：查数据内容时，查 a 就是 a，查 A 就是 A</p>
-<p>大小写不敏感：查数据内容时，查 a 返回 A、a</p>
-<p>如果不设置大小写敏感，不仅是在写查询SQL的时候会影响，在创建对象、写存储过程时，对象名称、字段名称也会受到影响。比如：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A (id varchar2(<span class="number">8</span>));</span><br><span class="line"><span class="keyword">insert</span> table_a <span class="keyword">values</span>(<span class="string">&#x27;001&#x27;</span>);</span><br><span class="line"># <span class="keyword">insert</span> 就会报错，因为 table_a 不存在，必须与创建的表名一模一样才可以</span><br></pre></td></tr></table></figure>
+<h3 id="5-设置connection-timeout"><a href="#5-设置connection-timeout" class="headerlink" title="5 设置connection-timeout"></a>5 设置connection-timeout</h3><p>有些客户，在扫描整体的安全漏洞时，会检测到目标主机可能存在缓慢的 HTTP 拒绝服务攻击，这个就是中间件里配置connection-timeout即可。</p>
+<p>简单来说，通过发送大量的慢速或低频率的 HTTP 请求来占用目标服务器的资源，导致服务器的连接和内存资源被恶意连接占满，无法处理新的合法请求。</p>
+<p>tomcat 可以通过修改 <code>server.xml</code> 文件中的配置来设置 <code>connectionTimeout</code> 参数</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;8080&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;HTTP/1.1&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxHttpHeaderSize</span>=<span class="string">&quot;8192&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxThreads</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">minSpareThreads</span>=<span class="string">&quot;50&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxSpareThreads</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">minProcessors</span>=<span class="string">&quot;50&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxProcessors</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">enableLookups</span>=<span class="string">&quot;false&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">connectionTimeout</span>=<span class="string">&quot;8000&quot;</span>      // <span class="attr">修改此处值</span></span></span><br><span class="line"><span class="tag">           <span class="attr">acceptCount</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">URIEncoding</span>=<span class="string">&quot;UTF-8&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
 
 
 
-<h4 id="1-4-2-其他可能需要修改的参数"><a href="#1-4-2-其他可能需要修改的参数" class="headerlink" title="1.4.2 其他可能需要修改的参数"></a>1.4.2 其他可能需要修改的参数</h4><p>此处的参数指，达梦数据库 <code>dm.ini</code> 配置文件里的参数。在开发环境、测试环境可由自己根据实际情况更改，在生产上必须与DBA沟通后进行更改，也需要保持三个环境中参数的一致性。</p>
-<p><code>dm.ini </code>配置文件中，有静态参数、动态参数。静态参数需要重启数据库服务后才生效，在生产上重启数据库是一件严肃的事情，需要修改的参数需要自己做好验证是否能够解决实际的情况。</p>
-<h5 id="1）COMPATIBLE-MODE"><a href="#1）COMPATIBLE-MODE" class="headerlink" title="1）COMPATIBLE_MODE"></a>1）COMPATIBLE_MODE</h5><p>该参数用于控制达梦数据库在部分功能处理时与其他数据库的兼容模式。常用设置：</p>
-<ul>
-<li>0 - 不兼容</li>
-<li>1 - 兼容SQL92标准</li>
-<li>2 - 兼容ORACLE</li>
-<li>3 - 兼容SQL SERVER</li>
-<li>4 - 兼容MYSQL</li>
-</ul>
-<p>通常项目上，此参数设置为2，可以更好的适配基于ORACLE开发的产品代码。</p>
-<h6 id="【例子】"><a href="#【例子】" class="headerlink" title="【例子】"></a>【例子】</h6><p>达梦数据库默认<code>NULL</code> 与<code>空值</code>是不等价的，NULL就是NULL，空值就是空值。某个功能查询需要同时满足它们，需要这样写：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="keyword">is</span> <span class="keyword">null</span> <span class="keyword">or</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
-
-<p>ORACLE中默认<code>NULL</code> 和<code>空值</code>是等价的，同时满足只需要：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
-
-<p>修改<code>COMPATIBLE_MODE</code>参数为<code>2</code>即可跟在ORACLE上的查询写法一致。</p>
-<h5 id="2）PK-WITH-CLUSTER"><a href="#2）PK-WITH-CLUSTER" class="headerlink" title="2）PK_WITH_CLUSTER"></a>2）PK_WITH_CLUSTER</h5><p>该参数默认为<code>1</code> </p>
-<p>该参数与建表时的主键索引有关，达梦数据库在创建表时，如果创建主键，则默认主键是聚簇索引键。如果没有主键，则默认<code>rowid</code> 作为聚簇索引键</p>
-<h6 id="【例子】-1"><a href="#【例子】-1" class="headerlink" title="【例子】"></a>【例子】</h6><p>当在达梦数据建表时，同时出现主键、字段为大字段CLOB类型的时候，就会报错：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A(</span><br><span class="line">	id varchar2(<span class="number">8</span>) <span class="keyword">primary</span> key,</span><br><span class="line">    name varchar2(<span class="number">20</span>),</span><br><span class="line">    addr <span class="type">clob</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段</span></span><br></pre></td></tr></table></figure>
-
-<p>此时，修改参数<code>PK_WITH_CLUSTER=0</code> ，再创建有主键、字段为CLOB类型的表，就可以创建成功。</p>
-<h6 id="【关于聚簇索引】"><a href="#【关于聚簇索引】" class="headerlink" title="【关于聚簇索引】"></a>【关于聚簇索引】</h6><blockquote>
-<p>表（列存储表和堆表除外）都是使用 B+树(以下简称 B 树)索引结构管理的，每一个普通表都有一个聚集索引，数据通过聚集索引键排序，根据聚集索引键可以快速查询任何记录。（即表是一个索引，这个索引名称叫聚集索引，可以理解为创建一个表后，将所有字段放在一起建立一个复合索引，只不过这个不需要我们来创建，系统自动给我们维护了一个）</p>
-</blockquote>
-<blockquote>
-<p>当建表语句未指定聚集索引键，DM 的默认聚集索引键是 ROWID，即记录默认以 ROWID 在页面中排序。ROWID 是 B 树为记录生成的逻辑递增序号，表上不同记录的 ROWID 是不一样的，并且最新插入的记录 ROWID 最大。很多情况下，以 ROWID 建的默认聚集索引并不能提高查询速度，因为实际情况下很少人根据 ROWID 来查找数据。</p>
-</blockquote>
-<p><a href="">原文链接： https://blog.csdn.net/sinat_32856657&#x2F;article&#x2F;details&#x2F;125410328</a></p>
-<h5 id="3）CALS-AS-DECIMAL"><a href="#3）CALS-AS-DECIMAL" class="headerlink" title="3）CALS_AS_DECIMAL"></a>3）CALS_AS_DECIMAL</h5><p>该参数是控制 整数除法运算是否舍弃小数。</p>
-<p>在达梦数据库中，整数相除或者使用<code>ROUND</code>函数，结果如果有小数位，会被直接舍弃，返回整数。</p>
-<p>比如</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">9</span><span class="operator">/</span><span class="number">2</span> <span class="keyword">from</span> dual;</span><br><span class="line"><span class="comment">-- 会返回4</span></span><br></pre></td></tr></table></figure>
-
-<p>可修改<code>CALC_AS_DECIMAL=1</code> 让运算不舍弃小数位</p>
-<h5 id="关于参数修改方式"><a href="#关于参数修改方式" class="headerlink" title="关于参数修改方式"></a>关于参数修改方式</h5><p>第一种：通过<code>dm.ini</code> 修改参数</p>
-<p>第二种：在达梦SQL窗口中，执行：</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sp_set_para_value(old_values, <span class="string">&#x27;param_name&#x27;</span>, new_values);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 例如</span></span><br><span class="line">sp_set_para_value(<span class="number">1</span>,<span class="string">&#x27;PK_WITH_CLUSTER&#x27;</span>,<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="1-5-确认数据库用户权限"><a href="#1-5-确认数据库用户权限" class="headerlink" title="1.5 确认数据库用户权限"></a>1.5 确认数据库用户权限</h3><p>产品需要的用户大部分情况下是使用了DBA角色的权限，但是在项目实施时（特别是在生产环境中），会有部分客户认为产品上 DBA 权限不合理，也会有部分客户授权 DBA 是需要走流程申请。</p>
-<p>所以这一点在前期就需要跟客户确认，用户权限能否授予DBA权限。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建达梦用户脚本</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建表空间</span></span><br><span class="line"><span class="comment">-- 默认初始大小 500MB，每次自增 40MB，最大 10G</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span>space &quot;TS_TEST&quot; datafile <span class="string">&#x27;/dm8/data/DAMENG/TS_TEST.DBF&#x27;</span> size <span class="number">500</span> autoextend <span class="keyword">on</span> next <span class="number">40</span> maxsize <span class="number">10240</span>;    <span class="comment">-- 生产上可扩展为 unlimited</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> &quot;test&quot; identified <span class="keyword">by</span> &quot;testdata123&quot; <span class="keyword">default</span> tablespace TS_test;</span><br><span class="line"><span class="keyword">grant</span> &quot;DBA&quot; <span class="keyword">to</span> &quot;test&quot;;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">delete</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">execute</span> <span class="keyword">any</span> <span class="keyword">procedure</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">insert</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> dictionary <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> unlimited tablespace <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">update</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>甚至有的客户（我遇到的一个），认为<code>ANY</code>权限也是有大隐患的，需要针对到具体表名的权限。</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">DELETE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">UPDATE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">INSERT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br></pre></td></tr></table></figure>
-
-<p>这种情况就没办法了，很麻烦，一个成熟且功能复杂的产品，可能标准版初始的表就有上千张（还不包括后续的开发新的功能表），存储过程、自定义函数等等也有上千个。每个存储过程用到的表都不一样，要一一梳理哪些用户select，哪个用户要delete等等，后期就需要额外的花时间去进行梳理。<del>（虽然更安全、合规，但是麻烦的是我~吐槽一下）</del></p>
-<h2 id="2-达梦权限说明"><a href="#2-达梦权限说明" class="headerlink" title="2 达梦权限说明"></a>2 达梦权限说明</h2><p>通常我们在部署时，JDBC 中的连接，我们使用 <code>WOLF</code>  <code>WOLFDATA</code> 用户去连接，或者使用 <code>WOLF</code> 去配置两个 JDBC 连接，指向 <code>WOLF</code>  <code>WOLFDATA</code> 模式（达梦中 schema 的概念，可以把它当成 oracle 的实例概念）。</p>
-<p>使用了 <code>WOLF</code> 用户去配置 JDBC 连接，那么此时，在系统进行日常操作的时候，在数据库中就是基于 <code>WOLF</code> 用户对对各个对象（TABLE \ SP \ FUNCTION \ VIEW \ TYPE \ PACKAGE 等）进行增删改查操作。</p>
-<p>通常情况下，框架提供的默认权限脚本权限多含 <code>DBA</code> 或者 <code>ANY</code> 权限，但是在生产环境上其实是不被允许的。在用户具备 DBA \ DROP ANY OBJECTS 的情况，能做的事情比较多，包括了对表空间（数据文件）的更改、跨用户删除表 等危险操作。</p>
-<p>因此在权限上，有的客户会要求梳理到具体的表需要什么权限。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>.除了本身的 ROURCE 角色外，需要对系统表的查询权限，SOV\SVI 角色</span><br><span class="line"><span class="number">2</span>.需要对 WOLFDATA 具有完全执行权，WOLFDATA 下一般只有表，对这些表有增删改查即可</span><br><span class="line"><span class="number">3</span>.对产品用户的对象：（不包含达梦自身用户的对象）</span><br><span class="line">  所有 TABLE 有 INSERT \ DELETE \ UPDATE \ SELECT 权限</span><br><span class="line">  所有 VIEW  有 SELECT 权限</span><br><span class="line">  所有 SP    有 EXECUTE 权限</span><br><span class="line">  所有的 FUNC 有 EXECUTE</span><br><span class="line">  所有的 PACKAGE 有 EXECUTE  （达梦的 TYPE 类型集合到了 PACKAGE 里）</span><br><span class="line">  所有的 CLASS 有 EXECUTE</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">其他的产品用户，权限则需要有自身的 RESOURCE 用户外，</span><br><span class="line">还应该从自身的 SP 中逐一排查需要的 跨用户对象的某个权限</span><br><span class="line"></span><br><span class="line">比如 RISKCONFIG 的 SP 中通常含有对中间层表的 DELETE \ INSERT \ SELECT \ UPDATE</span><br><span class="line">则应该为 RISKCONFIG 用户赋予中间层表的 DELETE \ INSERT \ SELECT \ UPDATE 权限。</span><br><span class="line"></span><br><span class="line">不需要 WOLF 对中间层表有权限，WOLF 只需要有执行该 SP 的权限即可。</span><br></pre></td></tr></table></figure>
+<p>同样的，在信创上，东方通中间件也可通过设置对应的请求，在 tongweb&#x2F;conf&#x2F;tongweb.xml 配置文件中，connection-timeout 对接的前台页面就是 http 通道里的 <code>连接超时</code> ，修改此处即可（默认 60000 &gt;&gt; 改为 8000）</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610213153662.png" class="" title="image-20240610213153662">
 
 
 
 
 
-<p>前期将这些沟通好，等客户给服务器的相关信息，就可以开始着手准备实施部署产品了。</p>
+<h2 id="宝兰德部署应用"><a href="#宝兰德部署应用" class="headerlink" title="宝兰德部署应用"></a>宝兰德部署应用</h2><p>该步骤为宝兰德集群版本的安装步骤，非单实例。集群版本，需要配置节点、实例。实例的启动依赖于节点的启动，节点停止则实例停止。</p>
+<p>正确的启动顺序：集群 &gt;&gt; 节点 &gt;&gt; 实例</p>
+<h3 id="1-宝兰德的安装"><a href="#1-宝兰德的安装" class="headerlink" title="1 宝兰德的安装"></a>1 宝兰德的安装</h3><p>将安装介质放入服务器，并解压</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用中间件用户</span></span><br><span class="line">su - bes</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入介质目录</span></span><br><span class="line">cd /home/BES955</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压</span></span><br><span class="line">tar -zxvf BES-AppServer-Enterprise-9.5.5.6210-KYLIN10-X64.tar.gz -C /home/BES955/AdminServer</span><br></pre></td></tr></table></figure>
+
+
+
+<p>如果有补丁，则需要升级补丁。将补丁包放到 patch 目录下，执行</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd /home/BES955/AdminServer/bin</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">升级补丁</span></span><br><span class="line">./patch -path /home/jfcz/patch</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否升级完成</span></span><br><span class="line">./patch -list</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210006502.png" class="" title="image-20240610210006502">
+
+
+
+<h3 id="2-初始化并启动"><a href="#2-初始化并启动" class="headerlink" title="2 初始化并启动"></a>2 初始化并启动</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在bin目录下执行，初始化中间件</span></span><br><span class="line">./initstore</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动管理控制台</span></span><br><span class="line">./startManagement</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否启动，出现6900端口为已启动</span></span><br><span class="line">netstat -ntlp</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210257908.png" class="" title="image-20240610210257908">
+
+
+
+<h3 id="3-配置中间件"><a href="#3-配置中间件" class="headerlink" title="3 配置中间件"></a>3 配置中间件</h3><p>访问管理控制台</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">http://IP:6900/console</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="3-1-添加主机"><a href="#3-1-添加主机" class="headerlink" title="3.1 添加主机"></a>3.1 添加主机</h4><p>进入控制台后，点击左侧主机管理，点击添加：<br>填写名称、主机IP、用户名、密码，信息如图</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210617629.png" class="" title="image-20240610210617629">
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210646602.png" class="" title="image-20240610210646602">
+
+<p>可以点击ping，测试是否能连接。不能ping通请检查IP、用户、密码是否正确。</p>
+<h4 id="3-2-添加节点"><a href="#3-2-添加节点" class="headerlink" title="3.2 添加节点"></a>3.2 添加节点</h4><p>点击左侧节点管理，新建</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210752739.png" class="" title="image-20240610210752739">
+
+
+
+<p>填写节点名称、节点目录（默认填宝兰德的安装目录），JAVA_HOME可默认不填</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210903059.png" class="" title="image-20240610210903059">
+
+<p>保存后，启动它。</p>
+<p>点击节点，进入节点的配置界面，将【启动所有实例、停止所有实例】打勾后保存（这个操作可以在启动节点的同时自动启动实例）</p>
+<h4 id="3-3-创建集群"><a href="#3-3-创建集群" class="headerlink" title="3.3 创建集群"></a>3.3 创建集群</h4><p>点击左侧集群管理，点击新建：填写个集群名称即可。保存后选中该集群然后点击启动。</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211656153.png" class="" title="image-20240610211656153">
+
+
+
+<h4 id="3-4-创建实例"><a href="#3-4-创建实例" class="headerlink" title="3.4 创建实例"></a>3.4 创建实例</h4><p>点击左侧实例管理，点击新建：填写如图信息保存即可</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211725523.png" class="" title="image-20240610211725523">
+
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211737010.png" class="" title="image-20240610211737010">
+
+
+
+<h4 id="3-5-修改实例端口"><a href="#3-5-修改实例端口" class="headerlink" title="3.5 修改实例端口"></a>3.5 修改实例端口</h4><p>点击实例 - 系统属性<br>http-listener-1_port：修改为8080（这个是http协议访问）<br>http-listener-2_port：（这个是https协议访问，如需要此访问请更改）</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211821072.png" class="" title="image-20240610211821072">
+
+
+
+<p>OK，到这里就是宝兰德的基础配置就结束了。</p>
+<p>后边可以进行应用的部署了。</p>
+<h3 id="4-部署应用注意项"><a href="#4-部署应用注意项" class="headerlink" title="4 部署应用注意项"></a>4 部署应用注意项</h3><p>BES集群下有实例，应用是在实例中生效的，所以改动应用的时候请直接到实例目录下的application目录下去改。每部署一次应用，就会拷贝一次应用目录到它的实例node&#x2F;application下。</p>
+<h4 id="4-1-重启实例出现某个实例启动失败"><a href="#4-1-重启实例出现某个实例启动失败" class="headerlink" title="4.1 重启实例出现某个实例启动失败"></a>4.1 重启实例出现某个实例启动失败</h4><p>在应用无报错的前提下，4个实例，正常重启实例，会出现1个或者2个实例启动报错。从应用的错误日志中查看原因，会出现一些连接不上数据源的报错，导致实例的错误日志会抛出应用错误。</p>
+<p>由于数据源连接数量太少导致，每个实例都需要一定的连接数。此时，需要到中间件的JDBC数据源配置处，修改池的连接数。生产环境上修改为默认的两倍数据，实例均正常启动。后续如果出现此情况，可根据实际情况，扩大连接数即可。</p>
+<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610212153631.png" class="" title="image-20240610212153631">
+
+
+
 ]]></content>
       <categories>
         <category>实施部署</category>
         <category>信创</category>
       </categories>
       <tags>
+        <tag>实施</tag>
+        <tag>中间件</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SQL-违反表的唯一约束条件（主键冲突）问题</title>
+    <url>/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>实际的项目中，采集上游数据到数据集市的贴源层 &gt;&gt; 跑数据转换任务，将数据写入到我们的业务表，在跑转换任务的时候，时不时会报错主键冲突。转换里，通常写着<code>insert</code> <code>update</code> 语句，当向表执行插入和更新操作，时不时出现报错：违反表的唯一约束条件。</p>
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603204053362.png" class="" title="image-20240603204053362">
+
+<p>因为在实际业务中，中间层或者业务层表，通常情况下，是具有主键的（可能是单一主键，可能是复合主键）。</p>
+<span id="more"></span>
+
+<h2 id="常见的两种情况"><a href="#常见的两种情况" class="headerlink" title="常见的两种情况"></a>常见的两种情况</h2><p>1）目标表里已经有了一条数据A，但是转换任务又往目标表里写入一条数据A，导致的报错；</p>
+<p>2）目标表里没有数据，但是转换里，使用的关联条件产生了多条重复数据，导致的报错。</p>
+<p>根据这两种情况对数据进行排查，看看是哪些数据重复了。</p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>1.根据报错的主键名称，查找该索引名是哪张表的主键名</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> all_indexes a</span><br><span class="line"> <span class="keyword">where</span> a.index_name <span class="operator">=</span> <span class="string">&#x27;报错的主键名&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212340949.png" class="" title="image-20240603212340949">
+
+
+
+<p>2.查看该表，查看该主键由哪些字段组成</p>
+<img src="/2024/06/03/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212455621.png" class="" title="image-20240603212455621">
+
+
+
+<p>3.对于第一种情况，根据这些字段，将目标表与转换里源表进行<code>join</code>，对索引字段进行<code>count</code>，查看是否有重复数据</p>
+<p>例如这张表在转换里源表（from的表）为 <code>ct.st_xxx</code>，那么可以如下，查到重复的数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.contract_no, a.stock_account, <span class="built_in">count</span>(<span class="operator">*</span>)</span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="operator">&gt;</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p>然后，对比该数据，是否完全一致（因为数据可能出现只有主键字段是相同的，但是其他字段不同的情况）</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.<span class="operator">*</span></span><br><span class="line">  <span class="keyword">from</span> sett.t_ref_contract a</span><br><span class="line">  <span class="keyword">join</span> ct.st_xxx b</span><br><span class="line">    <span class="keyword">on</span> a.contract_no <span class="operator">=</span> b.jys <span class="comment">-- 关联字段</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> b.zqzh</span><br><span class="line"> <span class="keyword">where</span> a.contract_no <span class="operator">=</span> <span class="string">&#x27;查到的contract_no&#x27;</span></span><br><span class="line">   <span class="keyword">and</span> a.stock_account <span class="operator">=</span> <span class="string">&#x27;查到的stock_account&#x27;</span></span><br><span class="line"> <span class="keyword">group</span> <span class="keyword">by</span> a.contract_no, a.stock_account;</span><br></pre></td></tr></table></figure>
+
+<p>3.1）若一致，则可将目标表里的数据删掉</p>
+<p>3.2）若不一致，应咨询业务，它们是否有区别，根据业务沟通后的方案，将数据备份后，对其更改或删除等操作</p>
+<p>4.对于第二种情况，则需要看转换里，它的<code>insert</code> 或者<code>update</code> 的逻辑，类似：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> table_a (</span><br><span class="line">	col_1,</span><br><span class="line">    col_2,</span><br><span class="line">    ...</span><br><span class="line">)</span><br><span class="line"><span class="keyword">select</span> col_a,</span><br><span class="line">	   col_b,</span><br><span class="line">	   ...</span><br><span class="line">  <span class="keyword">from</span> table_b t1</span><br><span class="line">  <span class="keyword">join</span> table_c t2</span><br><span class="line">    <span class="keyword">on</span> t1.col_a <span class="operator">=</span> t2.col_a</span><br><span class="line">   <span class="keyword">and</span> t1.col_b <span class="operator">=</span> t2.col_b;</span><br></pre></td></tr></table></figure>
+
+<p>然后对关联条件进行检查，看看是不是关联条件出现了 <code>1:N</code> <code>N:N</code> 的情况，如果是，则根据代码的逻辑，对该数据产生的原因进行定位，根据实际情况进行解决。</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+      <tags>
+        <tag>SQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实施部署-达梦数据库linux版的安装（二）</title>
+    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
+<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
+<span id="more"></span>
+
+<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
+<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
+<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
+<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
+
+<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
+
+
+
+<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
+
+<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
+
+
+
+<p>显示安装结束后，切换到root用户</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
+<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
+<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># -t dmserver 就是达梦自己的server服务</span></span><br><span class="line"><span class="comment"># -p DMSERVER 这个就是数据库服务的名称，执行上边命令就是生成了 DmServiceDMSERVER 的命令</span></span><br><span class="line"><span class="comment"># 如果 -p DMtest 就会生成 DmServiceDMtest 的命令</span></span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
+
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
+
+<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
+<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
+<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
+<p>必须使用 <code>root</code> 用户，先把数据库服务先关掉</p>
+<p><code>./dm_service_uninstaller.sh -n DmServiceDMSERVER</code> 这里的实例名，主要是看 bin 目录中是用哪个命令来启动的，这个命令通常就是这个服务的名称</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -n DmServiceDMSERVER</span></span><br></pre></td></tr></table></figure>
+
+<p>然后把对应的实例数据目录删除即可</p>
+<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
+<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
+<p>或者上传任意目录，使用cp命令替换</p>
+<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
+
+
+
+<p>生产上，一般会安装达梦的监控守护模式</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
+<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+<p>配置说明如下：</p>
+<table>
+<thead>
+<tr>
+<th>LOGIN_MODE</th>
+<th>服务名方式登录，始终会优先登录主库；</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LOGIN_MODE</td>
+<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_TIME</td>
+<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
+</tr>
+<tr>
+<td>SWITCH_INTERVAL</td>
+<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
+</tr>
+</tbody></table>
+]]></content>
+      <categories>
+        <category>实施部署</category>
+        <category>信创</category>
+      </categories>
+      <tags>
+        <tag>达梦</tag>
         <tag>实施</tag>
       </tags>
   </entry>
@@ -1512,132 +1713,6 @@
       </tags>
   </entry>
   <entry>
-    <title>实施部署-达梦数据库linux版的安装（二）</title>
-    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</url>
-    <content><![CDATA[<h2 id="达梦数据库的安装"><a href="#达梦数据库的安装" class="headerlink" title="达梦数据库的安装"></a>达梦数据库的安装</h2><p>*仅适用于LINUX安装</p>
-<p>在搭建客户的开发环境、测试环境，数据库多为实施自行安装，并没有太大的要求，只需要注意一些参数，到时候与生产环境保持一致即可。生产环境，会与客户沟通达梦数据库的参数，比如：页大小、簇大小、字符集、大小写敏感等一些需要在注册实例时就配置的参数。</p>
-<span id="more"></span>
-
-<p>在上一文章《实施部署-信创项目环境搭建准备（一）》已经沟通过参数了，这篇总结达梦数据库的安装和初始化实例的步骤。</p>
-<p>先贴个达梦官网技术文档地址：（步骤都可以在这里找到的）</p>
-<p><span class="exturl" data-url="aHR0cHM6Ly9lY28uZGFtZW5nLmNvbS9kb2N1bWVudC9kbS96aC1jbi9zdGFydC9kbS1pbnN0YWxsLWxpbnV4Lmh0bWw=">https://eco.dameng.com/document/dm/zh-cn/start/dm-install-linux.html<i class="fa fa-external-link-alt"></i></span></p>
-<h3 id="1-新建DMDBA用户"><a href="#1-新建DMDBA用户" class="headerlink" title="1 新建DMDBA用户"></a>1 新建DMDBA用户</h3><p>进入Linux服务器，用<code>root</code>用户创建：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 创建用户组</span><br><span class="line">groupadd dinstall</span><br><span class="line"># 创建用户</span><br><span class="line">useradd -g dinstall -m -d /home/dmdba -s /bin/bash dmdba</span><br><span class="line"># 修改用户密码</span><br><span class="line">passwd dmdba</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-修改文件打开最大数"><a href="#2-修改文件打开最大数" class="headerlink" title="2 修改文件打开最大数"></a>2 修改文件打开最大数</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="comment"># 在conf文件内容的最后添加</span></span><br><span class="line">dmdba hard nofile <span class="number">65536</span></span><br><span class="line">dmdba soft nofile <span class="number">65536</span></span><br><span class="line">dmdba hard stack <span class="number">32768</span></span><br><span class="line">dmdba soft stack <span class="number">16384</span></span><br><span class="line"><span class="comment"># :wq 保存</span></span><br></pre></td></tr></table></figure>
-
-<p>修改后切换到<code>dmdba</code>用户查看是否生效</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - dmdba</span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87.png" class="" title="img">
-
-
-
-<h3 id="3-创建数据库安装目录"><a href="#3-创建数据库安装目录" class="headerlink" title="3 创建数据库安装目录"></a>3 创建数据库安装目录</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line">cd /home</span><br><span class="line"><span class="keyword">mkdir</span> dm</span><br><span class="line"><span class="comment"># 修改目录所属主、所属组</span></span><br><span class="line"><span class="keyword">chown</span> dmdba:dinstall -R dm</span><br><span class="line"><span class="comment"># 给目录授权</span></span><br><span class="line"><span class="keyword">chmod</span> -R <span class="number">755</span> dm</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-挂载达梦镜像"><a href="#4-挂载达梦镜像" class="headerlink" title="4 挂载达梦镜像"></a>4 挂载达梦镜像</h3><p>将<code>达梦数据库安装包.iso</code> 文件上传到数据库服务器上的任意位置，例如：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建挂载目录</span></span><br><span class="line"><span class="keyword">mkdir</span> /mnt</span><br><span class="line"><span class="comment"># 给执行权限</span></span><br><span class="line"><span class="keyword">chmod</span> <span class="number">755</span> 达梦数据库安装包.iso</span><br><span class="line"><span class="comment"># 挂载</span></span><br><span class="line">mount -o loop /home/dmdba/dm8_20230713_FTarm_kylin10_sp1_64_include_symbols.iso /mnt</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="5-安装数据库"><a href="#5-安装数据库" class="headerlink" title="5 安装数据库"></a>5 安装数据库</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换创建好的达梦数据库用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入挂载目录</span></span><br><span class="line">cd /mnt</span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">./DMInstall.bin -i</span><br></pre></td></tr></table></figure>
-
-<p>步骤如图：（其中安装目录选择创建的达梦数据库安装目录）</p>
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688671054.png" class="" title="img">
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688677231.png" class="" title="img">
-
-
-
-<p>显示安装结束后，切换到root用户</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">su - root</span><br><span class="line"><span class="comment"># 执行</span></span><br><span class="line">/home/dm/script/root/root_install.sh</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="6-注册实例"><a href="#6-注册实例" class="headerlink" title="6 注册实例"></a>6 注册实例</h3><p>说明：</p>
-<p>达梦数据库页大小、簇大小、大小写敏感、字符集都为注册实例时需要配置的，这些参数一经注册后不能修改，除非重新注册实例或者重装数据库。参数在《实施部署-信创项目环境搭建准备（一）》已经做了总结。</p>
-<h4 id="6-1-使用默认参数注册"><a href="#6-1-使用默认参数注册" class="headerlink" title="6.1 使用默认参数注册"></a>6.1 使用默认参数注册</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换到dmdba用户</span></span><br><span class="line">su - dmdba</span><br><span class="line"><span class="comment"># 进入dm/bin目录</span></span><br><span class="line">cd /home/dm/bin</span><br><span class="line"><span class="comment"># 执行初始化命令</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data</span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717688969600.png" class="" title="img">
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 切换root用户</span></span><br><span class="line">su - root</span><br><span class="line"><span class="comment"># 进入相关目录</span></span><br><span class="line">cd /home/dm/script/root</span><br><span class="line"><span class="comment"># 执行注册服务命令</span></span><br><span class="line">./dm_service_installer.sh -t dmserver -dm_ini /dm/data/DAMENG/dm.ini -p DMSERVER</span><br><span class="line"><span class="comment"># -t dmserver 就是达梦自己的server服务</span></span><br><span class="line"><span class="comment"># -p DMSERVER 这个就是数据库服务的名称，执行上边命令就是生成了 DmServiceDMSERVER 的命令</span></span><br><span class="line"><span class="comment"># 如果 -p DMtest 就会生成 DmServiceDMtest 的命令</span></span><br><span class="line"><span class="comment"># 类似下图</span></span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/%E5%9B%BE%E7%89%87-1717689078764.png" class="" title="img">
-
-<p>这个操作将生成 <code>dm.ini</code> 配置文件，实例注册到哪个目录，配置文件就在哪个目录</p>
-<h4 id="6-2-使用自定义参数注册"><a href="#6-2-使用自定义参数注册" class="headerlink" title="6.2 使用自定义参数注册"></a>6.2 使用自定义参数注册</h4><p>步骤与 6.1 相同，不同的步骤只有一个，在执行初始化命令时，需要在后边接上需要设置的页大小、簇大小、字符集、大小写敏感等等相关参数</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 参考</span></span><br><span class="line">./dminit path=<span class="regexp">/home/dm</span>/data PAGE_SIZE=<span class="number">32</span> EXTENT_SIZE=<span class="number">32</span> CASE_SENSITIVE=<span class="keyword">y</span> CHARSET=<span class="number">0</span> DB_NAME=DMDB INSTANCE_NAME=DmDBSERVER PORT_NUM=<span class="number">5236</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 页大小 PAGE_SIZE</span></span><br><span class="line"><span class="comment"># 簇大小 EXTENT_SIZE</span></span><br><span class="line"><span class="comment"># 大小写敏感 CASE_SENSITIVE</span></span><br><span class="line"><span class="comment"># 字符集 CHARSET</span></span><br><span class="line"><span class="comment"># 数据库名 DB_NAME</span></span><br><span class="line"><span class="comment"># 实例名 INSTANCE_NAME</span></span><br><span class="line"><span class="comment"># 端口 PORT_NUM</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="6-3-删除实例"><a href="#6-3-删除实例" class="headerlink" title="6.3 删除实例"></a>6.3 删除实例</h4><p>如果在注册实例时，已经执行了初始化命令<code>./dminit</code>，已经生成了实例的数据文件了，这时候想删除这个实例怎么办？</p>
-<p>进入到达梦的 <code>../script/root</code> 目录下，执行 <code>./dm_service_uninstaller.sh</code> 命令，来删除这个实例</p>
-<p>必须使用 <code>root</code> 用户，先把数据库服务先关掉</p>
-<p><code>./dm_service_uninstaller.sh -n DmServiceDMSERVER</code> 这里的实例名，主要是看 bin 目录中是用哪个命令来启动的，这个命令通常就是这个服务的名称</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">[root@learning home]<span class="comment"># cd /home/dmdba/dmdbms/script/root/</span></span><br><span class="line">[root@learning root]<span class="comment"># ls</span></span><br><span class="line">dm_service_installer.sh  dm_service_uninstaller.sh  root_installer.sh       </span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -help</span></span><br><span class="line">Usage: dm_service_uninstaller.sh [-n service_name]</span><br><span class="line">   -n     服务名,删除指定服务</span><br><span class="line">   -h     帮助</span><br><span class="line">[root@learning root]<span class="comment"># ./dm_service_uninstaller.sh -n DmServiceDMSERVER</span></span><br></pre></td></tr></table></figure>
-
-<p>然后把对应的实例数据目录删除即可</p>
-<h3 id="7-可选参数配置"><a href="#7-可选参数配置" class="headerlink" title="7 可选参数配置"></a>7 可选参数配置</h3><p>具体见《实施部署-信创项目环境搭建准备（一）》的1.4.2步骤</p>
-<h3 id="8-替换dm-key"><a href="#8-替换dm-key" class="headerlink" title="8 替换dm.key"></a>8 替换dm.key</h3><p>替换为正式的dm.key，可直接上传正式的key到dm&#x2F;bin目录直接替换</p>
-<p>或者上传任意目录，使用cp命令替换</p>
-<h3 id="9-启动数据库"><a href="#9-启动数据库" class="headerlink" title="9 启动数据库"></a>9 启动数据库</h3><p>开发、测试环境启动</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 启动数据库服务</span></span><br><span class="line">systemctl start DmServiceDMSERVER.service</span><br></pre></td></tr></table></figure>
-
-
-
-<p>生产上，一般会安装达梦的监控守护模式</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">cd /home/dm/bin</span><br><span class="line">DmServiceDM start</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 开发、测试环境</span></span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">systemctl stop DmServiceDMSERVER.service</span><br><span class="line"><span class="comment"># 重启</span></span><br><span class="line">systemctl restart DmServiceDMSERVER.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生产环境</span></span><br><span class="line">DmWatcherServiceDM stop         <span class="comment"># 先停监控</span></span><br><span class="line">DmServiceDM restart</span><br><span class="line">DmWatcherServiceDM start</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="达梦集群守护"><a href="#达梦集群守护" class="headerlink" title="达梦集群守护"></a>达梦集群守护</h2><p>达梦集群守护是生产上才使用的，一般由DBA操作。</p>
-<p>生产环境采用双活形式部署，应用服务器上使用达梦数据库连接服务名进行连接。达梦在安装完成时会在数据库服务器上生产&#x2F;etc&#x2F;dm_svc.conf 文件，可以在该文件中进行添加配置，同时需要在应用服务器上【&#x2F;etc&#x2F;dm_svc.conf】文件（此文件为新增）中配置：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">TIME_ZONE=(<span class="number">480</span>)</span><br><span class="line">LANGUAGE=(cn)</span><br><span class="line">GRP1=(<span class="number">192.168</span>.xxx.<span class="number">1</span>:<span class="number">5236</span>,<span class="number">192.168</span>.xxx.<span class="number">2</span>:<span class="number">5236</span>)</span><br><span class="line">[GRP1]</span><br><span class="line">TIME+ZONE=(+<span class="number">480</span>)</span><br><span class="line">LOGIN_MODE=(<span class="number">1</span>)</span><br><span class="line">SWITCH_TIME=(<span class="number">3</span>)</span><br><span class="line">SWITCH_INTERVAL=(<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
-
-
-
-<p>配置说明如下：</p>
-<table>
-<thead>
-<tr>
-<th>LOGIN_MODE</th>
-<th>服务名方式登录，始终会优先登录主库；</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>LOGIN_MODE</td>
-<td>表示是否仅登录主库或者备库，可以配置为 0、1 或 2。2表示不登录 Standby 模式的库，如果系统中只有 Standby 模式的库，登录失败并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_TIME</td>
-<td>检测到数据库实例故障时，接口在服务器之间切换的次数；超过设置次数没有连接到有效数据库时，断开连接并报错。</td>
-</tr>
-<tr>
-<td>SWITCH_INTERVAL</td>
-<td>表示在服务器之间切换的时间间隔，单位为毫秒。</td>
-</tr>
-</tbody></table>
-]]></content>
-      <categories>
-        <category>实施部署</category>
-        <category>信创</category>
-      </categories>
-      <tags>
-        <tag>达梦</tag>
-        <tag>实施</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>经验杂谈-面对个性化的产品如何下手</title>
     <url>/2024/06/04/%E7%BB%8F%E9%AA%8C%E6%9D%82%E8%B0%88-%E4%B8%AA%E6%80%A7%E5%8C%96%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E5%85%A5%E6%89%8B/</url>
     <content><![CDATA[<p>《吐槽一下，让心情发泄一下》</p>
@@ -1692,231 +1767,157 @@
       </tags>
   </entry>
   <entry>
-    <title>实施部署-东方通中间件、宝兰德部署应用（三）</title>
-    <url>/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/</url>
-    <content><![CDATA[<p>本文总结在信创项目中，使用最多的中间件：东方通、宝兰德。</p>
-<p>在安装中间件之前，应先在服务器创建一个应用用户，这里并不是说不能用root用户安装，开发环境和测试环境可以直接安装，但是生产上是无特殊情况是不提供root用户的。为了避免因为用户差异导致的文件执行问题，这里先创建一个用户，上线时，可以保证我们的操作一致，以及后续方便排查部署过程中可能产生的报错。</p>
+    <title>实施部署-信创项目环境搭建准备（一）</title>
+    <url>/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</url>
+    <content><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B&#x2F;S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用javascrpit做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。</p>
 <span id="more"></span>
 
-
-
-<h2 id="安装前准备"><a href="#安装前准备" class="headerlink" title="安装前准备"></a>安装前准备</h2><h3 id="1-创建中间件用户"><a href="#1-创建中间件用户" class="headerlink" title="1 创建中间件用户"></a>1 创建中间件用户</h3><p>在应用服务器上使用root用户</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建用户组</span></span><br><span class="line">groupadd -g 1051 test</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建用户</span></span><br><span class="line">useradd -g test -m -d /home/test -s /bin/bash test</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">修改密码</span></span><br><span class="line">passwd test</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-hosts配置"><a href="#2-hosts配置" class="headerlink" title="2 hosts配置"></a>2 hosts配置</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看本机名</span></span><br><span class="line">hostname</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看本机IP</span></span><br><span class="line">hostname -i</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置hosts</span></span><br><span class="line">vi /etc/hosts</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">ip hostname</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-修改文件打开最大数"><a href="#3-修改文件打开最大数" class="headerlink" title="3 修改文件打开最大数"></a>3 修改文件打开最大数</h3><p>说明：此步骤，安装东方通时可跳过的，宝兰德需要操作（以我接触的项目情况是这样的）</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi /etc/security/limits.conf</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加</span></span><br><span class="line">* soft nofile 65535</span><br><span class="line">* hard nofile 65535</span><br><span class="line">* soft nproc 65535</span><br><span class="line">* hard nproc 65535</span><br></pre></td></tr></table></figure>
-
-<p>保存后重新连接服务器</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否生效</span></span><br><span class="line">ulimit -a</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204654771.png" class="" title="image-20240610204654771">
+<p>那运行产品的环境的搭建就主要包括：WEB服务的部署、数据库的部署。当然也有其他的服务，但其他服务需要根据产品的需要进行部署的。我主要负责信创类项目的实施部署，都是在LINUX服务器上部署。</p>
+<p>一个环境搭建的思路：</p>
+<p>前期环境的准备 &gt;&gt; 数据库部署 &gt;&gt; 中间件与应用部署 &gt;&gt; ETL工具部署</p>
+<p>本文总结前期环境的准备</p>
+<h2 id="1-信创项目知识"><a href="#1-信创项目知识" class="headerlink" title="1 信创项目知识"></a>1 信创项目知识</h2><p>信创类产品的实施部署从 0 到 1 ，实施部署前期需要了解什么，作为跟客户沟通的技术知识保障。</p>
+<h3 id="1-1-信创软硬件"><a href="#1-1-信创软硬件" class="headerlink" title="1.1 信创软硬件"></a>1.1 信创软硬件</h3><p>数据库：达梦<br>中间件：东方通、宝兰德<br>服务器操作系统：麒麟、统信<br>硬件平台：飞腾、华为、龙芯、海光、鲲鹏……<br>内核：AMD、ARM</p>
+<h3 id="1-2-确认服务器架构信息"><a href="#1-2-确认服务器架构信息" class="headerlink" title="1.2 确认服务器架构信息"></a>1.2 确认服务器架构信息</h3><p>信创，产品的框架与数据平台均做了适配，都需要根据内核来确认使用哪个版本。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span></span><br><span class="line"><span class="comment"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span></span><br><span class="line"><span class="comment"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回内核版本、架构</span></span><br><span class="line">uname -a</span><br><span class="line"><span class="comment"># 返回内核版本</span></span><br><span class="line">cat /proc/version</span><br><span class="line"><span class="comment"># 返回系统信息（包括内核、操作系统版本）</span></span><br><span class="line">hostnamectl</span><br></pre></td></tr></table></figure>
 
 
 
-<h3 id="4-配置JDK"><a href="#4-配置JDK" class="headerlink" title="4 配置JDK"></a>4 配置JDK</h3><p>没有则安装，一般信创的机器是自带的。但是有时候，为了确保这个版本的JDK是中间件以及应用服务都可用，采用自己安装，多为安装 JDK1.8 版本（自己安装需要上传jdk到服务器并解压tar包）</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否安装</span></span><br><span class="line">java -version</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204935579.png" class="" title="image-20240610204935579">
-
-
-
-<p>已经有了，则可以直接配置环境变量，当然，得知道路径才能配置环境变量</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看 JDK 的安装路径</span></span><br><span class="line">which java</span><br><span class="line">ls -l /usr/bin/java</span><br><span class="line">ls -l /etc/alternatives/java</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205138494.png" class="" title="image-20240610205138494">
-
-<p>最下边返回的，就是 JDK 真是的安装路径</p>
-<p>找到JDK安装路径后，添加环境变量：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vi ~/.bashrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在末尾加入</span></span><br><span class="line">export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.x86_64/jre</span><br><span class="line">export PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存后刷新环境变量</span></span><br><span class="line">source ~/.bashrc</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">输出配置的环境变量</span></span><br><span class="line">echo $JAVA_HOME</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205434632.png" class="" title="image-20240610205434632">
-
-
-
-<p>配置好环境变量后，就可以进行中间件的安装了</p>
-<h2 id="东方通部署应用"><a href="#东方通部署应用" class="headerlink" title="东方通部署应用"></a>东方通部署应用</h2><p>东方通中间件部署应用的详细步骤，从东方通安装到管理控制台配置的过程。</p>
-<h3 id="1-东方通的安装"><a href="#1-东方通的安装" class="headerlink" title="1 东方通的安装"></a>1 东方通的安装</h3><p>东方通在LINUX上安装，需要通过命令的方式安装。（PS：这个已经是22年的版本了，当时接触东方通的时候，安装包是一个.bin文件，但是到了23年，东方通的安装包基本都是提供一个tar包，安装只需要解压tar包即可。方便很多，但是既然是自己安装的中间件，当然要记录啦）</p>
-<h4 id="1-1-bin包安装"><a href="#1-1-bin包安装" class="headerlink" title="1.1 bin包安装"></a>1.1 bin包安装</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 运行安装包</span></span><br><span class="line">sh Install_TW7.*.*.*_Enterprise_Linux.bin -i console</span><br><span class="line"><span class="comment"># 选择语言</span></span><br><span class="line">中文简体</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180330666.png" class="" title="image-20240610180330666">
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 中间会出现 【按回车键继续安装】【PRESS &lt;ENTER&gt; TO CONTINUE】</span></span><br><span class="line">按回车就行</span><br><span class="line"><span class="comment"># 然后回出现 【是否接受此许可协议条款】</span></span><br><span class="line"><span class="keyword">y</span></span><br><span class="line"><span class="comment"># 选择 JDK</span></span><br><span class="line">选择系统自带的 JDK 即可，当然也可以使用自己安装的，图上是使用自己安装的（最好是适配应用的 JDK 版本）</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180404626.png" class="" title="image-20240610180404626">
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择安装位置</span></span><br><span class="line">输入一个安装路径</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180524062.png" class="" title="image-20240610180524062">
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择链接位置</span></span><br><span class="line">这里常链接到主文件夹中</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180543262.png" class="" title="image-20240610180543262">
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 出现预安装信息</span></span><br><span class="line">回车即可</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180615157.png" class="" title="image-20240610180615157">
-
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 修改端口</span></span><br><span class="line">此步骤，可修改可不改。无特殊要求可直接使用默认（回车）。有特殊要求，则更改端口，这里也可以安装好后在配置文件中修改（$TONGWEB_HOME/conf/tongweb.xml)</span><br><span class="line">通常我们关注以下两个</span><br><span class="line">tong-http-listener，此为访问应用端口</span><br><span class="line"><span class="keyword">system</span>-http-listener，此为东方通控制台端口</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180647406.png" class="" title="image-20240610180647406">
-
-<p>回车后就安装完成了。</p>
-<h4 id="1-2-tar包安装"><a href="#1-2-tar包安装" class="headerlink" title="1.2 tar包安装"></a>1.2 tar包安装</h4><p>提供的tar包，只需要解压到目标目录即可。当然，tar有多种压缩格式，最常碰见的就是 <code>tar.gz</code> </p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">tar -xzvf tongweb_version_7.x.x.x /home/tongweb</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="1-3-授权"><a href="#1-3-授权" class="headerlink" title="1.3 授权"></a>1.3 授权</h4><p>将安装后的目录，授权给中间件用户</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">chown test:test -R /home/tongweb</span><br><span class="line">chmod 755 -R /home/tongweb</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="2-启动配置"><a href="#2-启动配置" class="headerlink" title="2 启动配置"></a>2 启动配置</h3><p>以下常见配置，均为在项目上能够实际遇到的</p>
-<h4 id="2-1-修改端口"><a href="#2-1-修改端口" class="headerlink" title="2.1 修改端口"></a>2.1 修改端口</h4><p>根据客户要求，或者应用要求，配置我们的应用端口。（如果是使用默认端口则不需要修改）</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">假设安装到 /home/tongweb</span></span><br><span class="line">vi /home/tongweb/conf/tongweb.xml</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">修改 tong-http-listener 的 port</span></span><br><span class="line">port = 8080</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-2-关闭防火墙"><a href="#2-2-关闭防火墙" class="headerlink" title="2.2 关闭防火墙"></a>2.2 关闭防火墙</h4><p>在启动东方通控制台之前，需要关闭防火墙，否则操作机器无法访问到控制台地址。（在第一次接触东方通的时候，当时服务已经启动了，但是打不开控制台，我还以为是网络没打通，结果一查是防火墙导致）</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">关闭防火墙</span></span><br><span class="line">systemctl stop firewalld</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">禁止防火墙自启，通常情况下，不需要禁止，但是如果遇到服务器重启的情况，首先还是需要手动关闭</span></span><br><span class="line">systemctl disable firewalld</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-3-启停服务"><a href="#2-3-启停服务" class="headerlink" title="2.3 启停服务"></a>2.3 启停服务</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">正常启动</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startserver.sh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">后台启动（常用）</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startservernohup.sh </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">停止</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./stopserver.sh</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">或者手动 <span class="built_in">kill</span></span></span><br><span class="line">kill -9 &#123;pid&#125;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启</span></span><br><span class="line">cd /home/tongweb/bin &amp;&amp; ./startservernohup.sh restart</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="2-4-打开控制台"><a href="#2-4-打开控制台" class="headerlink" title="2.4 打开控制台"></a>2.4 打开控制台</h4><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">http:<span class="regexp">//ip</span>:port/console</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-控制台配置"><a href="#3-控制台配置" class="headerlink" title="3 控制台配置"></a>3 控制台配置</h3><h4 id="3-1-修改服务器可选目录"><a href="#3-1-修改服务器可选目录" class="headerlink" title="3.1 修改服务器可选目录"></a>3.1 修改服务器可选目录</h4><p>此步骤是确保在部署应用的时候，可以访问到应用所在的位置，不然找不到</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610182051772.png" class="" title="image-20240610182051772">
-
-
-
-<h4 id="3-2-JDBC-配置"><a href="#3-2-JDBC-配置" class="headerlink" title="3.2 JDBC 配置"></a>3.2 JDBC 配置</h4><p>JDBC配置就是让中间件连接到数据库，让应用能够与数据库进行交互。</p>
-<p>需要注意的地方：</p>
+<h3 id="1-3-确认服务器内存信息"><a href="#1-3-确认服务器内存信息" class="headerlink" title="1.3 确认服务器内存信息"></a>1.3 确认服务器内存信息</h3><p>JAVA服务端通常需要设置服务的 JVM ，生产环境通常推荐 JVM &gt; 16G</p>
+<p>开发环境、测试环境 JVM 减半作为参考即可</p>
+<p>比如：在部署中间件、宝兰德中间件的时候，默认的 JVM 都是 2G，测试服务器只有8G内存的情况下，中间件的JVM修改为4G。</p>
+<h3 id="1-4-确认数据库参数"><a href="#1-4-确认数据库参数" class="headerlink" title="1.4 确认数据库参数"></a>1.4 确认数据库参数</h3><p>我所遇到的信创项目种，数据库通常使用达梦数据库。达梦数据库，有几个参数是在初始化实例的时候就需要确定的，且初始化实例后无法进行修改，除非重新初始化实例：</p>
 <ul>
-<li>达梦JDBC驱动，最好使用新版，或者应用做了适配的版本。</li>
-<li>JDBC连接名称，需要与应用中的<code>jndiName</code> 一致，一般的java服务会有一个<code>xml</code>文件配置<code>dispatcher-servlet</code> 的地方，否则可能会报错在应用中找不到 <code>jndiName</code> 。特别是在做信创迁移的时候，会出现一种情况：tomcat里使用的jndiName与东方通里使用的jndiName名称不一致，此时需要注意修改为一致。</li>
+<li>页大小 (page_size)</li>
+<li>簇大小 (extent_size)</li>
+<li>大小写敏感 (case_sensitive)</li>
+<li>字符集 (charset)</li>
 </ul>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610182141313.png" class="" title="image-20240610182141313">
-
-
-
-<p>另外，基于项目经验猜测，基于 webbuilder 的框架，都有 WEB-INF&#x2F;dispatcher-servlet.xml 文件，同样的，也会有变量配置，变量配置可能是落到数据库中，也可能使用 <code>var.json</code> 文件进行配置。差异不大，都是会有 jndiName 的配置</p>
-<h4 id="3-3-部署应用"><a href="#3-3-部署应用" class="headerlink" title="3.3 部署应用"></a>3.3 部署应用</h4><p>如果没有【3.1修改服务器可选目录】，这里是访问不到应用所在的目录的</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610183424898.png" class="" title="image-20240610183424898">
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610183438301.png" class="" title="image-20240610183438301">
-
-
-
-<p>点击开始部署，一般这里没什么多大的问题，都取默认即可。</p>
-<h4 id="3-4-访问应用"><a href="#3-4-访问应用" class="headerlink" title="3.4 访问应用"></a>3.4 访问应用</h4><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">http://ip:port/app_name</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="4-多种部署情况说明"><a href="#4-多种部署情况说明" class="headerlink" title="4 多种部署情况说明"></a>4 多种部署情况说明</h3><h4 id="4-1-一个东方通部署多个应用"><a href="#4-1-一个东方通部署多个应用" class="headerlink" title="4.1 一个东方通部署多个应用"></a>4.1 一个东方通部署多个应用</h4><p>遇到过客户为了节省开发环境或者测试环境的资源，会让我们在一个东方通部署多个应用（就是与其他应用共享资源）。对于不同的应用，是可以的。</p>
-<p>针对是部署相同的应用，需要</p>
+<p>下表为这几个参数的具体含义：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>含义</th>
+<th>可设置值</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>page_size</td>
+<td>数据文件使用的页大小</td>
+<td>4&#x2F;8&#x2F;16&#x2F;32</td>
+</tr>
+<tr>
+<td>extent_size</td>
+<td>簇大小，每次分配新的段空间时连续的页面</td>
+<td>16&#x2F;32&#x2F;64</td>
+</tr>
+<tr>
+<td>case_sensitive</td>
+<td>标识符大小写敏感。当大小写敏感时，小写的标识符要用双引号括起，否则被转换为大写；当大小写不敏感时，系统不自动转换标识符的大小写，在标识符比较时也不区分大小写。默认 Y （1）敏感</td>
+<td>Y&#x2F;N（1&#x2F;0）</td>
+</tr>
+<tr>
+<td>charset</td>
+<td>字符集选项，0：GB18030；1：UTF-8（默认0）</td>
+<td>0&#x2F;1</td>
+</tr>
+<tr>
+<td>length_in_char</td>
+<td>VARCHAR类型长度是否以字符为单位（默认为N   0 ）</td>
+<td>Y&#x2F;N（1&#x2F;0）</td>
+</tr>
+</tbody></table>
+<p>页大小与字段长度有关，簇大小与表空间有关，但是这两个都与我们没有关系，我们需要注意的只有 2 个：</p>
 <ul>
-<li>建立新的连接池，修改<code>jndiName</code> ，以防应用访问错数据库</li>
+<li>大小写敏感</li>
+<li>字符集编码</li>
 </ul>
-<h5 id="直接部署"><a href="#直接部署" class="headerlink" title="直接部署"></a>直接部署</h5><p>直接部署则按照【3.1-3.3】步骤，部署应用即可</p>
-<p>注意：直接部署，东方通是按顺序拉起应用的，启动会慢一些，并且公用 IP 和 PORT ，东方通服务停掉会影响所有应用。</p>
-<h5 id="域部署"><a href="#域部署" class="headerlink" title="域部署"></a>域部署</h5><p>通过创建域，让各个应用启动和配置不相互影响。使用 <code>TONGWEB_HOME/bin</code> 下的启停命令不会影响到域里边的应用，域里的应用独立启停和配置，且端口不会冲突</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建域</span></span><br><span class="line">cd TONGWEB_HOME/bin</span><br><span class="line">./domain.sh create AppName</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">执行后，在东方通的根目录下会出现 domains 目录，目录里边的结构与根目录完全一致，有 /bin /conf /logs 等等</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">域的启停，与东方通完全一致，不过是在 /domains/bin 下</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置文件也在 /domains/conf 下</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">配置域的端口</span></span><br><span class="line">cd TONGWEB_HOME/domains/conf</span><br><span class="line">vi tongweb.xml        # 域的默认端口是东方通默认的端口+1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启停</span></span><br><span class="line">cd TONGWEB_HOME/domains/bin</span><br><span class="line">./startservernohup.sh          # 启动</span><br><span class="line">./stopserver.sh                # 停止</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">默认的域管理控制台：</span></span><br><span class="line">http://IP:PORT+1/console       # 比如东方通默认端口 9060，域端口则为 9061</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">应用访问：</span></span><br><span class="line">http://IP:PORT+1/app_name      # 比如应用默认端口 8088，域端口则为 8089</span><br></pre></td></tr></table></figure>
+<p>产品多为oracle开发，从oracle移植过来，为了更好的兼容，通常开启大小写敏感；字符集编码是GB18030还是UTF-8没关系，但是开发环境、测试环境、生产环境需要字符集编码一致。</p>
+<p>在实际的项目实施部署中，客户的开发环境、测试环境通常由我们厂商维护，只有生产环境是由DBA维护。所以在前期的沟通中，我们需要跟DBA确认好达梦数据库里的上述参数，确保开发环境、测试环境、生产环境保持一致。</p>
+<p>总结了一份模板如下，页大小和簇大小根据在生产上通常建议设置为32</p>
+<img src="/2024/06/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/image-20240606222536306.png" class="" title="image-20240606222536306">
 
 
 
-<h3 id="5-设置connection-timeout"><a href="#5-设置connection-timeout" class="headerlink" title="5 设置connection-timeout"></a>5 设置connection-timeout</h3><p>有些客户，在扫描整体的安全漏洞时，会检测到目标主机可能存在缓慢的 HTTP 拒绝服务攻击，这个就是中间件里配置connection-timeout即可。</p>
-<p>简单来说，通过发送大量的慢速或低频率的 HTTP 请求来占用目标服务器的资源，导致服务器的连接和内存资源被恶意连接占满，无法处理新的合法请求。</p>
-<p>tomcat 可以通过修改 <code>server.xml</code> 文件中的配置来设置 <code>connectionTimeout</code> 参数</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;8080&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;HTTP/1.1&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxHttpHeaderSize</span>=<span class="string">&quot;8192&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxThreads</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">minSpareThreads</span>=<span class="string">&quot;50&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxSpareThreads</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">minProcessors</span>=<span class="string">&quot;50&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">maxProcessors</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">enableLookups</span>=<span class="string">&quot;false&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">connectionTimeout</span>=<span class="string">&quot;8000&quot;</span>      // <span class="attr">修改此处值</span></span></span><br><span class="line"><span class="tag">           <span class="attr">acceptCount</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span></span></span><br><span class="line"><span class="tag">           <span class="attr">URIEncoding</span>=<span class="string">&quot;UTF-8&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="1-4-1-参数带来的影响"><a href="#1-4-1-参数带来的影响" class="headerlink" title="1.4.1 参数带来的影响"></a>1.4.1 参数带来的影响</h4><h5 id="1）编码不一致"><a href="#1）编码不一致" class="headerlink" title="1）编码不一致"></a>1）编码不一致</h5><p>当开发环境或者测试环境，与生产环境的字符集编码不一致时，可能会产生字符串长度相关的报错。</p>
+<p>比如：</p>
+<p>测试环境上是 GB18030 编码，但是生产环境上是 UTF8 编码，因为 GB 编码存一个中文需要的 1 个字节少于 UTF8 存一个中文需要的 3 个字节，测试后的产品功能上了生产环境可能会报出字符串截断的错误。</p>
+<h5 id="2）大小写敏感不一致"><a href="#2）大小写敏感不一致" class="headerlink" title="2）大小写敏感不一致"></a>2）大小写敏感不一致</h5><p>大小写敏感：查数据内容时，查 a 就是 a，查 A 就是 A</p>
+<p>大小写不敏感：查数据内容时，查 a 返回 A、a</p>
+<p>如果不设置大小写敏感，不仅是在写查询SQL的时候会影响，在创建对象、写存储过程时，对象名称、字段名称也会受到影响。比如：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A (id varchar2(<span class="number">8</span>));</span><br><span class="line"><span class="keyword">insert</span> table_a <span class="keyword">values</span>(<span class="string">&#x27;001&#x27;</span>);</span><br><span class="line"># <span class="keyword">insert</span> 就会报错，因为 table_a 不存在，必须与创建的表名一模一样才可以</span><br></pre></td></tr></table></figure>
 
 
 
-<p>同样的，在信创上，东方通中间件也可通过设置对应的请求，在 tongweb&#x2F;conf&#x2F;tongweb.xml 配置文件中，connection-timeout 对接的前台页面就是 http 通道里的 <code>连接超时</code> ，修改此处即可（默认 60000 &gt;&gt; 改为 8000）</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610213153662.png" class="" title="image-20240610213153662">
+<h4 id="1-4-2-其他可能需要修改的参数"><a href="#1-4-2-其他可能需要修改的参数" class="headerlink" title="1.4.2 其他可能需要修改的参数"></a>1.4.2 其他可能需要修改的参数</h4><p>此处的参数指，达梦数据库 <code>dm.ini</code> 配置文件里的参数。在开发环境、测试环境可由自己根据实际情况更改，在生产上必须与DBA沟通后进行更改，也需要保持三个环境中参数的一致性。</p>
+<p><code>dm.ini </code>配置文件中，有静态参数、动态参数。静态参数需要重启数据库服务后才生效，在生产上重启数据库是一件严肃的事情，需要修改的参数需要自己做好验证是否能够解决实际的情况。</p>
+<h5 id="1）COMPATIBLE-MODE"><a href="#1）COMPATIBLE-MODE" class="headerlink" title="1）COMPATIBLE_MODE"></a>1）COMPATIBLE_MODE</h5><p>该参数用于控制达梦数据库在部分功能处理时与其他数据库的兼容模式。常用设置：</p>
+<ul>
+<li>0 - 不兼容</li>
+<li>1 - 兼容SQL92标准</li>
+<li>2 - 兼容ORACLE</li>
+<li>3 - 兼容SQL SERVER</li>
+<li>4 - 兼容MYSQL</li>
+</ul>
+<p>通常项目上，此参数设置为2，可以更好的适配基于ORACLE开发的产品代码。</p>
+<h6 id="【例子】"><a href="#【例子】" class="headerlink" title="【例子】"></a>【例子】</h6><p>达梦数据库默认<code>NULL</code> 与<code>空值</code>是不等价的，NULL就是NULL，空值就是空值。某个功能查询需要同时满足它们，需要这样写：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="keyword">is</span> <span class="keyword">null</span> <span class="keyword">or</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>ORACLE中默认<code>NULL</code> 和<code>空值</code>是等价的，同时满足只需要：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> col_A</span><br><span class="line"><span class="keyword">from</span> table_A</span><br><span class="line"><span class="keyword">where</span> col_A <span class="operator">=</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>COMPATIBLE_MODE</code>参数为<code>2</code>即可跟在ORACLE上的查询写法一致。</p>
+<h5 id="2）PK-WITH-CLUSTER"><a href="#2）PK-WITH-CLUSTER" class="headerlink" title="2）PK_WITH_CLUSTER"></a>2）PK_WITH_CLUSTER</h5><p>该参数默认为<code>1</code> </p>
+<p>该参数与建表时的主键索引有关，达梦数据库在创建表时，如果创建主键，则默认主键是聚簇索引键。如果没有主键，则默认<code>rowid</code> 作为聚簇索引键</p>
+<h6 id="【例子】-1"><a href="#【例子】-1" class="headerlink" title="【例子】"></a>【例子】</h6><p>当在达梦数据建表时，同时出现主键、字段为大字段CLOB类型的时候，就会报错：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> table_A(</span><br><span class="line">	id varchar2(<span class="number">8</span>) <span class="keyword">primary</span> key,</span><br><span class="line">    name varchar2(<span class="number">20</span>),</span><br><span class="line">    addr <span class="type">clob</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段</span></span><br></pre></td></tr></table></figure>
+
+<p>此时，修改参数<code>PK_WITH_CLUSTER=0</code> ，再创建有主键、字段为CLOB类型的表，就可以创建成功。</p>
+<h6 id="【关于聚簇索引】"><a href="#【关于聚簇索引】" class="headerlink" title="【关于聚簇索引】"></a>【关于聚簇索引】</h6><blockquote>
+<p>表（列存储表和堆表除外）都是使用 B+树(以下简称 B 树)索引结构管理的，每一个普通表都有一个聚集索引，数据通过聚集索引键排序，根据聚集索引键可以快速查询任何记录。（即表是一个索引，这个索引名称叫聚集索引，可以理解为创建一个表后，将所有字段放在一起建立一个复合索引，只不过这个不需要我们来创建，系统自动给我们维护了一个）</p>
+</blockquote>
+<blockquote>
+<p>当建表语句未指定聚集索引键，DM 的默认聚集索引键是 ROWID，即记录默认以 ROWID 在页面中排序。ROWID 是 B 树为记录生成的逻辑递增序号，表上不同记录的 ROWID 是不一样的，并且最新插入的记录 ROWID 最大。很多情况下，以 ROWID 建的默认聚集索引并不能提高查询速度，因为实际情况下很少人根据 ROWID 来查找数据。</p>
+</blockquote>
+<p><a href="">原文链接： https://blog.csdn.net/sinat_32856657&#x2F;article&#x2F;details&#x2F;125410328</a></p>
+<h5 id="3）CALS-AS-DECIMAL"><a href="#3）CALS-AS-DECIMAL" class="headerlink" title="3）CALS_AS_DECIMAL"></a>3）CALS_AS_DECIMAL</h5><p>该参数是控制 整数除法运算是否舍弃小数。</p>
+<p>在达梦数据库中，整数相除或者使用<code>ROUND</code>函数，结果如果有小数位，会被直接舍弃，返回整数。</p>
+<p>比如</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">9</span><span class="operator">/</span><span class="number">2</span> <span class="keyword">from</span> dual;</span><br><span class="line"><span class="comment">-- 会返回4</span></span><br></pre></td></tr></table></figure>
+
+<p>可修改<code>CALC_AS_DECIMAL=1</code> 让运算不舍弃小数位</p>
+<h5 id="关于参数修改方式"><a href="#关于参数修改方式" class="headerlink" title="关于参数修改方式"></a>关于参数修改方式</h5><p>第一种：通过<code>dm.ini</code> 修改参数</p>
+<p>第二种：在达梦SQL窗口中，执行：</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">sp_set_para_value(old_values, <span class="string">&#x27;param_name&#x27;</span>, new_values);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 例如</span></span><br><span class="line">sp_set_para_value(<span class="number">1</span>,<span class="string">&#x27;PK_WITH_CLUSTER&#x27;</span>,<span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="1-5-确认数据库用户权限"><a href="#1-5-确认数据库用户权限" class="headerlink" title="1.5 确认数据库用户权限"></a>1.5 确认数据库用户权限</h3><p>产品需要的用户大部分情况下是使用了DBA角色的权限，但是在项目实施时（特别是在生产环境中），会有部分客户认为产品上 DBA 权限不合理，也会有部分客户授权 DBA 是需要走流程申请。</p>
+<p>所以这一点在前期就需要跟客户确认，用户权限能否授予DBA权限。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 创建达梦用户脚本</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 创建表空间</span></span><br><span class="line"><span class="comment">-- 默认初始大小 500MB，每次自增 40MB，最大 10G</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span>space &quot;TS_TEST&quot; datafile <span class="string">&#x27;/dm8/data/DAMENG/TS_TEST.DBF&#x27;</span> size <span class="number">500</span> autoextend <span class="keyword">on</span> next <span class="number">40</span> maxsize <span class="number">10240</span>;    <span class="comment">-- 生产上可扩展为 unlimited</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> &quot;test&quot; identified <span class="keyword">by</span> &quot;testdata123&quot; <span class="keyword">default</span> tablespace TS_test;</span><br><span class="line"><span class="keyword">grant</span> &quot;DBA&quot; <span class="keyword">to</span> &quot;test&quot;;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">delete</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">execute</span> <span class="keyword">any</span> <span class="keyword">procedure</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">insert</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> dictionary <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">select</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> unlimited tablespace <span class="keyword">to</span> test;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">update</span> <span class="keyword">any</span> <span class="keyword">table</span> <span class="keyword">to</span> test;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>甚至有的客户（我遇到的一个），认为<code>ANY</code>权限也是有大隐患的，需要针对到具体表名的权限。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">DELETE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">SELECT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">UPDATE</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">INSERT</span> <span class="keyword">ANY</span> <span class="keyword">TABLE</span> <span class="keyword">TO</span> TEST;</span><br></pre></td></tr></table></figure>
+
+<p>这种情况就没办法了，很麻烦，一个成熟且功能复杂的产品，可能标准版初始的表就有上千张（还不包括后续的开发新的功能表），存储过程、自定义函数等等也有上千个。每个存储过程用到的表都不一样，要一一梳理哪些用户select，哪个用户要delete等等，后期就需要额外的花时间去进行梳理。<del>（虽然更安全、合规，但是麻烦的是我~吐槽一下）</del></p>
+<h2 id="2-达梦权限说明"><a href="#2-达梦权限说明" class="headerlink" title="2 达梦权限说明"></a>2 达梦权限说明</h2><p>通常我们在部署时，JDBC 中的连接，我们使用 <code>WOLF</code>  <code>WOLFDATA</code> 用户去连接，或者使用 <code>WOLF</code> 去配置两个 JDBC 连接，指向 <code>WOLF</code>  <code>WOLFDATA</code> 模式（达梦中 schema 的概念，可以把它当成 oracle 的实例概念）。</p>
+<p>使用了 <code>WOLF</code> 用户去配置 JDBC 连接，那么此时，在系统进行日常操作的时候，在数据库中就是基于 <code>WOLF</code> 用户对对各个对象（TABLE \ SP \ FUNCTION \ VIEW \ TYPE \ PACKAGE 等）进行增删改查操作。</p>
+<p>通常情况下，框架提供的默认权限脚本权限多含 <code>DBA</code> 或者 <code>ANY</code> 权限，但是在生产环境上其实是不被允许的。在用户具备 DBA \ DROP ANY OBJECTS 的情况，能做的事情比较多，包括了对表空间（数据文件）的更改、跨用户删除表 等危险操作。</p>
+<p>因此在权限上，有的客户会要求梳理到具体的表需要什么权限。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="number">1</span>.除了本身的 ROURCE 角色外，需要对系统表的查询权限，SOV\SVI 角色</span><br><span class="line"><span class="number">2</span>.需要对 WOLFDATA 具有完全执行权，WOLFDATA 下一般只有表，对这些表有增删改查即可</span><br><span class="line"><span class="number">3</span>.对产品用户的对象：（不包含达梦自身用户的对象）</span><br><span class="line">  所有 TABLE 有 INSERT \ DELETE \ UPDATE \ SELECT 权限</span><br><span class="line">  所有 VIEW  有 SELECT 权限</span><br><span class="line">  所有 SP    有 EXECUTE 权限</span><br><span class="line">  所有的 FUNC 有 EXECUTE</span><br><span class="line">  所有的 PACKAGE 有 EXECUTE  （达梦的 TYPE 类型集合到了 PACKAGE 里）</span><br><span class="line">  所有的 CLASS 有 EXECUTE</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">其他的产品用户，权限则需要有自身的 RESOURCE 用户外，</span><br><span class="line">还应该从自身的 SP 中逐一排查需要的 跨用户对象的某个权限</span><br><span class="line"></span><br><span class="line">比如 RISKCONFIG 的 SP 中通常含有对中间层表的 DELETE \ INSERT \ SELECT \ UPDATE</span><br><span class="line">则应该为 RISKCONFIG 用户赋予中间层表的 DELETE \ INSERT \ SELECT \ UPDATE 权限。</span><br><span class="line"></span><br><span class="line">不需要 WOLF 对中间层表有权限，WOLF 只需要有执行该 SP 的权限即可。</span><br></pre></td></tr></table></figure>
 
 
 
 
 
-<h2 id="宝兰德部署应用"><a href="#宝兰德部署应用" class="headerlink" title="宝兰德部署应用"></a>宝兰德部署应用</h2><p>该步骤为宝兰德集群版本的安装步骤，非单实例。集群版本，需要配置节点、实例。实例的启动依赖于节点的启动，节点停止则实例停止。</p>
-<p>正确的启动顺序：集群 &gt;&gt; 节点 &gt;&gt; 实例</p>
-<h3 id="1-宝兰德的安装"><a href="#1-宝兰德的安装" class="headerlink" title="1 宝兰德的安装"></a>1 宝兰德的安装</h3><p>将安装介质放入服务器，并解压</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用中间件用户</span></span><br><span class="line">su - bes</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入介质目录</span></span><br><span class="line">cd /home/BES955</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">解压</span></span><br><span class="line">tar -zxvf BES-AppServer-Enterprise-9.5.5.6210-KYLIN10-X64.tar.gz -C /home/BES955/AdminServer</span><br></pre></td></tr></table></figure>
-
-
-
-<p>如果有补丁，则需要升级补丁。将补丁包放到 patch 目录下，执行</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">cd /home/BES955/AdminServer/bin</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">升级补丁</span></span><br><span class="line">./patch -path /home/jfcz/patch</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否升级完成</span></span><br><span class="line">./patch -list</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210006502.png" class="" title="image-20240610210006502">
-
-
-
-<h3 id="2-初始化并启动"><a href="#2-初始化并启动" class="headerlink" title="2 初始化并启动"></a>2 初始化并启动</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在bin目录下执行，初始化中间件</span></span><br><span class="line">./initstore</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动管理控制台</span></span><br><span class="line">./startManagement</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看是否启动，出现6900端口为已启动</span></span><br><span class="line">netstat -ntlp</span><br></pre></td></tr></table></figure>
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210257908.png" class="" title="image-20240610210257908">
-
-
-
-<h3 id="3-配置中间件"><a href="#3-配置中间件" class="headerlink" title="3 配置中间件"></a>3 配置中间件</h3><p>访问管理控制台</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">http://IP:6900/console</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="3-1-添加主机"><a href="#3-1-添加主机" class="headerlink" title="3.1 添加主机"></a>3.1 添加主机</h4><p>进入控制台后，点击左侧主机管理，点击添加：<br>填写名称、主机IP、用户名、密码，信息如图</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210617629.png" class="" title="image-20240610210617629">
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210646602.png" class="" title="image-20240610210646602">
-
-<p>可以点击ping，测试是否能连接。不能ping通请检查IP、用户、密码是否正确。</p>
-<h4 id="3-2-添加节点"><a href="#3-2-添加节点" class="headerlink" title="3.2 添加节点"></a>3.2 添加节点</h4><p>点击左侧节点管理，新建</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210752739.png" class="" title="image-20240610210752739">
-
-
-
-<p>填写节点名称、节点目录（默认填宝兰德的安装目录），JAVA_HOME可默认不填</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210903059.png" class="" title="image-20240610210903059">
-
-<p>保存后，启动它。</p>
-<p>点击节点，进入节点的配置界面，将【启动所有实例、停止所有实例】打勾后保存（这个操作可以在启动节点的同时自动启动实例）</p>
-<h4 id="3-3-创建集群"><a href="#3-3-创建集群" class="headerlink" title="3.3 创建集群"></a>3.3 创建集群</h4><p>点击左侧集群管理，点击新建：填写个集群名称即可。保存后选中该集群然后点击启动。</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211656153.png" class="" title="image-20240610211656153">
-
-
-
-<h4 id="3-4-创建实例"><a href="#3-4-创建实例" class="headerlink" title="3.4 创建实例"></a>3.4 创建实例</h4><p>点击左侧实例管理，点击新建：填写如图信息保存即可</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211725523.png" class="" title="image-20240610211725523">
-
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211737010.png" class="" title="image-20240610211737010">
-
-
-
-<h4 id="3-5-修改实例端口"><a href="#3-5-修改实例端口" class="headerlink" title="3.5 修改实例端口"></a>3.5 修改实例端口</h4><p>点击实例 - 系统属性<br>http-listener-1_port：修改为8080（这个是http协议访问）<br>http-listener-2_port：（这个是https协议访问，如需要此访问请更改）</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610211821072.png" class="" title="image-20240610211821072">
-
-
-
-<p>OK，到这里就是宝兰德的基础配置就结束了。</p>
-<p>后边可以进行应用的部署了。</p>
-<h3 id="4-部署应用注意项"><a href="#4-部署应用注意项" class="headerlink" title="4 部署应用注意项"></a>4 部署应用注意项</h3><p>BES集群下有实例，应用是在实例中生效的，所以改动应用的时候请直接到实例目录下的application目录下去改。每部署一次应用，就会拷贝一次应用目录到它的实例node&#x2F;application下。</p>
-<h4 id="4-1-重启实例出现某个实例启动失败"><a href="#4-1-重启实例出现某个实例启动失败" class="headerlink" title="4.1 重启实例出现某个实例启动失败"></a>4.1 重启实例出现某个实例启动失败</h4><p>在应用无报错的前提下，4个实例，正常重启实例，会出现1个或者2个实例启动报错。从应用的错误日志中查看原因，会出现一些连接不上数据源的报错，导致实例的错误日志会抛出应用错误。</p>
-<p>由于数据源连接数量太少导致，每个实例都需要一定的连接数。此时，需要到中间件的JDBC数据源配置处，修改池的连接数。生产环境上修改为默认的两倍数据，实例均正常启动。后续如果出现此情况，可根据实际情况，扩大连接数即可。</p>
-<img src="/2024/06/10/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610212153631.png" class="" title="image-20240610212153631">
-
-
-
+<p>前期将这些沟通好，等客户给服务器的相关信息，就可以开始着手准备实施部署产品了。</p>
 ]]></content>
       <categories>
         <category>实施部署</category>
@@ -1924,7 +1925,6 @@
       </categories>
       <tags>
         <tag>实施</tag>
-        <tag>中间件</tag>
       </tags>
   </entry>
 </search>
