@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
+<meta name="keywords" content="达梦, 数据库, DM, 数据守护, 主备搭建"><title>主备集群-达梦数据库数据守护（一）</title>
+
+<link rel='canonical' href='http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="主备集群-达梦数据库数据守护（一）">
+<meta property='og:description' content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
+<meta property='og:url' content='http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/'>
+<meta property='og:site_name' content='阿琦同学'>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-07-20T22:00:31&#43;08:00'/><meta property='article:modified_time' content='2024-10-09T21:49:49&#43;08:00'/>
+<meta name="twitter:title" content="主备集群-达梦数据库数据守护（一）">
+<meta name="twitter:description" content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="/img/tx.png" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">阿琦同学</a></h1>
+            <h2 class="site-description">Life is Passion !</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/weiqifun'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/tags/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+                
+                <span>标签</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E9%93%BE/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友链</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#达梦数据守护概念">达梦数据守护概念</a>
+      <ol>
+        <li><a href="#数据守护原理">数据守护原理</a></li>
+        <li><a href="#数据守护组成">数据守护组成</a>
+          <ol>
+            <li><a href="#主库">主库</a></li>
+            <li><a href="#备库">备库</a></li>
+            <li><a href="#redo-日志">Redo 日志</a></li>
+            <li><a href="#redo-日志重演">Redo 日志重演</a></li>
+            <li><a href="#守护进程">守护进程</a></li>
+            <li><a href="#监视器">监视器</a></li>
+          </ol>
+        </li>
+        <li><a href="#数据库与数据库实例">数据库与数据库实例</a></li>
+        <li><a href="#数据守护需要了解的基本概念">数据守护需要了解的基本概念</a>
+          <ol>
+            <li><a href="#数据库模式">数据库模式</a>
+              <ol>
+                <li><a href="#normal-模式">Normal 模式</a></li>
+                <li><a href="#primary-模式">Primary 模式</a></li>
+                <li><a href="#standby-模式">Standby 模式</a></li>
+                <li><a href="#数据库模式切换">数据库模式切换</a></li>
+              </ol>
+            </li>
+            <li><a href="#数据库状态">数据库状态</a>
+              <ol>
+                <li><a href="#mount-状态">Mount 状态</a></li>
+                <li><a href="#startup-状态">Startup 状态</a></li>
+                <li><a href="#open-状态">Open 状态</a></li>
+                <li><a href="#suspend-状态">Suspend 状态</a></li>
+                <li><a href="#shutdown-状态">Shutdown 状态</a></li>
+                <li><a href="#数据库状态切换">数据库状态切换</a></li>
+              </ol>
+            </li>
+            <li><a href="#redo-日志-1">Redo 日志</a>
+              <ol>
+                <li><a href="#redo-日志包">Redo 日志包</a></li>
+                <li><a href="#联机-redo-日志文件">联机 Redo 日志文件</a></li>
+              </ol>
+            </li>
+            <li><a href="#归档">归档</a>
+              <ol>
+                <li><a href="#本地归档">本地归档</a></li>
+                <li><a href="#实时归档">实时归档</a></li>
+                <li><a href="#即时归档">即时归档</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#端口配置">端口配置</a>
+          <ol>
+            <li><a href="#port_num">PORT_NUM</a></li>
+            <li><a href="#dw_port">DW_PORT</a></li>
+          </ol>
+        </li>
+        <li><a href="#服务名配置">服务名配置</a></li>
+      </ol>
+    </li>
+    <li><a href="#数据守护的多种方案">数据守护的多种方案</a>
+      <ol>
+        <li><a href="#实时主备">实时主备</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%AE%9E%E6%96%BD/" >
+                实施
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/">主备集群-达梦数据库数据守护（一）</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2024年7月20号</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 5 分钟
+                </time>
+            </div>
+        
+
+        
+        
+        <footer class="article-wordcount">
+            <div>
+                <span class="article-wordcount--count">字数: 2158</span>
+            </div>
+        </footer>
+        
+        
+
+        <section>
+            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
+        </section>
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。</p>
+<p>总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。</p>
+<h2 id="达梦数据守护概念">达梦数据守护概念
+</h2><p>达梦数据守护，为数据库容灾方案，通过数据库主备集群，进行实时主备切换，在主库出现异常时，自带切换备库对应用提供数据库服务。</p>
+<h3 id="数据守护原理">数据守护原理
+</h3><p>DM数据守护 <code>DM DATA WATCH</code> 原理：</p>
+<p>主库产生的 <code>Redo</code> 日志 &raquo; 传到备库 &raquo; 备库重演 <code>Redo</code> 日志，实现主备库数据同步</p>
+<h3 id="数据守护组成">数据守护组成
+</h3><ul>
+<li>
+<p>主库</p>
+</li>
+<li>
+<p>备库</p>
+</li>
+<li>
+<p>Redo 日志</p>
+</li>
+<li>
+<p>Redo 日志传输</p>
+</li>
+<li>
+<p>Redo 日志重演</p>
+</li>
+<li>
+<p>守护进程 DmWatcher</p>
+</li>
+<li>
+<p>监视器 DmMonitor</p>
+</li>
+</ul>
+<h4 id="主库">主库
+</h4><p>主库使用 <code>Primary</code> 模式，有完整的数据库服务</p>
+<h4 id="备库">备库
+</h4><p>使用 <code>Standby</code> 模式，提供只读服务</p>
+<h4 id="redo-日志">Redo 日志
+</h4><p><code>Redo</code> 日志里，记录了物理数据页内容变动的情况（在部署时，确定页大小，就是为了单页能够记录更多的内容）</p>
+<p>Inert \ Update \ Delete \ Create 等 <code>DML</code> 和 <code>DDL</code> 操作都会记录到 Redo 日志里</p>
+<h4 id="redo-日志重演">Redo 日志重演
+</h4><p>达梦有专门的 Redo 日志重演的服务</p>
+<h4 id="守护进程">守护进程
+</h4><p><code>DmWatcher</code> 用来监控数据库实例的运行状态和主备库同步情况的，它接收各种消息（数据库实例、监视器的消息）</p>
+<h4 id="监视器">监视器
+</h4><p><code>DmMonitor</code> 用来监控守护进程、数据库实例的信息，监控实例故障、自动切换主备的。</p>
+<p>现有的接触项目的情况，是没有这个的，监视器需要单独一台服务器，来监控数据库实例和守护进程。</p>
+<p>不过要是配置在数据库服务器上，应该也是可以的，就是服务器不能异常就行，这种情况只允许进程异常。</p>
+<p>普通的项目，通常是一主一备，并没有多余的机器部署 <code>DmMonitor</code> ，所以还是不能实现主备自动切换的，只能手动切换主备</p>
+<h3 id="数据库与数据库实例">数据库与数据库实例
+</h3><p>数据库是一个文件集合，包括数据文件、日志文件、控制文件等，保存在磁盘中</p>
+<p>数据库实例，则是一个操作系统进程。通过数据库实例来操作数据库（说白了，我们只需要操作实例，实例会对数据库进行操作）</p>
+<h3 id="数据守护需要了解的基本概念">数据守护需要了解的基本概念
+</h3><h4 id="数据库模式">数据库模式
+</h4><ul>
+<li>Normal 模式</li>
+<li>Primary 模式</li>
+<li>Standby 模式</li>
+</ul>
+<h5 id="normal-模式">Normal 模式
+</h5><p>正常模式，操作没有限制</p>
+<p>生成本地归档</p>
+<h5 id="primary-模式">Primary 模式
+</h5><p>主库的模式</p>
+<p>不支持修改表空间文件名，不支持修改归档 <code>arch_ini</code> 参数</p>
+<p>生成本地归档，支持实时归档、即时归档、异步归档</p>
+<p>临时表空间以外的所有操作都生成 <code>Redo</code> 日志</p>
+<h5 id="standby-模式">Standby 模式
+</h5><p>备库模式，只读模式</p>
+<h5 id="数据库模式切换">数据库模式切换
+</h5><p>在数据库服务器上，进入 <code>disql as SYSDBA/SYSDBA</code>  ，使用 <code>SQL</code> 语句切换</p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- 先将数据库切换为 Mount 状态
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> MOUNT;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 切换为 Primary 模式
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> <span style="color:#66d9ef">PRIMARY</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 切换为 Standby 模式
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> STANDBY;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 切换为 Normal 模式
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> NORMAL;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 执行完毕后将数据库实例打开
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> <span style="color:#66d9ef">OPEN</span>;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="数据库状态">数据库状态
+</h4><ul>
+<li>
+<p>Startup 状态</p>
+</li>
+<li>
+<p>After Redo 状态</p>
+</li>
+<li>
+<p>Open 状态</p>
+</li>
+<li>
+<p>Mount 状态</p>
+</li>
+<li>
+<p>Suspend 状态</p>
+</li>
+<li>
+<p>Shutdown 状态</p>
+</li>
+</ul>
+<h5 id="mount-状态">Mount 状态
+</h5><p>这个状态下，不能修改数据，不能访问数据库对象</p>
+<p>可以执行<strong>修改归档配置、控制文件、修改数据库模式</strong></p>
+<p>修改为 <code>Mount</code> 状态时，会回滚所有活动事务，已提交事务不影响</p>
+<h5 id="startup-状态">Startup 状态
+</h5><p>数据库刚启动时默认为这个状态</p>
+<h5 id="open-状态">Open 状态
+</h5><p>这个状态，数据库才会正常提供服务</p>
+<p>这个状态不能归档操作</p>
+<h5 id="suspend-状态">Suspend 状态
+</h5><p>一般是修改归档状态之前将系统切换为 <code>Suspend</code> 状态，它不会像 <code>Mount</code> 状态那样回滚所有活动事务，而是切换后所有事务可以继续执行</p>
+<h5 id="shutdown-状态">Shutdown 状态
+</h5><p>服务退出</p>
+<h5 id="数据库状态切换">数据库状态切换
+</h5><p>也是通过 <code>SQL</code> 语句切换，先进入 <code>disql as SYSDBA/SYSDBA</code></p>
+<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- 修改为 Open 状态
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> <span style="color:#66d9ef">OPEN</span>;
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 如果当前处于 Primary \ Standby 模式，则需要加上 Force 子句
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> <span style="color:#66d9ef">OPEN</span> <span style="color:#66d9ef">FORCE</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 修改为 Mount 状态
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">ALTER</span> <span style="color:#66d9ef">DATABASE</span> MOUNT;
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="redo-日志-1">Redo 日志
+</h4><p>就前边说的，包括了 DML 和 DDL 操作的记录</p>
+<h5 id="redo-日志包">Redo 日志包
+</h5><p><code>RLOG_PKG</code> Redo日志包，主句发送日志到备库，就是通过日志包的形式发送的</p>
+<h5 id="联机-redo-日志文件">联机 Redo 日志文件
+</h5><p>达梦数据库初始化实例后，是默认有两个联机 Redo 日志文件：<code>DAMENG01.log</code> <code>DAMENG02.log</code></p>
+<p>01 是 Redo 日志主文件</p>
+<h4 id="归档">归档
+</h4><ul>
+<li>本地归档</li>
+<li>远程归档</li>
+<li>实时归档</li>
+<li>即时归档</li>
+<li>异步归档</li>
+<li>同步归档</li>
+</ul>
+<p>归档模式的不同，只是在于发送 Redo 日志到备库的时机不同</p>
+<h5 id="本地归档">本地归档
+</h5><p>归档文件其实保存的就是 Redo 日志</p>
+<p>在本地归档情况下，Normal 、Primary 模式在 Redo 日志写入联机 Redo 日志文件后，由 Redo 日志包 <code>RLOG_PKG</code></p>
+<p>写入本地归档日志文件中，Standby 模式则是直接写到本地归档日志中</p>
+<p>归档日志一般在 <code>arch</code> 目录，配置了归档才有</p>
+<p>归档日志文件是不能覆盖的，每天都会生成很多份归档日志文件，而且是不会主动删掉的，如果删掉最好配置归档日志空间上限（配置后，系统会自动删除早期的归档日志文件）</p>
+<p>但是在守护系统中，如果删除归档文件，需要主备都同时删，否则会发生备库接收到的日志缺失，导致主备库无法正常同步数据</p>
+<h5 id="实时归档">实时归档
+</h5><p>本地归档是写入磁盘中的日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
+<p>实时归档是将主库产生的 Redo 日志通过 MAL 系统传递到备库</p>
+<p>流程大致：</p>
+<p>主库 Redo 日志 &raquo; 先传到备库并重演 &raquo; 重演完成后，备库响应主库 &raquo; 主库再把 Redo 日志写入联机日志文件（比如上方说的<code>DAMENG01.log</code> <code>DAMENG02.log</code> ）</p>
+<h5 id="即时归档">即时归档
+</h5><p>主库把 Redo 日志写入联机日志文件 &raquo; 然后再通过 MAL 发生 Redo 日志到备库</p>
+<p>达梦配置文件说明</p>
+<h3 id="端口配置">端口配置
+</h3><p>在 <code>dm.ini</code> 中有两个参数，用来配置端口：<code>PORT_NUM</code> <code>DW_PORT</code></p>
+<h4 id="port_num">PORT_NUM
+</h4><p>这个参数是实例的监听端口，也就是连接数据库时，需要输入的端口</p>
+<h4 id="dw_port">DW_PORT
+</h4><p>这个是守护进程的端口，用于守护进程监听数据库</p>
+<h3 id="服务名配置">服务名配置
+</h3><p>看 《DM8数据守护与读写分离集群V4.0.PDF》 5.8 章节</p>
+<h2 id="数据守护的多种方案">数据守护的多种方案
+</h2><ul>
+<li>实时主备</li>
+<li>MPP主备</li>
+<li>DMDSC主备</li>
+<li>读写分离集群</li>
+</ul>
+<h3 id="实时主备">实时主备
+</h3><p>实时主备由一个主库、一个或多个被配了实时归档的备库组成，保障数据库的高可用和数据的安全</p>
+<p>主库提供完整的数据库服务，而备库提供只读服务</p>
+<p>在主库修改的数据，会产生 <code>Redo</code> 日志，通过实时归档机制，发送到备库，然后备库通过重演 <code>Redo</code> 日志，将修改操作在备库执行一遍，依次保持与主库的数据同步</p>
+<p>实时主备系统主要由：主库、备库、守护进程、监视器组成</p>
+<p>但是多数项目中，并没有部署监视器，都是主备库 + 守护进程的模式</p>
+<p>监视器是能在故障发生时自动切换主备的</p>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E4%BF%A1%E5%88%9B/">信创</a>
+        
+            <a href="/tags/%E8%BE%BE%E6%A2%A6/">达梦</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2024年10月9号 21:49
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-新增达梦实例并配置实时主备集群（三）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E5%AE%9E%E8%B7%B5%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦实时主备集群搭建与主备切换实践（二）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实施部署-信创项目环境搭建准备（一）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-nginx%E5%9C%A8%E4%BF%A1%E5%88%9B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实施部署-Nginx在项目上的应用与常见问题（四）</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Wei Qi
+    </section>
+    
+    <section class="powerby">
+        
+
+        
+
+        
+        
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+
+        
+        
+        
+        
+        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
+
+
+        <section class="powerby">
+            <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
+        </section>
+
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/js/nprogress.min.js"
+    integrity="sha384-bHDlAEUFxsRI7JfULv3DTpL2IXbbgn4JHQJibgo5iiXSK6Iu8muwqHANhun74Cqg"
+    crossorigin="anonymous"
+></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/css/nprogress.css"
+    integrity="sha384-KJyhr2syt5+4M9Pz5dipCvTrtvOmLk/olWVdfhAp858UCa64Ia5GFpTN7+G4BWpE"
+    crossorigin="anonymous"
+/>
+<script>
+    NProgress.start();
+    document.addEventListener("readystatechange", () => {
+        if (document.readyState === "interactive") NProgress.inc(0.8);
+        if (document.readyState === "complete") NProgress.done();
+    });
+</script>
+<script defer src="https://cn.vercount.one/js"></script>
+    </body>
+</html>
