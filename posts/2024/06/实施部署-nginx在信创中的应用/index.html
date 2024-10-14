@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-nginx%E5%9C%A8%E4%BF%A1%E5%88%9B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="实施部署-Nginx在项目上的应用与常见问题（四）">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="实施部署-Nginx在项目上的应用与常见问题（四）">
 <meta property='og:description' content="本文总结Nginx在项目上的实际应用，本文包含了Nginx的常用配置与在项目中遇到的问题。信创版本的负载均衡中间件其实也是类似于Nginx，以宝兰德负载均衡中间件BWS为例。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-nginx%E5%9C%A8%E4%BF%A1%E5%88%9B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -361,9 +361,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -392,323 +389,323 @@
 <p>在生产环境，通常具有多台应用服务器（一般为集群），通过 Nginx 服务器配置的地址去访问同一个应用，通过 Ng 实现应用的高并发、高可用。</p>
 <h2 id="nginx基础">Nginx基础
 </h2><p>Nginx 的配置文件，是 Nginx_home/conf/nginx.conf 文件，它里边的结构块是这样的：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># 全局块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># user user_name;                   # 运行 nginx 进程的用户名
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">...</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 事件块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#e6db74">events</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">}</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># http 块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#e6db74">http</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># http 全局块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># server 块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#e6db74">server</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># server 全局块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># upstream 块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#e6db74">upstream</span> <span style="color:#e6db74">name</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">}</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># location 块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#e6db74">location</span> <span style="color:#e6db74">[PATTERN]</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#960050;background-color:#1e0010">}</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#960050;background-color:#1e0010">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">}</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># 全局块
+</span></span></span><span class="line"><span class="cl"><span class="c1"># user user_name;                   # 运行 nginx 进程的用户名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">...</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 事件块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">...</span>
+</span></span><span class="line"><span class="cl"><span class="err">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># http 块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># http 全局块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">...</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># server 块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="s">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># server 全局块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">...</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># upstream 块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s">upstream</span> <span class="s">name</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">...</span>
+</span></span><span class="line"><span class="cl">    <span class="err">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># location 块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="s">location</span> <span class="s">[PATTERN]</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">...</span>
+</span></span><span class="line"><span class="cl">    <span class="err">}</span>
+</span></span><span class="line"><span class="cl">  <span class="err">}</span>
+</span></span><span class="line"><span class="cl"><span class="err">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="全局块">全局块
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># 全局块通常是配置用户、日志、进程、pid 等
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># 注意，全局块中涉及的路径，需 nginx 有权限读写。
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 运行 nginx 进程的用户名，指 Linux 用户
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">user</span> <span style="color:#e6db74">user_name</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 设置 nginx 的进程数，默认为 1，一般进程数=CPU 核数即可。双核配 2，4 核配 4.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">worker_processes</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># nginx 的工作目录，不配置，默认在 logs 下
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">working_directory</span> <span style="color:#e6db74">nginx_path/logs</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 设置日志级别：debug\info\notice\warn\error\crit（高到低）
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">error_log</span> <span style="color:#e6db74">nginx_path/logs/error.log</span> <span style="color:#e6db74">info</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 也可以使用默认，记录 error
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">error_log</span> <span style="color:#e6db74">nginx_path/logs/error.log</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># pid，设置 nginx 进程的 pid 文件路径和名称
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#e6db74">pid</span> <span style="color:#e6db74">nginx_path/logs/nginx.pid</span>;
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># 全局块通常是配置用户、日志、进程、pid 等
+</span></span></span><span class="line"><span class="cl"><span class="c1"># 注意，全局块中涉及的路径，需 nginx 有权限读写。
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 运行 nginx 进程的用户名，指 Linux 用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">user</span> <span class="s">user_name</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置 nginx 的进程数，默认为 1，一般进程数=CPU 核数即可。双核配 2，4 核配 4.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">worker_processes</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># nginx 的工作目录，不配置，默认在 logs 下
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">working_directory</span> <span class="s">nginx_path/logs</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置日志级别：debug\info\notice\warn\error\crit（高到低）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">error_log</span> <span class="s">nginx_path/logs/error.log</span> <span class="s">info</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 也可以使用默认，记录 error
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">error_log</span> <span class="s">nginx_path/logs/error.log</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># pid，设置 nginx 进程的 pid 文件路径和名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">pid</span> <span class="s">nginx_path/logs/nginx.pid</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>全局块，通常配置 user  worker_processes  error_log  pid 即可。</p>
 <p>解释一下 pid，这个东西就是 nginx 运行时的进程 id（Linux 每个进程都有一个进程 id，即 pid），配置 pid，就是为了将 nginx 的进程 id 写到这个文件中（例如上方的 nginx.pid 文件），可以用来判断 nginx 是否运行，防止启动多个 nginx 进程的。</p>
 <p>网上的说法是这样的：nginx 启动时，会去找这个设置的 pid 文件，一是看这个文件是否存在，二是看 pid 文件中记录的 pid 进程是否存在，如果 pid 文件存在并且 pid 进程也存在，则说明 nginx 已经启动了，那么启动就会报错，防止启动多个 nginx 进程。</p>
 <h3 id="事件块">事件块
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># events 块，是 nginx 处理连接的配置块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">events</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 配置每个工作进程的最大连接数，默认 1024
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">worker_connection</span> <span style="color:#ae81ff">1024</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 鼓励接收，这个可不配
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">multi_accept</span> <span style="color:#66d9ef">on</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 处理连接的事件模型，默认 epoll，可不配
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">use</span> <span style="color:#e6db74">epoll</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># 其他可百度
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># events 块，是 nginx 处理连接的配置块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># 配置每个工作进程的最大连接数，默认 1024
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">worker_connection</span> <span class="mi">1024</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># 鼓励接收，这个可不配
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">multi_accept</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># 处理连接的事件模型，默认 epoll，可不配
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">use</span> <span class="s">epoll</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># 其他可百度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>其实只需要配置一个 <code>worker_connection</code> 即可</p>
 <h3 id="http-块">http 块
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#66d9ef">http</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># http 全局块常用配置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">include</span> <span style="color:#e6db74">mime.types</span>;    <span style="color:#75715e"># 文件扩展名与文件类型映射表
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">default_type</span> <span style="color:#e6db74">application/octet-stream</span>;  <span style="color:#75715e"># 默认文件类型
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">access_log</span> <span style="color:#e6db74">logs/access.log</span> <span style="color:#e6db74">main</span>;    <span style="color:#75715e"># 日志路径、格式
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">access_log</span> <span style="color:#66d9ef">on</span>;                      <span style="color:#75715e"># 开启日志，记录客户端请求信息
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">sendfile</span> <span style="color:#66d9ef">on</span>;           <span style="color:#75715e"># 开启文件传输功能
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">keepalive_timeout</span> <span style="color:#e6db74">65s</span>;    <span style="color:#75715e"># 保持连接超时时长，超过这个时间，连接关闭
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">client_max_body_size</span> <span style="color:#ae81ff">10m</span>;    <span style="color:#75715e"># 允许文件传输的最大值，根据实际情况设置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">client_header_buffer_size</span> <span style="color:#ae81ff">4k</span>;  <span style="color:#75715e"># 客户端请求头缓冲区大小，k(千字节)
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">client_body_buffer_size</span> <span style="color:#ae81ff">8m</span>;  <span style="color:#75715e"># 客户端请求体缓存区大小，m(MB)
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># http 全局块常用配置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">include</span> <span class="s">mime.types</span><span class="p">;</span>    <span class="c1"># 文件扩展名与文件类型映射表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">default_type</span> <span class="s">application/octet-stream</span><span class="p">;</span>  <span class="c1"># 默认文件类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">access_log</span> <span class="s">logs/access.log</span> <span class="s">main</span><span class="p">;</span>    <span class="c1"># 日志路径、格式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">access_log</span> <span class="no">on</span><span class="p">;</span>                      <span class="c1"># 开启日志，记录客户端请求信息
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>           <span class="c1"># 开启文件传输功能
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">keepalive_timeout</span> <span class="s">65s</span><span class="p">;</span>    <span class="c1"># 保持连接超时时长，超过这个时间，连接关闭
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">client_max_body_size</span> <span class="mi">10m</span><span class="p">;</span>    <span class="c1"># 允许文件传输的最大值，根据实际情况设置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">client_header_buffer_size</span> <span class="mi">4k</span><span class="p">;</span>  <span class="c1"># 客户端请求头缓冲区大小，k(千字节)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">client_body_buffer_size</span> <span class="mi">8m</span><span class="p">;</span>  <span class="c1"># 客户端请求体缓存区大小，m(MB)
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>client_max_body_size</code> 参数，对传输的文件大小做限制 <code>client_header_buffer_size</code>  <code>client_body_buffer_size</code> 参数，为了确保请求头(体)数据不会因为缓冲区太小而被截断</p>
 <h3 id="server-块">server 块
 </h3><p>server 块里包含了 upstream 块、location 块</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># 该块在 http 块下
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># 通过配置的服务名和监听端口去访问时，根据不同的权重随机跳转到应用服务端
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># 这里的链路大概如下：
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 访问 ng 地址：http://hello:80/app  &gt;&gt;&gt;  跳转 http://fzjh/app
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># &gt;&gt;&gt; 根据 upstream 块获取 fzjh 配置的 server   
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"># &gt;&gt;&gt; 根据权重访问 http://192.168.1.1:8080/app http://192.168.1.2:8080/app
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">http</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># http 全局块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">...</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># server 块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#e6db74">server</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">listen</span> <span style="color:#ae81ff">80</span>;        <span style="color:#75715e"># 监听端口，默认 80，需要根据实际情况更改
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">server_name</span> <span style="color:#e6db74">hello</span>;    <span style="color:#75715e"># 用来做跳转应用的服务名
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e"># upstream 块  负载均衡关键块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">upstream</span> <span style="color:#e6db74">fzjh</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">server</span> 192.168.1.1:<span style="color:#ae81ff">8080</span> <span style="color:#e6db74">weight=1</span>;  <span style="color:#75715e"># 服务器 1，权重 1
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">server</span> 192.168.1.2:<span style="color:#ae81ff">8080</span> <span style="color:#e6db74">weight=2</span>;  <span style="color:#75715e"># 服务器 2，权重 2
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># location 块  反向代理关键块
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">location</span> <span style="color:#e6db74">/app</span> {        <span style="color:#75715e"># 指定访问的后缀
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">proxy_pass</span> <span style="color:#e6db74">http://fzjh/app</span>;   <span style="color:#75715e"># proxy_pass 反向代理关键字 
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># 该块在 http 块下
+</span></span></span><span class="line"><span class="cl"><span class="c1"># 通过配置的服务名和监听端口去访问时，根据不同的权重随机跳转到应用服务端
+</span></span></span><span class="line"><span class="cl"><span class="c1"># 这里的链路大概如下：
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 访问 ng 地址：http://hello:80/app  &gt;&gt;&gt;  跳转 http://fzjh/app
+</span></span></span><span class="line"><span class="cl"><span class="c1"># &gt;&gt;&gt; 根据 upstream 块获取 fzjh 配置的 server   
+</span></span></span><span class="line"><span class="cl"><span class="c1"># &gt;&gt;&gt; 根据权重访问 http://192.168.1.1:8080/app http://192.168.1.2:8080/app
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># http 全局块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">...</span>
+</span></span><span class="line"><span class="cl">  <span class="c1"># server 块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="s">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>        <span class="c1"># 监听端口，默认 80，需要根据实际情况更改
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">server_name</span> <span class="s">hello</span><span class="p">;</span>    <span class="c1"># 用来做跳转应用的服务名
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1"># upstream 块  负载均衡关键块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">upstream</span> <span class="s">fzjh</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">server</span> <span class="n">192.168.1.1</span><span class="p">:</span><span class="mi">8080</span> <span class="s">weight=1</span><span class="p">;</span>  <span class="c1"># 服务器 1，权重 1
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kn">server</span> <span class="n">192.168.1.2</span><span class="p">:</span><span class="mi">8080</span> <span class="s">weight=2</span><span class="p">;</span>  <span class="c1"># 服务器 2，权重 2
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># location 块  反向代理关键块
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">location</span> <span class="s">/app</span> <span class="p">{</span>        <span class="c1"># 指定访问的后缀
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kn">proxy_pass</span> <span class="s">http://fzjh/app</span><span class="p">;</span>   <span class="c1"># proxy_pass 反向代理关键字 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>说明：通常只是做反向代理的话，是不需要配置 <code>upstream</code> 块的，只需要配置 <code>location</code> 块。</p>
 <h3 id="负载均衡策略">负载均衡策略
 </h3><p>负载均衡策略的问题，其实就是在 upstream 块里边去配置。比如步骤【4）server 块】中的 upstream 块用法就是一个加权轮询策略，weight=1  =2  就是服务器的权重，通过给服务器分配权重，权重大的服务器将接收更多的请求。（<strong>数值越大，权重越高</strong>）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># 轮询
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">fzjh</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.1:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.2:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.3:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 加权轮询
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">fzjh</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.1:<span style="color:#ae81ff">8080</span> <span style="color:#e6db74">weight=1</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.2:<span style="color:#ae81ff">8080</span> <span style="color:#e6db74">weight=3</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.3:<span style="color:#ae81ff">8080</span> <span style="color:#e6db74">weight=5</span>;  <span style="color:#75715e"># 权重越大，接收请求越多
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># ip hash
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">fzjh</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ip_hash</span>;            <span style="color:#75715e"># 没错，就是加上这个参数即可
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">server</span> 192.168.1.1:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.2:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.3:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 最少连接
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">upstream</span> <span style="color:#e6db74">fzjh</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">least_conn</span>;        <span style="color:#75715e"># 没错，也是加个参数即可
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">server</span> 192.168.1.1:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.2:<span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> 192.168.1.3:<span style="color:#ae81ff">8080</span>;  
-</span></span><span style="display:flex;"><span>}
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># 轮询
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">upstream</span> <span class="s">fzjh</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.1</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.2</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.3</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 加权轮询
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">upstream</span> <span class="s">fzjh</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.1</span><span class="p">:</span><span class="mi">8080</span> <span class="s">weight=1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.2</span><span class="p">:</span><span class="mi">8080</span> <span class="s">weight=3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.3</span><span class="p">:</span><span class="mi">8080</span> <span class="s">weight=5</span><span class="p">;</span>  <span class="c1"># 权重越大，接收请求越多
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># ip hash
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">upstream</span> <span class="s">fzjh</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">ip_hash</span><span class="p">;</span>            <span class="c1"># 没错，就是加上这个参数即可
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">server</span> <span class="n">192.168.1.1</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.2</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.3</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 最少连接
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">upstream</span> <span class="s">fzjh</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">least_conn</span><span class="p">;</span>        <span class="c1"># 没错，也是加个参数即可
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">server</span> <span class="n">192.168.1.1</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.2</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="n">192.168.1.3</span><span class="p">:</span><span class="mi">8080</span><span class="p">;</span>  
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="nginx启停">Nginx启停
-</h2><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e"># 启动
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">cd</span> <span style="color:#e6db74">nginx_home/sbin</span> <span style="color:#e6db74">&amp;&amp;</span> <span style="color:#e6db74">./nginx</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 停止  pid 文件的路径为全局块中设置
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#e6db74">kill</span> <span style="color:#e6db74">-QUIT</span> <span style="color:#e6db74">`cat</span> <span style="color:#e6db74">nginx_home/logs/nginx.pid`</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 重启
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#e6db74">cd</span> <span style="color:#e6db74">nginx_home/sbin</span> <span style="color:#e6db74">&amp;&amp;</span> <span style="color:#e6db74">./nginx</span> <span style="color:#e6db74">-s</span> <span style="color:#e6db74">reload</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1"># 启动
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">cd</span> <span class="s">nginx_home/sbin</span> <span class="s">&amp;&amp;</span> <span class="s">./nginx</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 停止  pid 文件的路径为全局块中设置
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">kill</span> <span class="s">-QUIT</span> <span class="s">`cat</span> <span class="s">nginx_home/logs/nginx.pid`</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="s">cd</span> <span class="s">nginx_home/sbin</span> <span class="s">&amp;&amp;</span> <span class="s">./nginx</span> <span class="s">-s</span> <span class="s">reload</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="nginx遇到的问题">Nginx遇到的问题
 </h2><h3 id="文件上传超限">文件上传超限
 </h3><p>通常在使用 ng 访问应用时，在应用上传附件时，会遇到如下报错：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>request entity too large nginx 解决方案
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="n">request</span> <span class="n">entity</span> <span class="n">too</span> <span class="n">large</span> <span class="n">nginx</span> <span class="n">解决方案</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>此错误是由于上传文件的大小超过 nginx 配置的文件传输最大值导致。通过更改 <code>client_max_body_size</code> 的大小即可（没有则在 HTTP块 新增即可）。更改完需要重启 nginx 服务。</p>
@@ -717,266 +714,266 @@
 <h2 id="配置案例">配置案例
 </h2><h3 id="反向代理">反向代理
 </h3><p>该配置为审计项目开发环境、测试环境的实际配置。当然，信创版本，使用的是 宝兰德 BWS 中间件（国产版的Nginx）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#66d9ef">user</span>  <span style="color:#e6db74">bes</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log  notice;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log  info;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pid        logs/bws.pid;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">events</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">worker_connections</span> <span style="color:#ae81ff">1024</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">http</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">include</span> <span style="color:#e6db74">mime.types</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">default_type</span> <span style="color:#e6db74">application/octet-stream</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">log_format</span> <span style="color:#e6db74">main</span> <span style="color:#e6db74">&#39;</span>$remote_addr <span style="color:#e6db74">-</span> $remote_user <span style="color:#e6db74">[</span>$time_local] <span style="color:#e6db74">&#34;</span>$request&#34; <span style="color:#e6db74">&#39;</span> <span style="color:#e6db74">&#39;</span>$status $body_bytes_sent <span style="color:#e6db74">&#34;</span>$http_referer&#34; <span style="color:#e6db74">&#39;</span> <span style="color:#e6db74">&#39;&#34;</span>$http_user_agent&#34; <span style="color:#e6db74">&#34;</span>$http_x_forwarded_for&#34;&#39;;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">access_log</span> <span style="color:#e6db74">logs/access.log</span> <span style="color:#e6db74">main</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">access_log</span> <span style="color:#66d9ef">on</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">sendfile</span> <span style="color:#66d9ef">on</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">keepalive_timeout</span> <span style="color:#e6db74">65s</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">server</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#bws_http_server_name:server-tPegV0o6
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">#bws_http_server_type:reverseProxy
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">listen</span> <span style="color:#ae81ff">8070</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server_name</span> <span style="color:#ae81ff">192</span><span style="color:#e6db74">.168.XXX.56</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">location</span> <span style="color:#e6db74">/</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">#type:static
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#75715e">#bws_http_server_location_name:location-OsbKN52L
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">index</span> <span style="color:#e6db74">index.html</span> <span style="color:#e6db74">index.htm</span>;
-</span></span><span style="display:flex;"><span>     
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">location</span> <span style="color:#e6db74">/app</span> {
-</span></span><span style="display:flex;"><span>       <span style="color:#f92672">proxy_pass</span> <span style="color:#e6db74">http://192.168.XXX.59:18080/app</span>;
-</span></span><span style="display:flex;"><span>         <span style="color:#75715e"># 此处判断，允许跨源请求、http 方法、带 cookie 信息，通用配置 -- 开始
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        <span style="color:#f92672">if</span> <span style="color:#e6db74">(</span>$request_method = <span style="color:#e6db74">&#39;OPTIONS&#39;)</span> {
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">add_header</span> <span style="color:#e6db74">Access-Control-Allow-Origin</span> <span style="color:#e6db74">&#39;*&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">add_header</span> <span style="color:#e6db74">Access-Control-Allow-Headers</span> <span style="color:#e6db74">&#39;*&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">add_header</span> <span style="color:#e6db74">Access-Control-Allow-Methods</span> <span style="color:#e6db74">&#39;*&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">add_header</span> <span style="color:#e6db74">Access-Control-Allow-Credentials</span> <span style="color:#e6db74">&#39;true&#39;</span>;
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">return</span> <span style="color:#ae81ff">204</span>;
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>           
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">proxy_http_version</span> <span style="color:#ae81ff">1</span><span style="color:#e6db74">.1</span>;
-</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">X-Real-IP</span> $remote_addr;
-</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">Upgrade</span> $http_upgrade;
-</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">Connection</span> <span style="color:#e6db74">&#34;upgrade&#34;</span>;
-</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">Origin</span> <span style="color:#e6db74">&#34;&#34;</span>;
-</span></span><span style="display:flex;"><span>					<span style="color:#f92672">proxy_set_header</span> <span style="color:#e6db74">Cookie</span> $http_cookie;
-</span></span><span style="display:flex;"><span>         <span style="color:#75715e"># 通用配置  -- 结束           
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">location</span> = <span style="color:#e6db74">/50x.html</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">#type:static
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#75715e">#bws_http_server_location_name:location-8t7KLrfH
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">root</span> <span style="color:#e6db74">html</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">location</span> = <span style="color:#e6db74">/bws_status</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#75715e">#bws_http_server_location_name:monitor
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">stub_status</span> <span style="color:#66d9ef">on</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">error_page</span> <span style="color:#ae81ff">500</span> <span style="color:#ae81ff">502</span> <span style="color:#ae81ff">503</span> <span style="color:#ae81ff">504</span> <span style="color:#e6db74">/50x.html</span>;
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">gzip</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">gzip_comp_level</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">gzip_min_length</span> <span style="color:#ae81ff">1k</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">client_max_body_size</span> <span style="color:#ae81ff">1024m</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">client_header_buffer_size</span> <span style="color:#ae81ff">4k</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">client_body_buffer_size</span> <span style="color:#ae81ff">8m</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">worker_processes</span> <span style="color:#ae81ff">1</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">error_log</span> <span style="color:#e6db74">logs/error.log</span> <span style="color:#e6db74">info</span>;
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">user</span>  <span class="s">bes</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log  notice;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log  info;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#pid        logs/bws.pid;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">worker_connections</span> <span class="mi">1024</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">include</span> <span class="s">mime.types</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">default_type</span> <span class="s">application/octet-stream</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">log_format</span> <span class="s">main</span> <span class="s">&#39;</span><span class="nv">$remote_addr</span> <span class="s">-</span> <span class="nv">$remote_user</span> <span class="s">[</span><span class="nv">$time_local]</span> <span class="s">&#34;</span><span class="nv">$request&#34;</span> <span class="s">&#39;</span> <span class="s">&#39;</span><span class="nv">$status</span> <span class="nv">$body_bytes_sent</span> <span class="s">&#34;</span><span class="nv">$http_referer&#34;</span> <span class="s">&#39;</span> <span class="s">&#39;&#34;</span><span class="nv">$http_user_agent&#34;</span> <span class="s">&#34;</span><span class="nv">$http_x_forwarded_for&#34;&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">access_log</span> <span class="s">logs/access.log</span> <span class="s">main</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">access_log</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">keepalive_timeout</span> <span class="s">65s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#bws_http_server_name:server-tPegV0o6
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#bws_http_server_type:reverseProxy
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">listen</span> <span class="mi">8070</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server_name</span> <span class="mi">192</span><span class="s">.168.XXX.56</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">#type:static
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">#bws_http_server_location_name:location-OsbKN52L
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kn">index</span> <span class="s">index.html</span> <span class="s">index.htm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">     
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="s">/app</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">       <span class="kn">proxy_pass</span> <span class="s">http://192.168.XXX.59:18080/app</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">         <span class="c1"># 此处判断，允许跨源请求、http 方法、带 cookie 信息，通用配置 -- 开始
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="kn">if</span> <span class="s">(</span><span class="nv">$request_method</span> <span class="p">=</span> <span class="s">&#39;OPTIONS&#39;)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="kn">add_header</span> <span class="s">Access-Control-Allow-Origin</span> <span class="s">&#39;*&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="kn">add_header</span> <span class="s">Access-Control-Allow-Headers</span> <span class="s">&#39;*&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="kn">add_header</span> <span class="s">Access-Control-Allow-Methods</span> <span class="s">&#39;*&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="kn">add_header</span> <span class="s">Access-Control-Allow-Credentials</span> <span class="s">&#39;true&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                <span class="kn">return</span> <span class="mi">204</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">           
+</span></span><span class="line"><span class="cl">            <span class="kn">proxy_http_version</span> <span class="mi">1</span><span class="s">.1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="kn">proxy_set_header</span> <span class="s">X-Real-IP</span> <span class="nv">$remote_addr</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="kn">proxy_set_header</span> <span class="s">Upgrade</span> <span class="nv">$http_upgrade</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="kn">proxy_set_header</span> <span class="s">Connection</span> <span class="s">&#34;upgrade&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">                    <span class="kn">proxy_set_header</span> <span class="s">Origin</span> <span class="s">&#34;&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">					<span class="kn">proxy_set_header</span> <span class="s">Cookie</span> <span class="nv">$http_cookie</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">         <span class="c1"># 通用配置  -- 结束           
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="p">=</span> <span class="s">/50x.html</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">#type:static
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="c1">#bws_http_server_location_name:location-8t7KLrfH
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kn">root</span> <span class="s">html</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="p">=</span> <span class="s">/bws_status</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="c1">#bws_http_server_location_name:monitor
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>      <span class="kn">stub_status</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">error_page</span> <span class="mi">500</span> <span class="mi">502</span> <span class="mi">503</span> <span class="mi">504</span> <span class="s">/50x.html</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">gzip</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">gzip_comp_level</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">gzip_min_length</span> <span class="mi">1k</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">client_max_body_size</span> <span class="mi">1024m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">client_header_buffer_size</span> <span class="mi">4k</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">client_body_buffer_size</span> <span class="mi">8m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">worker_processes</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">error_log</span> <span class="s">logs/error.log</span> <span class="s">info</span><span class="p">;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="负载均衡">负载均衡
 </h3><p>审计项目生产环境的配置（已脱敏）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-nginx" data-lang="nginx"><span style="display:flex;"><span><span style="color:#75715e">#user  nobody;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">worker_processes</span> <span style="color:#e6db74">auto</span>;
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log  notice;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#error_log  logs/error.log  info;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#pid        logs/bws.pid;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">events</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">worker_connections</span> <span style="color:#ae81ff">512</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">use</span> <span style="color:#e6db74">epoll</span>;
-</span></span><span style="display:flex;"><span>}
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">http</span> {
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">include</span> <span style="color:#e6db74">mime.types</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">default_type</span> <span style="color:#e6db74">application/octet-stream</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#log_format  main  &#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#                  &#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#                  &#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#access_log  logs/access.log  main;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">access_log</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">sendfile</span> <span style="color:#66d9ef">on</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#tcp_nopush     on;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#75715e">#keepalive_timeout  0;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">keepalive_timeout</span> <span style="color:#ae81ff">75</span>;
-</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#gzip  on;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>  <span style="color:#f92672">server</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">listen</span> <span style="color:#ae81ff">8080</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server_name</span> <span style="color:#e6db74">SJGL-JR2-JQ</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#charset koi8-r;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">#access_log  logs/host.access.log  main;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">location</span> <span style="color:#e6db74">/app</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">index</span> <span style="color:#e6db74">index.html</span> <span style="color:#e6db74">index.htm</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">proxy_cache</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">concat</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">sysguard</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">proxy_pass</span> <span style="color:#e6db74">http://app-8080/app</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">#error_page  404              /404.html;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e"># redirect server error pages to the static page /50x.html
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">#
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#f92672">error_page</span> <span style="color:#ae81ff">500</span> <span style="color:#ae81ff">502</span> <span style="color:#ae81ff">503</span> <span style="color:#ae81ff">504</span> <span style="color:#e6db74">/50x.html</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">location</span> = <span style="color:#e6db74">/50x.html</span> {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">root</span> <span style="color:#e6db74">html</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">proxy_cache</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">concat</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">sysguard</span> <span style="color:#66d9ef">off</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">upstream</span> <span style="color:#e6db74">app-8080</span> {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server</span> <span style="color:#e6db74">SJGL-YY1-JQ:8080</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server</span> <span style="color:#e6db74">SJGL-YY2-JQ:8080</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server</span> <span style="color:#e6db74">SJGL-YY3-JQ:8080</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server</span> <span style="color:#e6db74">SJGL-YY4-JQ:8080</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ip_hash</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">check</span> <span style="color:#e6db74">interval=30000</span> <span style="color:#e6db74">fall=3</span> <span style="color:#e6db74">rise=2</span> <span style="color:#e6db74">default_down=false</span> <span style="color:#e6db74">timeout=1000</span> <span style="color:#e6db74">type=tcp</span> <span style="color:#e6db74">port=8080</span>;
-</span></span><span style="display:flex;"><span>  }
-</span></span><span style="display:flex;"><span>}
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="c1">#user  nobody;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">worker_processes</span> <span class="s">auto</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log  notice;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#error_log  logs/error.log  info;
+</span></span></span><span class="line"><span class="cl"><span class="c1">#pid        logs/bws.pid;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">worker_connections</span> <span class="mi">512</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="s">epoll</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">include</span> <span class="s">mime.types</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">default_type</span> <span class="s">application/octet-stream</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">#log_format  main  &#39;$remote_addr - $remote_user [$time_local] &#34;$request&#34; &#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">#                  &#39;$status $body_bytes_sent &#34;$http_referer&#34; &#39;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">#                  &#39;&#34;$http_user_agent&#34; &#34;$http_x_forwarded_for&#34;&#39;;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">#access_log  logs/access.log  main;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">access_log</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">#tcp_nopush     on;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1">#keepalive_timeout  0;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">keepalive_timeout</span> <span class="mi">75</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">#gzip  on;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">listen</span> <span class="mi">8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server_name</span> <span class="s">SJGL-JR2-JQ</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#charset koi8-r;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#access_log  logs/host.access.log  main;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">location</span> <span class="s">/app</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">index</span> <span class="s">index.html</span> <span class="s">index.htm</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">proxy_cache</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">concat</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">sysguard</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">proxy_pass</span> <span class="s">http://app-8080/app</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">#error_page  404              /404.html;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1"># redirect server error pages to the static page /50x.html
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kn">error_page</span> <span class="mi">500</span> <span class="mi">502</span> <span class="mi">503</span> <span class="mi">504</span> <span class="s">/50x.html</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="p">=</span> <span class="s">/50x.html</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">root</span> <span class="s">html</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">proxy_cache</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">concat</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">sysguard</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">upstream</span> <span class="s">app-8080</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server</span> <span class="s">SJGL-YY1-JQ:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server</span> <span class="s">SJGL-YY2-JQ:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server</span> <span class="s">SJGL-YY3-JQ:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server</span> <span class="s">SJGL-YY4-JQ:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">ip_hash</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">check</span> <span class="s">interval=30000</span> <span class="s">fall=3</span> <span class="s">rise=2</span> <span class="s">default_down=false</span> <span class="s">timeout=1000</span> <span class="s">type=tcp</span> <span class="s">port=8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
@@ -1035,6 +1032,19 @@
             
                 
 <article class="">
+    <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦数据库备份还原实践（四）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
     <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">
         
         
@@ -1080,19 +1090,6 @@
 
         <div class="article-details">
             <h2 class="article-title">实施部署-东方通中间件、宝兰德部署应用（三）</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
         </div>
     </a>
 </article>
@@ -1198,12 +1195,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

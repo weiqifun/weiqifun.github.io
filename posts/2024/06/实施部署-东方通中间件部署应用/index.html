@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="实施部署-东方通中间件、宝兰德部署应用（三）">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="实施部署-东方通中间件、宝兰德部署应用（三）">
 <meta property='og:description' content="本文总结在信创项目中，使用最多的中间件：东方通、宝兰德。\n在安装中间件之前，应先在服务器创建一个应用用户，这里并不是说不能用root用户安装，开发环境和测试环境可以直接安装，但是生产上是无特殊情况是不提供root用户的。为了避免因为用户差异导致的文件执行问题，这里先创建一个用户，上线时，可以保证我们的操作一致，以及后续方便排查部署过程中可能产生的报错。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -405,9 +405,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -424,76 +421,76 @@
 <h2 id="安装前准备">安装前准备
 </h2><h3 id="创建中间件用户">创建中间件用户
 </h3><p>在应用服务器上使用root用户</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 创建用户组</span>
-</span></span><span style="display:flex;"><span>groupadd -g <span style="color:#ae81ff">1051</span> test
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 创建用户</span>
-</span></span><span style="display:flex;"><span>useradd -g test -m -d /home/test -s /bin/bash test
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 修改密码</span>
-</span></span><span style="display:flex;"><span>passwd test
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 创建用户组</span>
+</span></span><span class="line"><span class="cl">groupadd -g <span class="m">1051</span> <span class="nb">test</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建用户</span>
+</span></span><span class="line"><span class="cl">useradd -g <span class="nb">test</span> -m -d /home/test -s /bin/bash <span class="nb">test</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 修改密码</span>
+</span></span><span class="line"><span class="cl">passwd <span class="nb">test</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="hosts配置">hosts配置
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 查看本机名</span>
-</span></span><span style="display:flex;"><span>hostname
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看本机IP</span>
-</span></span><span style="display:flex;"><span>hostname -i
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置hosts</span>
-</span></span><span style="display:flex;"><span>vi /etc/hosts
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 添加</span>
-</span></span><span style="display:flex;"><span>ip hostname
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 查看本机名</span>
+</span></span><span class="line"><span class="cl">hostname
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看本机IP</span>
+</span></span><span class="line"><span class="cl">hostname -i
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置hosts</span>
+</span></span><span class="line"><span class="cl">vi /etc/hosts
+</span></span><span class="line"><span class="cl"><span class="c1"># 添加</span>
+</span></span><span class="line"><span class="cl">ip hostname
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="修改文件打开最大数">修改文件打开最大数
 </h3><p>说明：此步骤，安装东方通时可跳过的，宝兰德需要操作（以我接触的项目情况是这样的）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>vi /etc/security/limits.conf
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 添加</span>
-</span></span><span style="display:flex;"><span>* soft nofile <span style="color:#ae81ff">65535</span>
-</span></span><span style="display:flex;"><span>* hard nofile <span style="color:#ae81ff">65535</span>
-</span></span><span style="display:flex;"><span>* soft nproc <span style="color:#ae81ff">65535</span>
-</span></span><span style="display:flex;"><span>* hard nproc <span style="color:#ae81ff">65535</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">vi /etc/security/limits.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># 添加</span>
+</span></span><span class="line"><span class="cl">* soft nofile <span class="m">65535</span>
+</span></span><span class="line"><span class="cl">* hard nofile <span class="m">65535</span>
+</span></span><span class="line"><span class="cl">* soft nproc <span class="m">65535</span>
+</span></span><span class="line"><span class="cl">* hard nproc <span class="m">65535</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>保存后重新连接服务器</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 查看是否生效</span>
-</span></span><span style="display:flex;"><span>ulimit -a
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 查看是否生效</span>
+</span></span><span class="line"><span class="cl"><span class="nb">ulimit</span> -a
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204654771.png"
@@ -510,14 +507,14 @@
 ></p>
 <h3 id="配置jdk">配置JDK
 </h3><p>没有则安装，一般信创的机器是自带的。但是有时候，为了确保这个版本的JDK是中间件以及应用服务都可用，采用自己安装，多为安装 JDK1.8 版本（自己安装需要上传jdk到服务器并解压tar包）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 查看是否安装</span>
-</span></span><span style="display:flex;"><span>java -version
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 查看是否安装</span>
+</span></span><span class="line"><span class="cl">java -version
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610204935579.png"
@@ -533,18 +530,18 @@
 	
 ></p>
 <p>已经有了，则可以直接配置环境变量，当然，得知道路径才能配置环境变量</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 查看 JDK 的安装路径</span>
-</span></span><span style="display:flex;"><span>which java
-</span></span><span style="display:flex;"><span>ls -l /usr/bin/java
-</span></span><span style="display:flex;"><span>ls -l /etc/alternatives/java
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 查看 JDK 的安装路径</span>
+</span></span><span class="line"><span class="cl">which java
+</span></span><span class="line"><span class="cl">ls -l /usr/bin/java
+</span></span><span class="line"><span class="cl">ls -l /etc/alternatives/java
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205138494.png"
@@ -561,26 +558,26 @@
 ></p>
 <p>最下边返回的，就是 JDK 真是的安装路径</p>
 <p>找到JDK安装路径后，添加环境变量：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>vi ~/.bashrc
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 在末尾加入</span>
-</span></span><span style="display:flex;"><span>export JAVA_HOME<span style="color:#f92672">=</span>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.x86_64/jre
-</span></span><span style="display:flex;"><span>export PATH<span style="color:#f92672">=</span>$JAVA_HOME/bin:$PATH
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 保存后刷新环境变量</span>
-</span></span><span style="display:flex;"><span>source ~/.bashrc
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 输出配置的环境变量</span>
-</span></span><span style="display:flex;"><span>echo $JAVA_HOME
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">vi ~/.bashrc
+</span></span><span class="line"><span class="cl"><span class="c1"># 在末尾加入</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.x86_64/jre
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 保存后刷新环境变量</span>
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> ~/.bashrc
+</span></span><span class="line"><span class="cl"><span class="c1"># 输出配置的环境变量</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="nv">$JAVA_HOME</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610205434632.png"
@@ -601,18 +598,18 @@
 <h3 id="东方通的安装">东方通的安装
 </h3><p>东方通在LINUX上安装，需要通过命令的方式安装。（PS：这个已经是22年的版本了，当时接触东方通的时候，安装包是一个.bin文件，但是到了23年，东方通的安装包基本都是提供一个tar包，安装只需要解压tar包即可。方便很多，但是既然是自己安装的中间件，当然要记录啦）</p>
 <h4 id="bin包安装">bin包安装
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 运行安装包</span>
-</span></span><span style="display:flex;"><span>sh Install_TW7<span style="color:#f92672">.*.*.*</span>_Enterprise_Linux<span style="color:#f92672">.</span>bin <span style="color:#f92672">-</span>i console
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 选择语言</span>
-</span></span><span style="display:flex;"><span>中文简体
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 运行安装包</span>
+</span></span><span class="line"><span class="cl"><span class="n">sh</span> <span class="n">Install_TW7</span><span class="o">.*.*.*</span><span class="n">_Enterprise_Linux</span><span class="o">.</span><span class="n">bin</span> <span class="o">-</span><span class="n">i</span> <span class="n">console</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 选择语言</span>
+</span></span><span class="line"><span class="cl"><span class="n">中文简体</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180330666.png"
@@ -627,22 +624,22 @@
 		data-flex-basis="361px"
 	
 ></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 中间会出现 【按回车键继续安装】【PRESS &lt;ENTER&gt; TO CONTINUE】</span>
-</span></span><span style="display:flex;"><span>按回车就行
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 然后回出现 【是否接受此许可协议条款】</span>
-</span></span><span style="display:flex;"><span>y
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 选择 JDK</span>
-</span></span><span style="display:flex;"><span>选择系统自带的 JDK 即可<span style="color:#960050;background-color:#1e0010">，</span>当然也可以使用自己安装的<span style="color:#960050;background-color:#1e0010">，</span>图上是使用自己安装的<span style="color:#960050;background-color:#1e0010">（</span>最好是适配应用的 JDK 版本<span style="color:#960050;background-color:#1e0010">）</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 中间会出现 【按回车键继续安装】【PRESS &lt;ENTER&gt; TO CONTINUE】</span>
+</span></span><span class="line"><span class="cl"><span class="n">按回车就行</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 然后回出现 【是否接受此许可协议条款】</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 选择 JDK</span>
+</span></span><span class="line"><span class="cl"><span class="n">选择系统自带的</span> <span class="n">JDK</span> <span class="n">即可</span><span class="err">，</span><span class="n">当然也可以使用自己安装的</span><span class="err">，</span><span class="n">图上是使用自己安装的</span><span class="err">（</span><span class="n">最好是适配应用的</span> <span class="n">JDK</span> <span class="n">版本</span><span class="err">）</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180404626.png"
@@ -657,14 +654,14 @@
 		data-flex-basis="506px"
 	
 ></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 选择安装位置</span>
-</span></span><span style="display:flex;"><span>输入一个安装路径
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 选择安装位置</span>
+</span></span><span class="line"><span class="cl"><span class="n">输入一个安装路径</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180524062.png"
@@ -679,14 +676,14 @@
 		data-flex-basis="683px"
 	
 ></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 选择链接位置</span>
-</span></span><span style="display:flex;"><span>这里常链接到主文件夹中
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 选择链接位置</span>
+</span></span><span class="line"><span class="cl"><span class="n">这里常链接到主文件夹中</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180543262.png"
@@ -701,14 +698,14 @@
 		data-flex-basis="473px"
 	
 ></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 出现预安装信息</span>
-</span></span><span style="display:flex;"><span>回车即可
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 出现预安装信息</span>
+</span></span><span class="line"><span class="cl"><span class="n">回车即可</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180615157.png"
@@ -723,20 +720,20 @@
 		data-flex-basis="295px"
 	
 ></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 修改端口</span>
-</span></span><span style="display:flex;"><span>此步骤<span style="color:#960050;background-color:#1e0010">，</span>可修改可不改<span style="color:#960050;background-color:#1e0010">。</span>无特殊要求可直接使用默认<span style="color:#960050;background-color:#1e0010">（</span>回车<span style="color:#960050;background-color:#1e0010">）。</span>有特殊要求<span style="color:#960050;background-color:#1e0010">，</span>则更改端口<span style="color:#960050;background-color:#1e0010">，</span>这里也可以安装好后在配置文件中修改<span style="color:#960050;background-color:#1e0010">（</span>$TONGWEB_HOME<span style="color:#e6db74">/conf/</span>tongweb<span style="color:#f92672">.</span>xml)
-</span></span><span style="display:flex;"><span>通常我们关注以下两个
-</span></span><span style="display:flex;"><span>tong<span style="color:#f92672">-</span>http<span style="color:#f92672">-</span>listener<span style="color:#960050;background-color:#1e0010">，</span>此为访问应用端口
-</span></span><span style="display:flex;"><span>system<span style="color:#f92672">-</span>http<span style="color:#f92672">-</span>listener<span style="color:#960050;background-color:#1e0010">，</span>此为东方通控制台端口
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 修改端口</span>
+</span></span><span class="line"><span class="cl"><span class="n">此步骤</span><span class="err">，</span><span class="n">可修改可不改</span><span class="err">。</span><span class="n">无特殊要求可直接使用默认</span><span class="err">（</span><span class="n">回车</span><span class="err">）。</span><span class="n">有特殊要求</span><span class="err">，</span><span class="n">则更改端口</span><span class="err">，</span><span class="n">这里也可以安装好后在配置文件中修改</span><span class="err">（</span><span class="nv">$TONGWEB_HOME</span><span class="sr">/conf/</span><span class="n">tongweb</span><span class="o">.</span><span class="n">xml</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">通常我们关注以下两个</span>
+</span></span><span class="line"><span class="cl"><span class="n">tong</span><span class="o">-</span><span class="n">http</span><span class="o">-</span><span class="n">listener</span><span class="err">，</span><span class="n">此为访问应用端口</span>
+</span></span><span class="line"><span class="cl"><span class="nb">system</span><span class="o">-</span><span class="n">http</span><span class="o">-</span><span class="n">listener</span><span class="err">，</span><span class="n">此为东方通控制台端口</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610180647406.png"
@@ -754,94 +751,94 @@
 <p>回车后就安装完成了。</p>
 <h4 id="tar包安装">tar包安装
 </h4><p>提供的tar包，只需要解压到目标目录即可。当然，tar有多种压缩格式，最常碰见的就是 <code>tar.gz</code></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>tar <span style="color:#f92672">-</span>xzvf tongweb_version_7<span style="color:#f92672">.</span>x<span style="color:#f92672">.</span>x<span style="color:#f92672">.</span>x <span style="color:#e6db74">/home/</span>tongweb
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="n">tar</span> <span class="o">-</span><span class="n">xzvf</span> <span class="n">tongweb_version_7</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">x</span> <span class="sr">/home/</span><span class="n">tongweb</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="授权">授权
 </h4><p>将安装后的目录，授权给中间件用户</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>chown test:test -R /home/tongweb
-</span></span><span style="display:flex;"><span>chmod <span style="color:#ae81ff">755</span> -R /home/tongweb
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">chown test:test -R /home/tongweb
+</span></span><span class="line"><span class="cl">chmod <span class="m">755</span> -R /home/tongweb
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="启动配置">启动配置
 </h3><p>以下常见配置，均为在项目上能够实际遇到的</p>
 <h4 id="修改端口">修改端口
 </h4><p>根据客户要求，或者应用要求，配置我们的应用端口。（如果是使用默认端口则不需要修改）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 假设安装到 /home/tongweb</span>
-</span></span><span style="display:flex;"><span>vi /home/tongweb/conf/tongweb.xml
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 修改 tong-http-listener 的 port</span>
-</span></span><span style="display:flex;"><span>port <span style="color:#f92672">=</span> <span style="color:#ae81ff">8080</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 假设安装到 /home/tongweb</span>
+</span></span><span class="line"><span class="cl">vi /home/tongweb/conf/tongweb.xml
+</span></span><span class="line"><span class="cl"><span class="c1"># 修改 tong-http-listener 的 port</span>
+</span></span><span class="line"><span class="cl"><span class="nv">port</span> <span class="o">=</span> <span class="m">8080</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="关闭防火墙">关闭防火墙
 </h4><p>在启动东方通控制台之前，需要关闭防火墙，否则操作机器无法访问到控制台地址。（在第一次接触东方通的时候，当时服务已经启动了，但是打不开控制台，我还以为是网络没打通，结果一查是防火墙导致）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 关闭防火墙</span>
-</span></span><span style="display:flex;"><span>systemctl stop firewalld
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 禁止防火墙自启，通常情况下，不需要禁止，但是如果遇到服务器重启的情况，首先还是需要手动关闭</span>
-</span></span><span style="display:flex;"><span>systemctl disable firewalld
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 关闭防火墙</span>
+</span></span><span class="line"><span class="cl">systemctl stop firewalld
+</span></span><span class="line"><span class="cl"><span class="c1"># 禁止防火墙自启，通常情况下，不需要禁止，但是如果遇到服务器重启的情况，首先还是需要手动关闭</span>
+</span></span><span class="line"><span class="cl">systemctl disable firewalld
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="启停服务">启停服务
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 正常启动</span>
-</span></span><span style="display:flex;"><span>cd /home/tongweb/bin <span style="color:#f92672">&amp;&amp;</span> ./startserver.sh
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 后台启动（常用）</span>
-</span></span><span style="display:flex;"><span>cd /home/tongweb/bin <span style="color:#f92672">&amp;&amp;</span> ./startservernohup.sh 
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 停止</span>
-</span></span><span style="display:flex;"><span>cd /home/tongweb/bin <span style="color:#f92672">&amp;&amp;</span> ./stopserver.sh
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 或者手动 kill</span>
-</span></span><span style="display:flex;"><span>kill -9 <span style="color:#f92672">{</span>pid<span style="color:#f92672">}</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 重启</span>
-</span></span><span style="display:flex;"><span>cd /home/tongweb/bin <span style="color:#f92672">&amp;&amp;</span> ./startservernohup.sh restart
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 正常启动</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/tongweb/bin <span class="o">&amp;&amp;</span> ./startserver.sh
+</span></span><span class="line"><span class="cl"><span class="c1"># 后台启动（常用）</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/tongweb/bin <span class="o">&amp;&amp;</span> ./startservernohup.sh 
+</span></span><span class="line"><span class="cl"><span class="c1"># 停止</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/tongweb/bin <span class="o">&amp;&amp;</span> ./stopserver.sh
+</span></span><span class="line"><span class="cl"><span class="c1"># 或者手动 kill</span>
+</span></span><span class="line"><span class="cl"><span class="nb">kill</span> -9 <span class="o">{</span>pid<span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/tongweb/bin <span class="o">&amp;&amp;</span> ./startservernohup.sh restart
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="打开控制台">打开控制台
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>http:<span style="color:#e6db74">//i</span>p:port<span style="color:#f92672">/</span>console
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="n">http:</span><span class="sr">//i</span><span class="n">p:port</span><span class="o">/</span><span class="n">console</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="控制台配置">控制台配置
@@ -907,12 +904,12 @@
 ></p>
 <p>点击开始部署，一般这里没什么多大的问题，都取默认即可。</p>
 <h4 id="访问应用">访问应用
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>http://ip:port/app_name
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">http://ip:port/app_name
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="多种部署情况说明">多种部署情况说明
@@ -927,86 +924,86 @@
 <p>注意：直接部署，东方通是按顺序拉起应用的，启动会慢一些，并且公用 IP 和 PORT ，东方通服务停掉会影响所有应用。</p>
 <h5 id="域部署">域部署
 </h5><p>通过创建域，让各个应用启动和配置不相互影响。使用 <code>TONGWEB_HOME/bin</code> 下的启停命令不会影响到域里边的应用，域里的应用独立启停和配置，且端口不会冲突</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 创建域</span>
-</span></span><span style="display:flex;"><span>cd TONGWEB_HOME/bin
-</span></span><span style="display:flex;"><span>./domain.sh create AppName
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 执行后，在东方通的根目录下会出现 domains 目录，目录里边的结构与根目录完全一致，有 /bin /conf /logs 等等</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 域的启停，与东方通完全一致，不过是在 /domains/bin 下</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置文件也在 /domains/conf 下</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 配置域的端口</span>
-</span></span><span style="display:flex;"><span>cd TONGWEB_HOME/domains/conf
-</span></span><span style="display:flex;"><span>vi tongweb.xml        <span style="color:#75715e"># 域的默认端口是东方通默认的端口+1</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启停</span>
-</span></span><span style="display:flex;"><span>cd TONGWEB_HOME/domains/bin
-</span></span><span style="display:flex;"><span>./startservernohup.sh          <span style="color:#75715e"># 启动</span>
-</span></span><span style="display:flex;"><span>./stopserver.sh                <span style="color:#75715e"># 停止</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 默认的域管理控制台：</span>
-</span></span><span style="display:flex;"><span>http://IP:PORT+1/console       <span style="color:#75715e"># 比如东方通默认端口 9060，域端口则为 9061</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 应用访问：</span>
-</span></span><span style="display:flex;"><span>http://IP:PORT+1/app_name      <span style="color:#75715e"># 比如应用默认端口 8088，域端口则为 8089</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 创建域</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> TONGWEB_HOME/bin
+</span></span><span class="line"><span class="cl">./domain.sh create AppName
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 执行后，在东方通的根目录下会出现 domains 目录，目录里边的结构与根目录完全一致，有 /bin /conf /logs 等等</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 域的启停，与东方通完全一致，不过是在 /domains/bin 下</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置文件也在 /domains/conf 下</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置域的端口</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> TONGWEB_HOME/domains/conf
+</span></span><span class="line"><span class="cl">vi tongweb.xml        <span class="c1"># 域的默认端口是东方通默认的端口+1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 启停</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> TONGWEB_HOME/domains/bin
+</span></span><span class="line"><span class="cl">./startservernohup.sh          <span class="c1"># 启动</span>
+</span></span><span class="line"><span class="cl">./stopserver.sh                <span class="c1"># 停止</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 默认的域管理控制台：</span>
+</span></span><span class="line"><span class="cl">http://IP:PORT+1/console       <span class="c1"># 比如东方通默认端口 9060，域端口则为 9061</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 应用访问：</span>
+</span></span><span class="line"><span class="cl">http://IP:PORT+1/app_name      <span class="c1"># 比如应用默认端口 8088，域端口则为 8089</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="设置connection-timeout">设置connection-timeout
 </h3><p>有些客户，在扫描整体的安全漏洞时，会检测到目标主机可能存在缓慢的 HTTP 拒绝服务攻击，这个就是中间件里配置connection-timeout即可。</p>
 <p>简单来说，通过发送大量的慢速或低频率的 HTTP 请求来占用目标服务器的资源，导致服务器的连接和内存资源被恶意连接占满，无法处理新的合法请求。</p>
 <p>tomcat 可以通过修改 <code>server.xml</code> 文件中的配置来设置 <code>connectionTimeout</code> 参数</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-html" data-lang="html"><span style="display:flex;"><span>&lt;<span style="color:#f92672">Connector</span> <span style="color:#a6e22e">port</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;8080&#34;</span> <span style="color:#a6e22e">protocol</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;HTTP/1.1&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">maxHttpHeaderSize</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;8192&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">maxThreads</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;100&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">minSpareThreads</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;50&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">maxSpareThreads</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;100&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">minProcessors</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;50&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">maxProcessors</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;100&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">enableLookups</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;false&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">connectionTimeout</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;8000&#34;</span>      <span style="color:#960050;background-color:#1e0010">//</span> <span style="color:#a6e22e">修改此处值</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">acceptCount</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;100&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">redirectPort</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;8443&#34;</span>
-</span></span><span style="display:flex;"><span>           <span style="color:#a6e22e">URIEncoding</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;UTF-8&#34;</span>/&gt;
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-html" data-lang="html"><span class="line"><span class="cl"><span class="p">&lt;</span><span class="nt">Connector</span> <span class="na">port</span><span class="o">=</span><span class="s">&#34;8080&#34;</span> <span class="na">protocol</span><span class="o">=</span><span class="s">&#34;HTTP/1.1&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">maxHttpHeaderSize</span><span class="o">=</span><span class="s">&#34;8192&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">maxThreads</span><span class="o">=</span><span class="s">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">minSpareThreads</span><span class="o">=</span><span class="s">&#34;50&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">maxSpareThreads</span><span class="o">=</span><span class="s">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">minProcessors</span><span class="o">=</span><span class="s">&#34;50&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">maxProcessors</span><span class="o">=</span><span class="s">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">enableLookups</span><span class="o">=</span><span class="s">&#34;false&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">connectionTimeout</span><span class="o">=</span><span class="s">&#34;8000&#34;</span>      <span class="err">//</span> <span class="na">修改此处值</span>
+</span></span><span class="line"><span class="cl">           <span class="na">acceptCount</span><span class="o">=</span><span class="s">&#34;100&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">redirectPort</span><span class="o">=</span><span class="s">&#34;8443&#34;</span>
+</span></span><span class="line"><span class="cl">           <span class="na">URIEncoding</span><span class="o">=</span><span class="s">&#34;UTF-8&#34;</span><span class="p">/&gt;</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>同样的，在信创上，东方通中间件也可通过设置对应的请求，在 tongweb/conf/tongweb.xml 配置文件中，connection-timeout 对接的前台页面就是 http 通道里的 <code>连接超时</code> ，修改此处即可（默认 60000 &raquo; 改为 8000）</p>
@@ -1027,39 +1024,39 @@
 <p>正确的启动顺序：集群 &raquo; 节点 &raquo; 实例</p>
 <h3 id="宝兰德的安装">宝兰德的安装
 </h3><p>将安装介质放入服务器，并解压</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 使用中间件用户</span>
-</span></span><span style="display:flex;"><span>su - bes
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 进入介质目录</span>
-</span></span><span style="display:flex;"><span>cd /home/BES955
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 解压</span>
-</span></span><span style="display:flex;"><span>tar -zxvf BES-AppServer-Enterprise-9.5.5.6210-KYLIN10-X64.tar.gz -C /home/BES955/AdminServer
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 使用中间件用户</span>
+</span></span><span class="line"><span class="cl">su - bes
+</span></span><span class="line"><span class="cl"><span class="c1"># 进入介质目录</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> /home/BES955
+</span></span><span class="line"><span class="cl"><span class="c1"># 解压</span>
+</span></span><span class="line"><span class="cl">tar -zxvf BES-AppServer-Enterprise-9.5.5.6210-KYLIN10-X64.tar.gz -C /home/BES955/AdminServer
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>如果有补丁，则需要升级补丁。将补丁包放到 patch 目录下，执行</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd /home/BES955/AdminServer/bin
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 升级补丁</span>
-</span></span><span style="display:flex;"><span>./patch -path /home/jfcz/patch
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看是否升级完成</span>
-</span></span><span style="display:flex;"><span>./patch -list
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> /home/BES955/AdminServer/bin
+</span></span><span class="line"><span class="cl"><span class="c1"># 升级补丁</span>
+</span></span><span class="line"><span class="cl">./patch -path /home/jfcz/patch
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看是否升级完成</span>
+</span></span><span class="line"><span class="cl">./patch -list
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210006502.png"
@@ -1075,22 +1072,22 @@
 	
 ></p>
 <h3 id="初始化并启动">初始化并启动
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 在bin目录下执行，初始化中间件</span>
-</span></span><span style="display:flex;"><span>./initstore
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 启动管理控制台</span>
-</span></span><span style="display:flex;"><span>./startManagement
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看是否启动，出现6900端口为已启动</span>
-</span></span><span style="display:flex;"><span>netstat -ntlp
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 在bin目录下执行，初始化中间件</span>
+</span></span><span class="line"><span class="cl">./initstore
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动管理控制台</span>
+</span></span><span class="line"><span class="cl">./startManagement
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看是否启动，出现6900端口为已启动</span>
+</span></span><span class="line"><span class="cl">netstat -ntlp
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%B8%9C%E6%96%B9%E9%80%9A%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E7%BD%B2%E5%BA%94%E7%94%A8/image-20240610210257908.png"
@@ -1107,12 +1104,12 @@
 ></p>
 <h3 id="配置中间件">配置中间件
 </h3><p>访问管理控制台</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>http://IP:6900/console
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">http://IP:6900/console
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="添加主机">添加主机
@@ -1302,6 +1299,19 @@ http-listener-2_port：（这个是https协议访问，如需要此访问请更�
             
                 
 <article class="">
+    <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦数据库备份还原实践（四）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
     <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">
         
         
@@ -1347,19 +1357,6 @@ http-listener-2_port：（这个是https协议访问，如需要此访问请更�
 
         <div class="article-details">
             <h2 class="article-title">实施部署-Nginx在项目上的应用与常见问题（四）</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
         </div>
     </a>
 </article>
@@ -1465,12 +1462,28 @@ http-listener-2_port：（这个是https协议访问，如需要此访问请更�
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

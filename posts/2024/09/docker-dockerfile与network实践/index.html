@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Dockerfile 实践\rDockerfile 模板\rDockerfile 有很多命令，但是常用的就下边这些\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 # 引用基础镜像 FROM 基础镜像:标签 # 给镜像添加备注 LABEL REMARK=&#34;测试使用&#34; # 给镜像添加环境变量 ENV PATH $PATH:/usr/local/bin APP_HOME=/home/app # 添加主机目录到容器目录 ADD . /home # 执行指令 RUN 命令1 \\ &amp;&amp; 命令2 \\ &amp;&amp; 命令3 &amp;&amp; 命令4 # 设置镜像的主目录 WORKDIR /home/app # 启动容器时执行的命令, 比如 CMD /bin/bash CMD 命令 构建思路\r其实就是相当于手动在 Centos 里安装应用的过程，只不过这个过程由 Dockerfile 命令自动化进行了。\n">
+<meta name="keywords" content="Docker, Docker基础, Dockerfile, Network"><title>Docker-dockerfile构建镜像与network实践</title>
+
+<link rel='canonical' href='http://localhost:1313/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="Docker-dockerfile构建镜像与network实践">
+<meta property='og:description' content="Dockerfile 实践\rDockerfile 模板\rDockerfile 有很多命令，但是常用的就下边这些\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 # 引用基础镜像 FROM 基础镜像:标签 # 给镜像添加备注 LABEL REMARK=&#34;测试使用&#34; # 给镜像添加环境变量 ENV PATH $PATH:/usr/local/bin APP_HOME=/home/app # 添加主机目录到容器目录 ADD . /home # 执行指令 RUN 命令1 \\ &amp;&amp; 命令2 \\ &amp;&amp; 命令3 &amp;&amp; 命令4 # 设置镜像的主目录 WORKDIR /home/app # 启动容器时执行的命令, 比如 CMD /bin/bash CMD 命令 构建思路\r其实就是相当于手动在 Centos 里安装应用的过程，只不过这个过程由 Dockerfile 命令自动化进行了。\n">
+<meta property='og:url' content='http://localhost:1313/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/'>
+<meta property='og:site_name' content='阿琦同学'>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2024-09-13T13:56:41&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T16:06:26&#43;08:00'/>
+<meta name="twitter:title" content="Docker-dockerfile构建镜像与network实践">
+<meta name="twitter:description" content="Dockerfile 实践\rDockerfile 模板\rDockerfile 有很多命令，但是常用的就下边这些\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 # 引用基础镜像 FROM 基础镜像:标签 # 给镜像添加备注 LABEL REMARK=&#34;测试使用&#34; # 给镜像添加环境变量 ENV PATH $PATH:/usr/local/bin APP_HOME=/home/app # 添加主机目录到容器目录 ADD . /home # 执行指令 RUN 命令1 \\ &amp;&amp; 命令2 \\ &amp;&amp; 命令3 &amp;&amp; 命令4 # 设置镜像的主目录 WORKDIR /home/app # 启动容器时执行的命令, 比如 CMD /bin/bash CMD 命令 构建思路\r其实就是相当于手动在 Centos 里安装应用的过程，只不过这个过程由 Dockerfile 命令自动化进行了。\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="/img/tx.png" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">阿琦同学</a></h1>
+            <h2 class="site-description">Life is Passion !</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/weiqifun'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/tags/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+                
+                <span>标签</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E9%93%BE/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友链</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#dockerfile-实践">Dockerfile 实践</a>
+      <ol>
+        <li><a href="#dockerfile-模板">Dockerfile 模板</a></li>
+        <li><a href="#构建思路">构建思路</a></li>
+        <li><a href="#实践一以-anolisos-为基础镜像构建-tomcat-镜像">实践一：以 anolisos 为基础镜像，构建 tomcat 镜像</a>
+          <ol>
+            <li><a href="#拉取-anolisos-镜像">拉取 anolisos 镜像</a></li>
+            <li><a href="#进入-anolisos-镜像">进入 anolisos 镜像</a></li>
+            <li><a href="#配置-jdk-并安装-tomcat">配置 JDK 并安装 tomcat</a></li>
+            <li><a href="#根据操作步骤编写-dockerfile">根据操作步骤编写 dockerfile</a></li>
+            <li><a href="#使用-dockerfile-构建镜像">使用 Dockerfile 构建镜像</a></li>
+            <li><a href="#启动镜像">启动镜像</a>
+              <ol>
+                <li><a href="#重新调整-dockerfile">重新调整 dockerfile</a></li>
+                <li><a href="#最终调整-dockerfile">最终调整 dockerfile</a></li>
+              </ol>
+            </li>
+            <li><a href="#总结">总结</a></li>
+          </ol>
+        </li>
+        <li><a href="#实践二以-anolisos-为基础镜像构建-nginx-镜像">实践二：以 anolisos 为基础镜像，构建 nginx 镜像</a>
+          <ol>
+            <li><a href="#安装-nginx">安装 nginx</a></li>
+            <li><a href="#根据操作步骤编写-dockerfile-1">根据操作步骤编写 dockerfile</a></li>
+            <li><a href="#nginx-配置">nginx 配置</a></li>
+            <li><a href="#构建镜像">构建镜像</a></li>
+            <li><a href="#启动镜像-1">启动镜像</a></li>
+          </ol>
+        </li>
+        <li><a href="#构建-dockerfile-过程的问题">构建 Dockerfile 过程的问题</a>
+          <ol>
+            <li><a href="#如何将本地的某个包放到容器内部">如何将本地的某个包放到容器内部？</a></li>
+            <li><a href="#如何将容器里打包好的文件传回主机">如何将容器里打包好的文件传回主机？</a>
+              <ol>
+                <li><a href="#复制">复制</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#network-实践">Network 实践</a>
+      <ol>
+        <li><a href="#实践一nginx-容器与-tomcat-容器互联">实践一：nginx 容器与 tomcat 容器互联</a>
+          <ol>
+            <li><a href="#前提">前提</a></li>
+            <li><a href="#配置-network-容器互联">配置 network 容器互联</a>
+              <ol>
+                <li><a href="#nginx-跳转-tomcat-失败">nginx 跳转 tomcat 失败</a></li>
+              </ol>
+            </li>
+            <li><a href="#总结-1">总结</a></li>
+          </ol>
+        </li>
+        <li><a href="#疑问">疑问</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%AE%B9%E5%99%A8/" >
+                容器
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/">Docker-dockerfile构建镜像与network实践</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2024年9月13号</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 12 分钟
+                </time>
+            </div>
+        
+
+        
+        
+        <footer class="article-wordcount">
+            <div>
+                <span class="article-wordcount--count">字数: 5700</span>
+            </div>
+        </footer>
+        
+        
+
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="dockerfile-实践">Dockerfile 实践
+</h2><h3 id="dockerfile-模板">Dockerfile 模板
+</h3><p>Dockerfile 有很多命令，但是常用的就下边这些</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="c"># 引用基础镜像</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> 基础镜像:标签</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 给镜像添加备注</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">LABEL</span> <span class="nv">REMARK</span><span class="o">=</span><span class="s2">&#34;测试使用&#34;</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 给镜像添加环境变量</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENV</span> PATH <span class="nv">$PATH</span>:/usr/local/bin<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>    <span class="nv">APP_HOME</span><span class="o">=</span>/home/app<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 添加主机目录到容器目录</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ADD</span> . /home<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 执行指令</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> 命令1 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> 命令2 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> 命令3 <span class="o">&amp;&amp;</span> 命令4<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 设置镜像的主目录</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /home/app</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="c"># 启动容器时执行的命令, 比如 CMD /bin/bash</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">CMD</span> 命令<span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="构建思路">构建思路
+</h3><p>其实就是相当于手动在 Centos 里安装应用的过程，只不过这个过程由 Dockerfile 命令自动化进行了。</p>
+<p>所以在构建 Dockerfile 之前，需要先了解需要安装的应用，它到底怎么安装，这个安装的过程是怎么样的。</p>
+<h3 id="实践一以-anolisos-为基础镜像构建-tomcat-镜像">实践一：以 anolisos 为基础镜像，构建 tomcat 镜像
+</h3><p>anolisos 是阿里开源的一个国产 Linux 系统</p>
+<h4 id="拉取-anolisos-镜像">拉取 anolisos 镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status docker<span class="o">]</span><span class="c1"># docker pull registry.openanolis.cn/openanolis/anolisos:8</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="进入-anolisos-镜像">进入 anolisos 镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status docker<span class="o">]</span><span class="c1"># docker run -it --name anolisos registry.openanolis.cn/openanolis/anolisos:8 /bin/bash</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>进入里边发现一个问题，就是 tomcat 包从哪里来？</p>
+<ul>
+<li>使用 Yum 源下载（不推荐，自己的玩具项目可以）</li>
+<li>放一个到本地，然后使用 ADD 或者 COPY 指令，添加到容器中（使用这个）</li>
+</ul>
+<h4 id="配置-jdk-并安装-tomcat">配置 JDK 并安装 tomcat
+</h4><p>1）安装 JDK</p>
+<p>因为基础镜像中一切从简，默认是没有 JDK 的，所以需要安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">yum install -y java-1.8.0-openjdk
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）查看 JDK 的安装目录</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@ae813af28fd9 /<span class="o">]</span><span class="c1"># whereis java</span>
+</span></span><span class="line"><span class="cl">java: /usr/bin/java /usr/lib/java /etc/java /usr/share/java /usr/share/man/man1/java.1.gz
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@ae813af28fd9 /<span class="o">]</span><span class="c1"># ls -l /usr/bin/java </span>
+</span></span><span class="line"><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">22</span> Sep <span class="m">18</span> 01:49 /usr/bin/java -&gt; /etc/alternatives/java
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@ae813af28fd9 /<span class="o">]</span><span class="c1"># ls -l /etc/alternatives/java</span>
+</span></span><span class="line"><span class="cl">lrwxrwxrwx <span class="m">1</span> root root <span class="m">75</span> Sep <span class="m">18</span> 01:49 /etc/alternatives/java -&gt; /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.422.b05-2.0.2.an8.x86_64/jre/bin/java
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>JDK 的安装目录就是 <code>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.422.b05-2.0.2.an8.x86_64/jre/bin/java</code></p>
+<p>3）配置环境变量</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">vi ~/.bash_profile
+</span></span><span class="line"><span class="cl"><span class="c1"># 加入</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.422.b05-2.0.2.an8.x86_64/jre
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 刷新环境变量</span>
+</span></span><span class="line"><span class="cl"><span class="nb">source</span> ~/.bash_profile
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>4）安装 tomcat</p>
+<p>5）启动 tomcat</p>
+<h4 id="根据操作步骤编写-dockerfile">根据操作步骤编写 dockerfile
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 基于基础镜像</span>
+</span></span><span class="line"><span class="cl">FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Author</span><span class="o">=</span><span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Remark</span><span class="o">=</span><span class="s2">&#34;测试使用, 基于 anolisos 制作 Tomcat 镜像&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置 JDK 环境变量</span>
+</span></span><span class="line"><span class="cl">ENV JAVA_HOME /home/tomcat/jre
+</span></span><span class="line"><span class="cl">ENV PATH <span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建一个目录存放 JDK 和 tomcat 安装包，注意顺序，得先有这个目录，后续才能放到这个目录</span>
+</span></span><span class="line"><span class="cl">RUN mkdir -p /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置 tomcat 主目录 如果后边的命令不需要基于这个主目录去执行，也可不设置</span>
+</span></span><span class="line"><span class="cl">WORKDIR /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 添加 JDK 包和 tomcat 包到容器内部，确保包和 dockerfile 都在一个目录下</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ADD 命令会自动将 tar 包解压</span>
+</span></span><span class="line"><span class="cl">ADD jdk.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">ADD apache-tomcat-10.1.30.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 暴露端口</span>
+</span></span><span class="line"><span class="cl">EXPOSE <span class="m">8080</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动 tomcat</span>
+</span></span><span class="line"><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;/home/tomcat/apache-tomcat-10.1.30/bin/catalina.sh&#34;</span>,<span class="s2">&#34;run&#34;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="使用-dockerfile-构建镜像">使用 Dockerfile 构建镜像
+</h4><p>注意：Dockerfile 与 JDK \ tomcat 的 tar 包要处于同一个目录下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker build -t test:v1 .</span>
+</span></span><span class="line"><span class="cl">Sending build context to Docker daemon 65.99 MB
+</span></span><span class="line"><span class="cl">Step 1/11 : FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl"> ---&gt; ef65d5c9c386
+</span></span><span class="line"><span class="cl">Step 2/11 : LABEL Author <span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 3f756590b7cd
+</span></span><span class="line"><span class="cl"> ---&gt; 27aab3b7f5b3
+</span></span><span class="line"><span class="cl">Removing intermediate container 3f756590b7cd
+</span></span><span class="line"><span class="cl">Step 3/11 : LABEL Remark <span class="s2">&#34;测试使用, 基于 龙蜥系统 制作 Tomcat 镜像&#34;</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in b5fc72ee8fac
+</span></span><span class="line"><span class="cl"> ---&gt; 68a7c28837a0
+</span></span><span class="line"><span class="cl">Removing intermediate container b5fc72ee8fac
+</span></span><span class="line"><span class="cl">Step 4/11 : ENV JAVA_HOME /home/tomcat/jre
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 1136456bdb18
+</span></span><span class="line"><span class="cl"> ---&gt; 0ea43384acec
+</span></span><span class="line"><span class="cl">Removing intermediate container 1136456bdb18
+</span></span><span class="line"><span class="cl">Step 5/11 : ENV PATH <span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 598616ebc31f
+</span></span><span class="line"><span class="cl"> ---&gt; ddbc3d112a6b
+</span></span><span class="line"><span class="cl">Removing intermediate container 598616ebc31f
+</span></span><span class="line"><span class="cl">Step 6/11 : RUN mkdir -p /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 9fb8f361d189
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> ---&gt; 621e6817887f
+</span></span><span class="line"><span class="cl">Removing intermediate container 9fb8f361d189
+</span></span><span class="line"><span class="cl">Step 7/11 : WORKDIR /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 1a893a18a343
+</span></span><span class="line"><span class="cl">Removing intermediate container 009c81d31fc1
+</span></span><span class="line"><span class="cl">Step 8/11 : ADD jdk.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 92064443362d
+</span></span><span class="line"><span class="cl">Removing intermediate container de35da461b5d
+</span></span><span class="line"><span class="cl">Step 9/11 : ADD apache-tomcat-10.1.30.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 006acfe8ee17
+</span></span><span class="line"><span class="cl">Removing intermediate container b5d3283e5c4a
+</span></span><span class="line"><span class="cl">Step 10/11 : EXPOSE <span class="m">8080</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 5460b8f751fb
+</span></span><span class="line"><span class="cl"> ---&gt; 9f59ded402c3
+</span></span><span class="line"><span class="cl">Removing intermediate container 5460b8f751fb
+</span></span><span class="line"><span class="cl">Step 11/11 : CMD /home/tomcat/apache-tomcat-10.1.30/bin/catalina.sh run
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 99352d2ca9f8
+</span></span><span class="line"><span class="cl"> ---&gt; 56c59b8f7d84
+</span></span><span class="line"><span class="cl">Removing intermediate container 99352d2ca9f8
+</span></span><span class="line"><span class="cl">Successfully built 56c59b8f7d84
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>成功了，可以看看这个镜像的信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY                                   TAG                 IMAGE ID            CREATED              SIZE
+</span></span><span class="line"><span class="cl"><span class="nb">test</span>                                         v1                  1ae021027b9c        About a minute ago   <span class="m">386</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker inspect test:v1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="启动镜像">启动镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker run -it --name tomcat_aliyun -p 8080:8080 test:v1 </span>
+</span></span><span class="line"><span class="cl">Using CATALINA_BASE:   /home/tomcat/apache-tomcat-10.1.30
+</span></span><span class="line"><span class="cl">Using CATALINA_HOME:   /home/tomcat/apache-tomcat-10.1.30
+</span></span><span class="line"><span class="cl">Using CATALINA_TMPDIR: /home/tomcat/apache-tomcat-10.1.30/temp
+</span></span><span class="line"><span class="cl">Using JRE_HOME:        /home/tomcat/jre
+</span></span><span class="line"><span class="cl">Using CLASSPATH:       /home/tomcat/apache-tomcat-10.1.30/bin/bootstrap.jar:/home/tomcat/apache-tomcat-10.1.30/bin/tomcat-juli.jar
+</span></span><span class="line"><span class="cl">Using CATALINA_OPTS:   
+</span></span><span class="line"><span class="cl">Unrecognized option: --add-opens<span class="o">=</span>java.base/java.lang<span class="o">=</span>ALL-UNNAMED
+</span></span><span class="line"><span class="cl">Error: Could not create the Java Virtual Machine.
+</span></span><span class="line"><span class="cl">Error: A fatal exception has occurred. Program will exit.
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里启动 tomcat 报错了</p>
+<p>具体原因：<a class="link" href="https://blog.csdn.net/weixin_46160720/article/details/136302800"  target="_blank" rel="noopener"
+    >解决ideatomcatUnrecognized option:&ndash;add-opens=java.base/java.lang=ALL-UNNAMEDError:Could not create th_unrecognized option: &ndash;add-opens-CSDN博客</a></p>
+<p>反正就是 JDK1.8.0 与 tomcat10 不匹配，把 tomcat 版本降一下，换成 tomcat9</p>
+<p>换了 tomcat9 又报错了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Caused by: java.lang.Error: java.io.FileNotFoundException: /home/tomcat/jre/lib/tzdb.dat <span class="o">(</span>No such file or directory<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在 dockerfile 里配置一下 jre_home 环境变量</p>
+<h5 id="重新调整-dockerfile">重新调整 dockerfile
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 基于anolisos</span>
+</span></span><span class="line"><span class="cl">FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Author</span><span class="o">=</span><span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Remark</span><span class="o">=</span><span class="s2">&#34;测试使用, 基于 anolisos 制作 Tomcat 镜像&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置 JDK 环境变量</span>
+</span></span><span class="line"><span class="cl">ENV JAVA_HOME /home/tomcat/jdk1.8.0_202
+</span></span><span class="line"><span class="cl">ENV JRE_HOME /home/tomcat/jdk1.8.0_202/jre
+</span></span><span class="line"><span class="cl">ENV CLASSPATH <span class="nv">$JAVA_HOME</span>/lib:<span class="nv">$JRE_HOME</span>/lib
+</span></span><span class="line"><span class="cl">ENV PATH <span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建一个目录存放 JDK 和 tomcat 安装包，注意顺序，得先有这个目录，后续才能放到这个目录</span>
+</span></span><span class="line"><span class="cl">RUN mkdir -p /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置 tomcat 主目录 如果后边的命令不需要基于这个主目录去执行，也可不设置</span>
+</span></span><span class="line"><span class="cl">WORKDIR /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 添加 JDK 包和 tomcat 包到容器内部，确保包和 dockerfile 都在一个目录下</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ADD 命令会自动将 tar 包解压</span>
+</span></span><span class="line"><span class="cl">ADD jdk-8u202-linux-i586.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">ADD apache-tomcat-9.0.95.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 暴露端口</span>
+</span></span><span class="line"><span class="cl">EXPOSE <span class="m">8080</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动 tomcat</span>
+</span></span><span class="line"><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;/home/tomcat/apache-tomcat-9.0.95/bin/catalina.sh&#34;</span>,<span class="s2">&#34;run&#34;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用这个 dockerfile 构建镜像</p>
+<p>然后启动它</p>
+<p>还是报错了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker run -it --name tomcat_aliyun -p 8080:8080 test:v1</span>
+</span></span><span class="line"><span class="cl">Using CATALINA_BASE:   /home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">Using CATALINA_HOME:   /home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">Using CATALINA_TMPDIR: /home/tomcat/apache-tomcat-9.0.95/temp
+</span></span><span class="line"><span class="cl">Using JRE_HOME:        /home/tomcat/jdk1.8.0_202/jre
+</span></span><span class="line"><span class="cl">Using CLASSPATH:       /home/tomcat/apache-tomcat-9.0.95/bin/bootstrap.jar:/home/tomcat/apache-tomcat-9.0.95/bin/tomcat-juli.jar
+</span></span><span class="line"><span class="cl">Using CATALINA_OPTS:   
+</span></span><span class="line"><span class="cl">/home/tomcat/apache-tomcat-9.0.95/bin/catalina.sh: line 421: /home/tomcat/jdk1.8.0_202/jre/bin/java: No such file or directory
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>感觉是这个 JDK 版本不匹配，重新下一个 x64 版本的 jdk</p>
+<h5 id="最终调整-dockerfile">最终调整 dockerfile
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 基于anolisos</span>
+</span></span><span class="line"><span class="cl">FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Author</span><span class="o">=</span><span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Remark</span><span class="o">=</span><span class="s2">&#34;测试使用, 基于 anolisos 制作 Tomcat 镜像&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建一个目录存放 JDK 和 tomcat 安装包，注意顺序，得先有这个目录，后续才能放到这个目录</span>
+</span></span><span class="line"><span class="cl">RUN mkdir -p /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 添加 JDK 包和 tomcat 包到容器内部，确保包和 dockerfile 都在一个目录下</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ADD 命令会自动将 tar 包解压</span>
+</span></span><span class="line"><span class="cl">ADD jdk-8u202-linux-x64.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">ADD apache-tomcat-9.0.95.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置 tomcat 主目录 如果后边的命令不需要基于这个主目录去执行，也可不设置</span>
+</span></span><span class="line"><span class="cl">WORKDIR /home/tomcat
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置 JDK 环境变量</span>
+</span></span><span class="line"><span class="cl">ENV JAVA_HOME /home/tomcat/jdk1.8.0_202
+</span></span><span class="line"><span class="cl">ENV JRE_HOME /home/tomcat/jdk1.8.0_202/jre
+</span></span><span class="line"><span class="cl">ENV CLASSPATH /home/tomcat/jdk1.8.0_202/lib:/home/tomcat/jdk1.8.0_202/jre/lib
+</span></span><span class="line"><span class="cl">ENV PATH <span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 验证一下 JDK 是否配置</span>
+</span></span><span class="line"><span class="cl">RUN <span class="nv">$JAVA_HOME</span>/bin/java -version
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 暴露端口</span>
+</span></span><span class="line"><span class="cl">EXPOSE <span class="m">8080</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动 tomcat</span>
+</span></span><span class="line"><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;/home/tomcat/apache-tomcat-9.0.95/bin/catalina.sh&#34;</span>,<span class="s2">&#34;run&#34;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>构建过程：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker build test:v1 .</span>
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;docker build&#34;</span> requires exactly <span class="m">1</span> argument<span class="o">(</span>s<span class="o">)</span>.
+</span></span><span class="line"><span class="cl">See <span class="s1">&#39;docker build --help&#39;</span>.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Usage:  docker build <span class="o">[</span>OPTIONS<span class="o">]</span> PATH <span class="p">|</span> URL <span class="p">|</span> -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Build an image from a Dockerfile
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker build -t test:v1 .</span>
+</span></span><span class="line"><span class="cl">Sending build context to Docker daemon 206.8 MB
+</span></span><span class="line"><span class="cl">Step 1/14 : FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl"> ---&gt; ef65d5c9c386
+</span></span><span class="line"><span class="cl">Step 2/14 : LABEL Author <span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in ec01334f21ac
+</span></span><span class="line"><span class="cl"> ---&gt; 88b417c6fcff
+</span></span><span class="line"><span class="cl">Removing intermediate container ec01334f21ac
+</span></span><span class="line"><span class="cl">Step 3/14 : LABEL Remark <span class="s2">&#34;测试使用, 基于 龙蜥系统 制作 Tomcat 镜像&#34;</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in efbab43c84cf
+</span></span><span class="line"><span class="cl"> ---&gt; f64ab9b3ca4b
+</span></span><span class="line"><span class="cl">Removing intermediate container efbab43c84cf
+</span></span><span class="line"><span class="cl">Step 4/14 : RUN mkdir -p /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 0bd99be045f6
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> ---&gt; 4535e994046e
+</span></span><span class="line"><span class="cl">Removing intermediate container 0bd99be045f6
+</span></span><span class="line"><span class="cl">Step 5/14 : ADD jdk-8u202-linux-x64.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 103c0a0d137d
+</span></span><span class="line"><span class="cl">Removing intermediate container 778a257c323e
+</span></span><span class="line"><span class="cl">Step 6/14 : ADD apache-tomcat-9.0.95.tar.gz /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 6e3b3068a3f6
+</span></span><span class="line"><span class="cl">Removing intermediate container 4860b4330b7c
+</span></span><span class="line"><span class="cl">Step 7/14 : WORKDIR /home/tomcat
+</span></span><span class="line"><span class="cl"> ---&gt; 4a6354a3c4ca
+</span></span><span class="line"><span class="cl">Removing intermediate container 2f3bf66b733c
+</span></span><span class="line"><span class="cl">Step 8/14 : ENV JAVA_HOME /home/tomcat/jdk1.8.0_202
+</span></span><span class="line"><span class="cl"> ---&gt; Running in a02da957f0e5
+</span></span><span class="line"><span class="cl"> ---&gt; fbb98637fc47
+</span></span><span class="line"><span class="cl">Removing intermediate container a02da957f0e5
+</span></span><span class="line"><span class="cl">Step 9/14 : ENV JRE_HOME /home/tomcat/jdk1.8.0_202/jre
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 15a12e697856
+</span></span><span class="line"><span class="cl"> ---&gt; 576b7678f857
+</span></span><span class="line"><span class="cl">Removing intermediate container 15a12e697856
+</span></span><span class="line"><span class="cl">Step 10/14 : ENV CLASSPATH /home/tomcat/jdk1.8.0_202/lib:/home/tomcat/jdk1.8.0_202/jre/lib
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 28af34ebfcff
+</span></span><span class="line"><span class="cl"> ---&gt; d87b8a7680af
+</span></span><span class="line"><span class="cl">Removing intermediate container 28af34ebfcff
+</span></span><span class="line"><span class="cl">Step 11/14 : ENV PATH <span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 440870ff6cbf
+</span></span><span class="line"><span class="cl"> ---&gt; eb633e75c31b
+</span></span><span class="line"><span class="cl">Removing intermediate container 440870ff6cbf
+</span></span><span class="line"><span class="cl">Step 12/14 : RUN <span class="nv">$JAVA_HOME</span>/bin/java -version
+</span></span><span class="line"><span class="cl"> ---&gt; Running in b888421b5460
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="c1"># 注意看这里 #################</span>
+</span></span><span class="line"><span class="cl">java version <span class="s2">&#34;1.8.0_202&#34;</span>
+</span></span><span class="line"><span class="cl">Java<span class="o">(</span>TM<span class="o">)</span> SE Runtime Environment <span class="o">(</span>build 1.8.0_202-b08<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Java HotSpot<span class="o">(</span>TM<span class="o">)</span> 64-Bit Server VM <span class="o">(</span>build 25.202-b08, mixed mode<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##############################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> ---&gt; 585c6ee10358
+</span></span><span class="line"><span class="cl">Removing intermediate container b888421b5460
+</span></span><span class="line"><span class="cl">Step 13/14 : EXPOSE <span class="m">8080</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in fa69ece8e180
+</span></span><span class="line"><span class="cl"> ---&gt; c4af6c5056bc
+</span></span><span class="line"><span class="cl">Removing intermediate container fa69ece8e180
+</span></span><span class="line"><span class="cl">Step 14/14 : CMD /home/tomcat/apache-tomcat-9.0.95/bin/catalina.sh run
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 2a007a3fd78f
+</span></span><span class="line"><span class="cl"> ---&gt; e184d618916b
+</span></span><span class="line"><span class="cl">Removing intermediate container 2a007a3fd78f
+</span></span><span class="line"><span class="cl">Successfully built e184d618916b
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看着应该没问题</p>
+<p>启动镜像看看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker run -d --name test_tomcat -p 8080:8080 test:v1</span>
+</span></span><span class="line"><span class="cl">d14c7820921dd0150c1d4c9e9ff786164201f10f86c7dc63db6522ded8b2405a
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker ps </span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE                                          COMMAND                  CREATED             STATUS              PORTS                    NAMES
+</span></span><span class="line"><span class="cl">d14c7820921d        test:v1                                        <span class="s2">&#34;/home/tomcat/apac...&#34;</span>   <span class="m">7</span> seconds ago       Up <span class="m">6</span> seconds        0.0.0.0:8080-&gt;8080/tcp   test_tomcat
+</span></span><span class="line"><span class="cl">ae813af28fd9        registry.openanolis.cn/openanolis/anolisos:8   <span class="s2">&#34;/bin/bash&#34;</span>              <span class="m">5</span> hours ago         Up <span class="m">5</span> hours                                   anolisos
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker logs test_tomcat </span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.224 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Server version name:   Apache Tomcat/9.0.95
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.246 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Server built:          Sep <span class="m">13</span> <span class="m">2024</span> 18:07:47 UTC
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.247 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Server version number: 9.0.95.0
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.247 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log OS Name:               Linux
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log OS Version:            3.10.0-1160.118.1.el7.x86_64
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Architecture:          amd64
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Java Home:             /home/tomcat/jdk1.8.0_202/jre
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log JVM Version:           1.8.0_202-b08
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log JVM Vendor:            Oracle Corporation
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.248 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log CATALINA_BASE:         /home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.249 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log CATALINA_HOME:         /home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.263 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.config.file<span class="o">=</span>/home/tomcat/apache-tomcat-9.0.95/conf/logging.properties
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.263 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.util.logging.manager<span class="o">=</span>org.apache.juli.ClassLoaderLogManager
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.263 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djdk.tls.ephemeralDHKeySize<span class="o">=</span><span class="m">2048</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.263 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.protocol.handler.pkgs<span class="o">=</span>org.apache.catalina.webresources
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.264 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dorg.apache.catalina.security.SecurityListener.UMASK<span class="o">=</span><span class="m">0027</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.264 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dignore.endorsed.dirs<span class="o">=</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.265 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.base<span class="o">=</span>/home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.265 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Dcatalina.home<span class="o">=</span>/home/tomcat/apache-tomcat-9.0.95
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.265 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.VersionLoggerListener.log Command line argument: -Djava.io.tmpdir<span class="o">=</span>/home/tomcat/apache-tomcat-9.0.95/temp
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:34.284 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.core.AprLifecycleListener.lifecycleEvent The Apache Tomcat Native library which allows using OpenSSL was not found on the java.library.path: <span class="o">[</span>/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:35.498 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.coyote.AbstractProtocol.init Initializing ProtocolHandler <span class="o">[</span><span class="s2">&#34;http-nio-8080&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:35.604 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.Catalina.load Server initialization in <span class="o">[</span>2074<span class="o">]</span> milliseconds
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:35.719 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.core.StandardService.startInternal Starting service <span class="o">[</span>Catalina<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:35.720 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.core.StandardEngine.startInternal Starting Servlet engine: <span class="o">[</span>Apache Tomcat/9.0.95<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:35.749 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/host-manager<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:36.660 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/host-manager<span class="o">]</span> has finished in <span class="o">[</span>910<span class="o">]</span> ms
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:36.661 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/docs<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:36.750 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/docs<span class="o">]</span> has finished in <span class="o">[</span>89<span class="o">]</span> ms
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:36.751 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/examples<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.540 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/examples<span class="o">]</span> has finished in <span class="o">[</span>789<span class="o">]</span> ms
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.540 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/ROOT<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.641 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/ROOT<span class="o">]</span> has finished in <span class="o">[</span>100<span class="o">]</span> ms
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.642 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deploying web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/manager<span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.730 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.HostConfig.deployDirectory Deployment of web application directory <span class="o">[</span>/home/tomcat/apache-tomcat-9.0.95/webapps/manager<span class="o">]</span> has finished in <span class="o">[</span>87<span class="o">]</span> ms
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.767 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.coyote.AbstractProtocol.start Starting ProtocolHandler <span class="o">[</span><span class="s2">&#34;http-nio-8080&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">18-Sep-2024 07:16:37.799 INFO <span class="o">[</span>main<span class="o">]</span> org.apache.catalina.startup.Catalina.start Server startup in <span class="o">[</span>2194<span class="o">]</span> milliseconds
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>看着启动起来了</p>
+<p>访问 tomcat 前台看看，没问题了</p>
+<p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726643922251-f83e661e-72c5-4d20-8d22-75f97ba0c084.png"
+	width="1425"
+	height="1003"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726643922251-f83e661e-72c5-4d20-8d22-75f97ba0c084_hu14048321235096203932.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726643922251-f83e661e-72c5-4d20-8d22-75f97ba0c084_hu3648469924669085096.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="142"
+		data-flex-basis="340px"
+	
+></p>
+<h4 id="总结">总结
+</h4><p>编写 dockerfile 的思路，其实就是实际手动配置的思路。</p>
+<p>就以构建 tomcat 镜像来说，如果是手工操作：</p>
+<ul>
+<li>需要准备 JDK、tomcat 包</li>
+<li>需要解压 JDK、tomcat 包</li>
+<li>需要配置 JDK 的环境变量</li>
+<li>需要开通 tomcat 的 8080 端口</li>
+</ul>
+<p>在编写 dockerfile 的时候，也是同理：</p>
+<ul>
+<li>准备好的 JDK、tomcat 包放到镜像的什么地方？</li>
+<li>ADD 指令会自动解压 JDK、tomcat 包，代替了手动执行 tar 命令</li>
+<li>配置 JDK 的环境变量</li>
+<li>暴露 tomcat 的 8080 端口</li>
+<li>最后，使用 CMD 指令，执行启动 tomcat 的命令</li>
+</ul>
+<p>还有就是，一定得注意 tomcat 版本应该与 JDK 版本相匹配。</p>
+<h3 id="实践二以-anolisos-为基础镜像构建-nginx-镜像">实践二：以 anolisos 为基础镜像，构建 nginx 镜像
+</h3><p>还是以 anolisos 为基础镜像，并在里边运行一个 nginx 服务。</p>
+<h4 id="安装-nginx">安装 nginx
+</h4><blockquote>
+<p>根据此文</p>
+<p><a class="link" href="https://developer.aliyun.com/article/1395437"  target="_blank" rel="noopener"
+    >Linux 安装 Nginx 并配置为系统服务（超详细）-阿里云开发者社区 (aliyun.com)</a></p>
+</blockquote>
+<p>1）下载 nginx 并解压</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget http://nginx.org/download/nginx-1.25.1.tar.gz
+</span></span><span class="line"><span class="cl">tar -xzvf nginx-1.25.1.tar.gz /home/dockerfile_nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）配置 nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">./configure
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 出现下边表示成功</span>
+</span></span><span class="line"><span class="cl">Configuration summary
+</span></span><span class="line"><span class="cl">  + using system PCRE library
+</span></span><span class="line"><span class="cl">  + OpenSSL library is not used
+</span></span><span class="line"><span class="cl">  + md5: using system crypto library
+</span></span><span class="line"><span class="cl">  + sha1: using system crypto library
+</span></span><span class="line"><span class="cl">  + using system zlib library
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  nginx path prefix: <span class="s2">&#34;/usr/local/nginx&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx binary file: <span class="s2">&#34;/usr/local/nginx/sbin/nginx&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx configuration prefix: <span class="s2">&#34;/usr/local/nginx/conf&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx configuration file: <span class="s2">&#34;/usr/local/nginx/conf/nginx.conf&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx pid file: <span class="s2">&#34;/usr/local/nginx/logs/nginx.pid&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx error log file: <span class="s2">&#34;/usr/local/nginx/logs/error.log&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http access log file: <span class="s2">&#34;/usr/local/nginx/logs/access.log&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http client request body temporary files: <span class="s2">&#34;client_body_temp&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http proxy temporary files: <span class="s2">&#34;proxy_temp&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http fastcgi temporary files: <span class="s2">&#34;fastcgi_temp&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http uwsgi temporary files: <span class="s2">&#34;uwsgi_temp&#34;</span>
+</span></span><span class="line"><span class="cl">  nginx http scgi temporary files: <span class="s2">&#34;scgi_temp&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一般来讲，还是需要安装 gcc 之类的依赖的，因为我这个是阿里云服务器，里边的内容都比较完整，可以直接配置。</p>
+<p>3）编译安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make <span class="o">&amp;&amp;</span> make install
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 出现下边这个</span>
+</span></span><span class="line"><span class="cl">make -f objs/Makefile install
+</span></span><span class="line"><span class="cl">make<span class="o">[</span>1<span class="o">]</span>: Entering directory <span class="sb">`</span>/home/dockerfile_nginx/nginx-1.9.9<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx<span class="s1">&#39; || mkdir -p &#39;</span>/usr/local/nginx<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/sbin<span class="s1">&#39;                 || mkdir -p &#39;</span>/usr/local/nginx/sbin<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test ! -f &#39;</span>/usr/local/nginx/sbin/nginx<span class="s1">&#39;                 || mv &#39;</span>/usr/local/nginx/sbin/nginx<span class="s1">&#39;                     &#39;</span>/usr/local/nginx/sbin/nginx.old<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp objs/nginx &#39;</span>/usr/local/nginx/sbin/nginx<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;                 || mkdir -p &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/koi-win &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/koi-utf &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/win-utf &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/mime.types<span class="s1">&#39;              || cp conf/mime.types &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/mime.types &#39;</span>/usr/local/nginx/conf/mime.types.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/fastcgi_params<span class="s1">&#39;          || cp conf/fastcgi_params &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/fastcgi_params          &#39;</span>/usr/local/nginx/conf/fastcgi_params.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/fastcgi.conf<span class="s1">&#39;            || cp conf/fastcgi.conf &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/fastcgi.conf &#39;</span>/usr/local/nginx/conf/fastcgi.conf.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/uwsgi_params<span class="s1">&#39;            || cp conf/uwsgi_params &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/uwsgi_params            &#39;</span>/usr/local/nginx/conf/uwsgi_params.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/scgi_params<span class="s1">&#39;             || cp conf/scgi_params &#39;</span>/usr/local/nginx/conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/scgi_params             &#39;</span>/usr/local/nginx/conf/scgi_params.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -f &#39;</span>/usr/local/nginx/conf/nginx.conf<span class="s1">&#39;              || cp conf/nginx.conf &#39;</span>/usr/local/nginx/conf/nginx.conf<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">cp conf/nginx.conf &#39;</span>/usr/local/nginx/conf/nginx.conf.default<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/logs<span class="s1">&#39;                 || mkdir -p &#39;</span>/usr/local/nginx/logs<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/logs<span class="s1">&#39; ||              mkdir -p &#39;</span>/usr/local/nginx/logs<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/html<span class="s1">&#39;                 || cp -R html &#39;</span>/usr/local/nginx<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">test -d &#39;</span>/usr/local/nginx/logs<span class="s1">&#39; ||              mkdir -p &#39;</span>/usr/local/nginx/logs<span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">make[1]: Leaving directory `/home/dockerfile_nginx/nginx-1.9.9&#39;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>它创建了 <code>/usr/local/nginx</code> 目录，这个就是 nginx 的安装目录了，日志、启动文件都在这里。</p>
+<p>4）启动并访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status sbin<span class="o">]</span><span class="c1"># pwd</span>
+</span></span><span class="line"><span class="cl">/usr/local/nginx/sbin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status sbin<span class="o">]</span><span class="c1"># ./nginx</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status sbin<span class="o">]</span><span class="c1"># ps -ef | grep nginx</span>
+</span></span><span class="line"><span class="cl">root     <span class="m">11694</span>     <span class="m">1</span>  <span class="m">0</span> 15:53 ?        00:00:00 nginx: master process ./nginx
+</span></span><span class="line"><span class="cl">nobody   <span class="m">11695</span> <span class="m">11694</span>  <span class="m">0</span> 15:53 ?        00:00:00 nginx: worker process
+</span></span><span class="line"><span class="cl">root     <span class="m">11700</span>  <span class="m">8800</span>  <span class="m">0</span> 15:53 pts/10   00:00:00 grep --color<span class="o">=</span>auto nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609.png"
+	width="1561"
+	height="942"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609_hu11044877800313870990.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609_hu10562018474714762282.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="165"
+		data-flex-basis="397px"
+	
+></p>
+<h4 id="根据操作步骤编写-dockerfile-1">根据操作步骤编写 dockerfile
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 基于anolisos</span>
+</span></span><span class="line"><span class="cl">FROM registry.openanolis.cn/openanolis/anolisos:8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Author</span><span class="o">=</span><span class="s2">&#34;test&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">Remark</span><span class="o">=</span><span class="s2">&#34;测试使用, 基于 anolisos 制作 Nginx 镜像&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 解压包到工作目录</span>
+</span></span><span class="line"><span class="cl">ADD nginx-1.25.1.tar.gz /usr/local
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 安装编译Nginx所需的依赖</span>
+</span></span><span class="line"><span class="cl">RUN yum install -y gcc make openssl-devel pcre-devel zlib-devel
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 设置主目录</span>
+</span></span><span class="line"><span class="cl">WORKDIR /usr/local/nginx-1.25.1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置、编译和安装Nginx</span>
+</span></span><span class="line"><span class="cl">RUN ./configure <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --prefix<span class="o">=</span>/usr/local/nginx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --sbin-path<span class="o">=</span>/usr/sbin/nginx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --conf-path<span class="o">=</span>/etc/nginx/nginx.conf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --error-log-path<span class="o">=</span>/var/log/nginx/error.log <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-log-path<span class="o">=</span>/var/log/nginx/access.log <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --pid-path<span class="o">=</span>/var/run/nginx.pid <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --lock-path<span class="o">=</span>/var/run/nginx.lock <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-client-body-temp-path<span class="o">=</span>/var/cache/nginx/client_temp <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-proxy-temp-path<span class="o">=</span>/var/cache/nginx/proxy_temp <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-fastcgi-temp-path<span class="o">=</span>/var/cache/nginx/fastcgi_temp <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-uwsgi-temp-path<span class="o">=</span>/var/cache/nginx/uwsgi_temp <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --http-scgi-temp-path<span class="o">=</span>/var/cache/nginx/scgi_temp <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --user<span class="o">=</span>nginx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --group<span class="o">=</span>nginx <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_ssl_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_realip_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_addition_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_sub_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_dav_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_flv_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_mp4_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_gunzip_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_gzip_static_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_random_index_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_secure_link_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_stub_status_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-mail <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-mail_ssl_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-file-aio <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-ipv6 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-http_v2_module <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --with-cc-opt<span class="o">=</span><span class="s2">&#34;-Wno-error&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> make <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> make install
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建日志和缓存目录</span>
+</span></span><span class="line"><span class="cl">RUN mkdir -p /var/log/nginx <span class="o">&amp;&amp;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    mkdir -p /var/cache/nginx
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 拷贝Nginx配置文件</span>
+</span></span><span class="line"><span class="cl">COPY nginx.conf /etc/nginx/nginx.conf
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 暴露80端口，供外部访问</span>
+</span></span><span class="line"><span class="cl">EXPOSE <span class="m">80</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 启动 nginx</span>
+</span></span><span class="line"><span class="cl">CMD <span class="o">[</span><span class="s2">&#34;nginx&#34;</span>, <span class="s2">&#34;-g&#34;</span>, <span class="s2">&#34;daemon off;&#34;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="nginx-配置">nginx 配置
+</h4><p>把 nginx.conf 文件放到 dockerfile 目录下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">user</span> <span class="s">root</span><span class="p">;</span> <span class="c1"># 镜像里没有创建 nginx 用户，指定 root 用户来启动服务，不然会报错
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">worker_processes</span> <span class="s">auto</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">events</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">worker_connections</span> <span class="mi">512</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">use</span> <span class="s">epoll</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">include</span> <span class="s">mime.types</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">default_type</span> <span class="s">application/octet-stream</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">access_log</span> <span class="no">off</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">sendfile</span> <span class="no">on</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">keepalive_timeout</span> <span class="mi">75</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">server_name</span> <span class="mi">139</span><span class="s">.196.97.87</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="kn">proxy_pass</span> <span class="s">http://139.196.97.87:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="构建镜像">构建镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker build -t nginx:v1 .</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Step 11/11 : CMD nginx -g daemon off<span class="p">;</span>
+</span></span><span class="line"><span class="cl"> ---&gt; Running in 145e8f62d60c
+</span></span><span class="line"><span class="cl"> ---&gt; dcfd18bb9209
+</span></span><span class="line"><span class="cl">Removing intermediate container 145e8f62d60c
+</span></span><span class="line"><span class="cl">Successfully built dcfd18bb9209
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="启动镜像-1">启动镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker run -d --name nginx -p 80:80 nginx:v1 </span>
+</span></span><span class="line"><span class="cl">a4f70aab39a1665802135a47d7a5bc2edf6c15093e0fef27fa4db82d0690f917
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker logs nginx </span>
+</span></span><span class="line"><span class="cl">nginx: <span class="o">[</span>emerg<span class="o">]</span> getpwnam<span class="o">(</span><span class="s2">&#34;nginx&#34;</span><span class="o">)</span> failed
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里报错了，没有找到 nginx 用户。</p>
+<ul>
+<li>1）在容器里创建一个 nginx 用户</li>
+<li>2）指定 root 用户为启动 Nginx 的用户</li>
+</ul>
+<p>如果是使用 1 方案的话，应该得在 dockerfile 里 RUN 一条创建 nginx 用户的命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">useradd -r -s /sbin/nologin nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>我使用了 2 方案，指定 root 用户启动。在 nginx.conf 添加一行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">user root<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>添加后重新构建镜像，然后启动。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker run -d --name nginx -p 80:80 nginx:v1 </span>
+</span></span><span class="line"><span class="cl">ef443ef68ec75631a11ee52eeb2d8831610582a257154350cadb5af5ac72a97e
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker logs nginx </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE                                          COMMAND                  CREATED             STATUS              PORTS                    NAMES
+</span></span><span class="line"><span class="cl">ef443ef68ec7        nginx:v1                                       <span class="s2">&#34;nginx -g &#39;daemon ...&#34;</span>   <span class="m">50</span> seconds ago      Up <span class="m">48</span> seconds       0.0.0.0:80-&gt;80/tcp       nginx
+</span></span><span class="line"><span class="cl">d14c7820921d        test:v1                                        <span class="s2">&#34;/home/tomcat/apac...&#34;</span>   <span class="m">18</span> hours ago        Up <span class="m">18</span> hours         0.0.0.0:8080-&gt;8080/tcp   test_tomcat
+</span></span><span class="line"><span class="cl">ae813af28fd9        registry.openanolis.cn/openanolis/anolisos:8   <span class="s2">&#34;/bin/bash&#34;</span>              <span class="m">24</span> hours ago        Up <span class="m">24</span> hours                                  anolisos
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>一切正常，访问 IP:80 端口，成功跳转到 tomcat:8080 页面。</p>
+<p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609-1728892198579-5.png"
+	width="1561"
+	height="942"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609-1728892198579-5_hu11044877800313870990.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726709638737-0e6cbbc2-740d-4f93-aea4-3d46935cd609-1728892198579-5_hu10562018474714762282.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="165"
+		data-flex-basis="397px"
+	
+></p>
+<h3 id="构建-dockerfile-过程的问题">构建 Dockerfile 过程的问题
+</h3><h4 id="如何将本地的某个包放到容器内部">如何将本地的某个包放到容器内部？
+</h4><p>需要将 rpm 包放到 centos 容器内</p>
+<p>1.复制文件命令 cp</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status home<span class="o">]</span><span class="c1"># docker container cp wget-1.14-18.el7_6.1.x86_64.rpm centos7:/home/</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@9fb9bacc6189 home<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">548</span>
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> root root <span class="m">560272</span> Sep <span class="m">13</span> 07:45 wget-1.14-18.el7_6.1.x86_64.rpm
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2.加载数据卷，但是容器内对数据卷里的内容做修改也会导致主机的内容被修改，这个不适用于现在的情况</p>
+<p>3.构建 Docker 镜像时，使用 ADD 命令或者 COPY 命令，将文件添加进去</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl"><span class="k">COPY</span> /home/wget-1.14-18.el7_6.1.x86_64.rpm /home<span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="如何将容器里打包好的文件传回主机">如何将容器里打包好的文件传回主机？
+</h4><ul>
+<li>直接复制到主机</li>
+<li>挂载数据卷容器</li>
+<li>通过 docker 的管道 <code>-</code> 传回主机</li>
+</ul>
+<h5 id="复制">复制
+</h5><p>从容器复制到主机</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># docker container cp anolisos:/home/jdk.tar.gz /home/dockerfile/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">51100</span>
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> root root <span class="m">52325939</span> Sep <span class="m">18</span> 10:57 jdk.tar.gz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="network-实践">Network 实践
+</h2><h3 id="实践一nginx-容器与-tomcat-容器互联">实践一：nginx 容器与 tomcat 容器互联
+</h3><h4 id="前提">前提
+</h4><p>从上边的实践一和实践二，可以成功的构建了 tomcat 镜像与 nginx 镜像</p>
+<p>因为我的阿里云服务器网络策略，是把 tomcat 8080 端口和 nginx 80 端口都打开了，上边的两个镜像，成功的通过 nginx 跳转到 tomcat 页面。</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>实际项目中，如果对外使用了 nginx 做反向代理或者负载均衡，则 tomcat（应用） 的 IP和端口是不对外开放的，统一通过 nginx 跳转应用。</p>
+</blockquote>
+<p>所以我把阿里云服务器网络策略中 tomcat 8080 端口关掉，这样 tomcat 就无法访问，同时 nginx 就跳转不到 tomcat 上了。</p>
+<p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726710506181-879a958e-de65-4d1e-ac3f-ff582ffaffed.png"
+	width="927"
+	height="802"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726710506181-879a958e-de65-4d1e-ac3f-ff582ffaffed_hu9371374853416755158.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726710506181-879a958e-de65-4d1e-ac3f-ff582ffaffed_hu16748731212832623400.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="115"
+		data-flex-basis="277px"
+	
+></p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>在主机 8080 端口关闭的前提下，为了能够让 nginx 成功跳转到 tomcat ，从容器内部出发。使用 docker 的 network 机制，将 nginx 容器和 tomcat 容器都加入到同一个网络中，让它们能够互相访问。</p>
+<p>这样，外部只需要访问 nginx ，然后 nginx 通过 docker network 访问 tomcat 。</p>
+<ul>
+<li>这个实践是基于上边的实践一、实践二来操作的。</li>
+</ul>
+</blockquote>
+<h4 id="配置-network-容器互联">配置 network 容器互联
+</h4><p>创建网络，将 nginx 和 tomcat 容器都拉进来</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker network create ng_web_network</span>
+</span></span><span class="line"><span class="cl">ddc7f8925ad5df07beabacb8c0f556f152fef9f937cf48c97fdd8078a3f49e14
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker network connect ng_web_network nginx </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker network connect ng_web_network test_tomcat</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看网络详情，里边有两个容器了。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status dockerfile_nginx<span class="o">]</span><span class="c1"># docker network inspect ng_web_network </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;ng_web_network&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Id&#34;</span>: <span class="s2">&#34;ddc7f8925ad5df07beabacb8c0f556f152fef9f937cf48c97fdd8078a3f49e14&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Created&#34;</span>: <span class="s2">&#34;2024-09-19T09:55:24.921745354+08:00&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Scope&#34;</span>: <span class="s2">&#34;local&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Driver&#34;</span>: <span class="s2">&#34;bridge&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;EnableIPv6&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;IPAM&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Driver&#34;</span>: <span class="s2">&#34;default&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Options&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Config&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;Subnet&#34;</span>: <span class="s2">&#34;172.19.0.0/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;Gateway&#34;</span>: <span class="s2">&#34;172.19.0.1&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Internal&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Attachable&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Containers&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;d14c7820921dd0150c1d4c9e9ff786164201f10f86c7dc63db6522ded8b2405a&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;test_tomcat&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;da006a7767d6937f310880a114c7d24a085c87573c84a9b47b91c99f79211473&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:13:00:03&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.19.0.3/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;ef443ef68ec75631a11ee52eeb2d8831610582a257154350cadb5af5ac72a97e&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;nginx&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;19569264099f4fdd3723309ff9512a2dbe9b6eea3b51e7318b2e8c1dba1a4074&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:13:00:02&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.19.0.2/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Options&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Labels&#34;</span>: <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="nginx-跳转-tomcat-失败">nginx 跳转 tomcat 失败
+</h5><blockquote>
+<p>[!IMPORTANT]</p>
+<p>nginx 还是跳转不到 tomcat，问了 AI ：</p>
+<p>因为我在【dockerfile 实践一】里，对 tomcat 容器的端口进行映射，将 tomcat 8080 端口映射到了主机 8080 端口。不知道为啥不能这样，先试试。</p>
+<p>所以我用镜像再生成一个没有映射端口的 tomcat 容器，看看效果。</p>
+</blockquote>
+<p>1）重新执行镜像，并加入到 network 中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -d --name tomcat --network ng_web_network test:v1 </span>
+</span></span><span class="line"><span class="cl">fe5b1183ab41931e8e4c33c8c6cd4b03b4c098cd6212c91986a78b006c9a2533
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）把有端口映射的容器从这个 network 中移除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker network disconnect ng_web_network test_tomcat
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）打开代理地址看看能否跳转</p>
+<p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726723593788-937b6302-f05f-4327-8c56-22d09b5c074b.png"
+	width="734"
+	height="303"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726723593788-937b6302-f05f-4327-8c56-22d09b5c074b_hu11786728519555618278.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726723593788-937b6302-f05f-4327-8c56-22d09b5c074b_hu16506379956022589907.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="242"
+		data-flex-basis="581px"
+	
+></p>
+<p>一般出现了连接超时，肯定是网络没通</p>
+<p>查看网络，没反应，说明没通</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it nginx curl http://139.196.97.87:808</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="网络没通的原因">网络没通的原因
+</h6><blockquote>
+<p>[!IMPORTANT]</p>
+<p>Docker 网络内部使用 DNS 服务来解析容器名称到其 IP 地址的映射。</p>
+<p>当在一个自定义网络中启动容器时，Docker 会为每个容器<font style="color:#DF2A3F;">分配一个唯一的 IP 地址</font>，并注册其容器名称到 Docker 内部 DNS 服务器。因此，在同一网络中的其他容器可以使用容器名称来访问它。</p>
+</blockquote>
+<p>看一下这个 network 里边容器的 IP</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network inspect ng_web_network</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="s2">&#34;Containers&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;ef443ef68ec75631a11ee52eeb2d8831610582a257154350cadb5af5ac72a97e&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;nginx&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;19569264099f4fdd3723309ff9512a2dbe9b6eea3b51e7318b2e8c1dba1a4074&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:13:00:02&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.19.0.2/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;fe5b1183ab41931e8e4c33c8c6cd4b03b4c098cd6212c91986a78b006c9a2533&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;tomcat&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;0c304895c8bdb0c149cb8ded2511d79d851be71059174e35551fbe80ce2e14e1&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:13:00:04&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.19.0.4/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在【Dockerfile 实践 - 实践二 - 3 nginx 配置】中，配置的跳转的 IP 是我主机的 IP，而这个 tomcat 是运行在容器里的，实际的 tomcat 地址应该是 <code>172.19.0.4:8080</code> ，我通过 nginx 的地址 <code>139.196.97.87:80</code> 跳转到 <code>172.19.0.4:8080</code> 才对。因为 docker network 是使用容器名来解析容器的 IP，所以这里我就需要跳转到 <code>tomcat:8080</code> 。</p>
+<h6 id="解决问题">解决问题
+</h6><p>好了，明白原因，改一下 <code>nginx.conf</code> 配置，然后更新到 nginx 容器内部 <code>/etc/nginx/nginx.conf</code></p>
+<p>1）nginx.conf 配置改为这样</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">server</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">server_name</span> <span class="mi">139</span><span class="s">.196.97.87</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kn">proxy_pass</span> <span class="s">http://tomcat:8080</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）使用 cp 命令传进去，然后重启 nginx 服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 传进去</span>
+</span></span><span class="line"><span class="cl">docker container cp nginx.conf nginx:/etc/nginx/nginx.conf
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启</span>
+</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> nginx nginx -s reload
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>nginx -s reload</code> 是重启 nginx 命令</p>
+<p>然后访问 <code>139.196.97.87:80</code> ，成功跳转</p>
+<p><img src="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726725455252-4c3ee38d-937b-48d8-9276-3fc38e481e6f.png"
+	width="736"
+	height="314"
+	srcset="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726725455252-4c3ee38d-937b-48d8-9276-3fc38e481e6f_hu5512421580713254736.png 480w, /posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/index/1726725455252-4c3ee38d-937b-48d8-9276-3fc38e481e6f_hu719086501212396861.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="234"
+		data-flex-basis="562px"
+	
+></p>
+<h4 id="总结-1">总结
+</h4><ul>
+<li>应用如果是通过 nginx 跳转，则应用容器不需要映射端口</li>
+<li>应用通过 nginx 跳转，将应用和 nginx 容器都加入到同一个 network 中即可实现互相访问</li>
+<li>在同一个 network 中，使用容器名解析容器的IP，所以相关配置应该填写容器名</li>
+</ul>
+<h3 id="疑问">疑问
+</h3><p>1.如果先映射了端口，后续想用 nginx 做代理的话，如何清除原来的端口映射？如果重新生成容器，原来的数据怎么办？</p>
+<p>2.日志怎么处理？应用的日志、nginx 的日志怎么快速的查看？怎么做归集到专门的日志目录里？</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2024年10月14号 16:06
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Docker-基础</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Wei Qi
+    </section>
+    
+    <section class="powerby">
+        
+
+        
+
+        
+        
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+
+        
+        
+        
+        
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
+        <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
+
+
+        <section class="powerby">
+            <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
+        </section>
+
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/js/nprogress.min.js"
+    integrity="sha384-bHDlAEUFxsRI7JfULv3DTpL2IXbbgn4JHQJibgo5iiXSK6Iu8muwqHANhun74Cqg"
+    crossorigin="anonymous"
+></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/css/nprogress.css"
+    integrity="sha384-KJyhr2syt5+4M9Pz5dipCvTrtvOmLk/olWVdfhAp858UCa64Ia5GFpTN7+G4BWpE"
+    crossorigin="anonymous"
+/>
+<script>
+    NProgress.start();
+    document.addEventListener("readystatechange", () => {
+        if (document.readyState === "interactive") NProgress.inc(0.8);
+        if (document.readyState === "complete") NProgress.done();
+    });
+</script>
+<script defer src="https://cn.vercount.one/js"></script>
+    </body>
+</html>

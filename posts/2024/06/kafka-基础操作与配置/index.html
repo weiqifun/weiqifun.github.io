@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/06/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="kafka-基础知识与实际项目的问题">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="kafka-基础知识与实际项目的问题">
 <meta property='og:description' content="最近异常交易的项目中，使用到了kafka ，用来实时推送实时成交、委托流水、组合持仓、行情等等数据到自研的平台上做数据监控。那么我这边需要做的内容：将上游的数据直接推送到kafka上，给下游的应用消费kafka数据。这个过程中也遇到了一些问题，因为也是第一次接触kafka ，平且是在实际的项目中使用的，这里经验对我来说还是很宝贵的，所以在这里做一个基础知识、项目中遇到的问题、对应的解决方案的记录。在项目上主要是使用kafka 读取数据，做一个流式处理，供下游应用使用数据。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/06/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -378,9 +378,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -430,46 +427,46 @@
 <h3 id="segment-文件">segment 文件
 </h3><p>一个 partition 分区中由多个 segment 文件组成的。每个 segment 文件又包含了 <code>.log</code> 文件和<code>.index</code> 文件，<code>.log</code> 文件是存放推送的数据，<code>.index</code> 文件存放数据的索引值，用来加快数据的查询速度的。</p>
 <p><code>.index</code> 文件里存的索引值，是与<code>.log</code>文件里的数据位置是对应的。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># .index 是 key-value 存放方式</span>
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">1</span>,<span style="color:#ae81ff">0</span>	<span style="color:#75715e"># 对应 .log 的第一条数据，值是0</span>
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span>,<span style="color:#ae81ff">2</span>	<span style="color:#75715e"># 对应 .log 的第二条数据，值是2</span>
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span>,<span style="color:#ae81ff">9</span>	<span style="color:#75715e"># 对应 .log 的第三条数据，值是9</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># .index 是 key-value 存放方式</span>
+</span></span><span class="line"><span class="cl"><span class="mi">1</span><span class="p">,</span><span class="mi">0</span>	<span class="c1"># 对应 .log 的第一条数据，值是0</span>
+</span></span><span class="line"><span class="cl"><span class="mi">2</span><span class="p">,</span><span class="mi">2</span>	<span class="c1"># 对应 .log 的第二条数据，值是2</span>
+</span></span><span class="line"><span class="cl"><span class="mi">3</span><span class="p">,</span><span class="mi">9</span>	<span class="c1"># 对应 .log 的第三条数据，值是9</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>.log</code> 文件里会记录<code>offset</code> 偏移量，用于标记消费者读取消息的位置。</p>
 <h2 id="kafka-基础操作">kafka 基础操作
 </h2><h3 id="kafka启停">kafka启停
 </h3><p>kafka 与 zookeeper 强依赖，启动 kafka 之前必须先启动 zookeeper ，否则会报错的</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># zookeeper 启动，后边接配置文件</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">.</span><span style="color:#e6db74">/zookeeper-server-start.sh ../co</span>nfig<span style="color:#f92672">/</span>zookeeper<span style="color:#f92672">.</span>properties
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># zookeeper 停止</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">./</span>zookeeper<span style="color:#f92672">-</span>server<span style="color:#f92672">-</span>stop<span style="color:#f92672">.</span>sh
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># kafka 启动，后边接配置文件</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">.</span><span style="color:#e6db74">/kafka-server-start.sh ../co</span>nfig<span style="color:#f92672">/</span>server<span style="color:#f92672">.</span>properties
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># kafka 停止</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>server<span style="color:#f92672">-</span>stop<span style="color:#f92672">.</span>sh
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># zookeeper 启动，后边接配置文件</span>
+</span></span><span class="line"><span class="cl"><span class="o">.</span><span class="sr">/zookeeper-server-start.sh ../co</span><span class="n">nfig</span><span class="o">/</span><span class="n">zookeeper</span><span class="o">.</span><span class="n">properties</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># zookeeper 停止</span>
+</span></span><span class="line"><span class="cl"><span class="o">./</span><span class="n">zookeeper</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">stop</span><span class="o">.</span><span class="n">sh</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># kafka 启动，后边接配置文件</span>
+</span></span><span class="line"><span class="cl"><span class="o">.</span><span class="sr">/kafka-server-start.sh ../co</span><span class="n">nfig</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">properties</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># kafka 停止</span>
+</span></span><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">stop</span><span class="o">.</span><span class="n">sh</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624234319800.png"
@@ -485,60 +482,60 @@
 	
 ></p>
 <h3 id="创建-topic">创建 topic
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 创建语句 模板</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>topics<span style="color:#f92672">.</span>sh <span style="color:#f92672">--</span>create <span style="color:#f92672">--</span>bootstrap<span style="color:#f92672">-</span>server <span style="color:#ae81ff">10.84.0.1</span>:<span style="color:#ae81ff">9092</span> <span style="color:#f92672">--</span>replication<span style="color:#f92672">-</span>factor <span style="color:#ae81ff">1</span> <span style="color:#f92672">--</span>partitions <span style="color:#ae81ff">1</span> <span style="color:#f92672">--</span>topic topic_name
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># bootstrap-server 指定 kafka 服务器地址和端口</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># replication-factor 指定分区的副本个数</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># partitions 指定topic的分区个数</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 创建语句 模板</span>
+</span></span><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">topics</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">create</span> <span class="o">--</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">server</span> <span class="mf">10.84.0.1</span><span class="p">:</span><span class="mi">9092</span> <span class="o">--</span><span class="n">replication</span><span class="o">-</span><span class="n">factor</span> <span class="mi">1</span> <span class="o">--</span><span class="n">partitions</span> <span class="mi">1</span> <span class="o">--</span><span class="n">topic</span> <span class="n">topic_name</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># bootstrap-server 指定 kafka 服务器地址和端口</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># replication-factor 指定分区的副本个数</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># partitions 指定topic的分区个数</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="删除-topic">删除 topic
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>topics<span style="color:#f92672">.</span>sh <span style="color:#f92672">--</span>bootstrap<span style="color:#f92672">-</span>server <span style="color:#ae81ff">10.84.0.1</span>:<span style="color:#ae81ff">2181</span> <span style="color:#f92672">--</span>delete <span style="color:#f92672">--</span>topic topic_name
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">topics</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">server</span> <span class="mf">10.84.0.1</span><span class="p">:</span><span class="mi">2181</span> <span class="o">--</span><span class="nb">delete</span> <span class="o">--</span><span class="n">topic</span> <span class="n">topic_name</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="增加-topic-partition">增加 topic partition
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>topics<span style="color:#f92672">.</span>sh <span style="color:#f92672">--</span>zookeeper <span style="color:#ae81ff">10.84.0.1</span>:<span style="color:#ae81ff">2181</span> <span style="color:#f92672">--</span>alter <span style="color:#f92672">--</span>topic topic_name <span style="color:#f92672">--</span>partition <span style="color:#ae81ff">2</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">topics</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">zookeeper</span> <span class="mf">10.84.0.1</span><span class="p">:</span><span class="mi">2181</span> <span class="o">--</span><span class="n">alter</span> <span class="o">--</span><span class="n">topic</span> <span class="n">topic_name</span> <span class="o">--</span><span class="n">partition</span> <span class="mi">2</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="查看-topic-数据">查看 topic 数据
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>console<span style="color:#f92672">-</span>consumer<span style="color:#f92672">.</span>sh <span style="color:#f92672">--</span>bootstrap<span style="color:#f92672">-</span>server <span style="color:#ae81ff">10.84.0.1</span>:<span style="color:#ae81ff">9092</span> <span style="color:#f92672">--</span>topic your_topic_name <span style="color:#f92672">--</span>from<span style="color:#f92672">-</span>beginning [<span style="color:#f92672">--</span>max<span style="color:#f92672">-</span>messages <span style="color:#ae81ff">10</span>]
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># --max-messages 查看几条消息</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># --from-beginning 查看最新的消息</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">console</span><span class="o">-</span><span class="n">consumer</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">bootstrap</span><span class="o">-</span><span class="n">server</span> <span class="mf">10.84.0.1</span><span class="p">:</span><span class="mi">9092</span> <span class="o">--</span><span class="n">topic</span> <span class="n">your_topic_name</span> <span class="o">--</span><span class="n">from</span><span class="o">-</span><span class="n">beginning</span> <span class="p">[</span><span class="o">--</span><span class="n">max</span><span class="o">-</span><span class="n">messages</span> <span class="mi">10</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># --max-messages 查看几条消息</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># --from-beginning 查看最新的消息</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="查询-topic-列表">查询 topic 列表
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#f92672">./</span>kafka<span style="color:#f92672">-</span>topics<span style="color:#f92672">.</span>sh <span style="color:#f92672">--</span>list <span style="color:#f92672">--</span>zookeeper localhost
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="o">./</span><span class="n">kafka</span><span class="o">-</span><span class="n">topics</span><span class="o">.</span><span class="n">sh</span> <span class="o">--</span><span class="n">list</span> <span class="o">--</span><span class="n">zookeeper</span> <span class="n">localhost</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="kafka-相关问题及解决方案">kafka 相关问题及解决方案
@@ -603,16 +600,16 @@
 ></p>
 <p>由于启动的 id 和 <code>meta.properties</code> 里边的 id 不一致导致报错。通常是因为关闭 kafka 的时候出现了异常（虽然不知道有什么异常）</p>
 <p><strong>解决方案：</strong></p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 找到该文件</span>
-</span></span><span style="display:flex;"><span>find <span style="color:#f92672">/</span> <span style="color:#f92672">-</span>name <span style="color:#e6db74">&#34;meta.properties&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 修改里边的 cluster.id= 一串字符串id</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 找到该文件</span>
+</span></span><span class="line"><span class="cl"><span class="n">find</span> <span class="o">/</span> <span class="o">-</span><span class="n">name</span> <span class="s">&#34;meta.properties&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 修改里边的 cluster.id= 一串字符串id</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/06/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/kafka-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C%E4%B8%8E%E9%85%8D%E7%BD%AE/image-20240624235112007.png"
@@ -780,12 +777,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

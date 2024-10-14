@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="SQL-日期时间转换问题">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="SQL-日期时间转换问题">
 <meta property='og:description' content="问题一：非正常时间格式转换问题\r背景\r最近在项目上，使用ETL工具配置任务，将上游数据直接推送到kafka topic 中，让另一个系统去消费这些实时成交的数据。\n之前经验的不足，没有对推送的数据做限制，导致每次推送到topic 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到kafka，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。\n并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -353,9 +353,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -437,116 +434,116 @@
 <p>但是变更源库后，表的日期格式是<code>YY-MON-DD HH.MI.SS.FF9 PM</code>的格式</p>
 <h3 id="问题-1">问题
 </h3><p>原先，我们系统里，只需要将日期做如下的转换即可</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>  <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">into</span> CMSCONFIG.T_XXX_REPORT_XXX
-</span></span><span style="display:flex;"><span>    (app_no ,
-</span></span><span style="display:flex;"><span>     app_emp_no ,
-</span></span><span style="display:flex;"><span>     emp_no ,
-</span></span><span style="display:flex;"><span>     report_type2  ,
-</span></span><span style="display:flex;"><span>     status  ,
-</span></span><span style="display:flex;"><span>     app_time ,
-</span></span><span style="display:flex;"><span>     approve_time
-</span></span><span style="display:flex;"><span>     )
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">select</span> a.id,
-</span></span><span style="display:flex;"><span>         a.brokerid,
-</span></span><span style="display:flex;"><span>         a.brokerid,
-</span></span><span style="display:flex;"><span>         <span style="color:#e6db74">&#39;1&#39;</span>,
-</span></span><span style="display:flex;"><span>         <span style="color:#e6db74">&#39;1&#39;</span>,
-</span></span><span style="display:flex;"><span>         to_date(to_char(to_timestamp(a.updatetime,<span style="color:#e6db74">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span>),<span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>),<span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>),
-</span></span><span style="display:flex;"><span>         to_date(to_char(to_timestamp(a.updatetime,<span style="color:#e6db74">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span>),<span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>),<span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>)
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">from</span> NC11.ST_EM_XXXXXXON a
-</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">where</span> <span style="color:#66d9ef">not</span> <span style="color:#66d9ef">exists</span> (<span style="color:#66d9ef">select</span> <span style="color:#ae81ff">1</span> <span style="color:#66d9ef">from</span> CMSCONFIG.T_XXX_REPORT_XXX t
-</span></span><span style="display:flex;"><span>                      <span style="color:#66d9ef">where</span> a.id <span style="color:#f92672">=</span> t.app_no
-</span></span><span style="display:flex;"><span>                        <span style="color:#66d9ef">and</span> t.report_type2 <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;1&#39;</span>);
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="w">  </span><span class="k">insert</span><span class="w"> </span><span class="k">into</span><span class="w"> </span><span class="n">CMSCONFIG</span><span class="p">.</span><span class="n">T_XXX_REPORT_XXX</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">(</span><span class="n">app_no</span><span class="w"> </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">app_emp_no</span><span class="w"> </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">emp_no</span><span class="w"> </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">report_type2</span><span class="w">  </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">status</span><span class="w">  </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">app_time</span><span class="w"> </span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="n">approve_time</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     </span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">select</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">id</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="n">a</span><span class="p">.</span><span class="n">brokerid</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="n">a</span><span class="p">.</span><span class="n">brokerid</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="s1">&#39;1&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="n">to_date</span><span class="p">(</span><span class="n">to_char</span><span class="p">(</span><span class="n">to_timestamp</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">updatetime</span><span class="p">,</span><span class="s1">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span><span class="p">),</span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">),</span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">         </span><span class="n">to_date</span><span class="p">(</span><span class="n">to_char</span><span class="p">(</span><span class="n">to_timestamp</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">updatetime</span><span class="p">,</span><span class="s1">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span><span class="p">),</span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">),</span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">from</span><span class="w"> </span><span class="n">NC11</span><span class="p">.</span><span class="n">ST_EM_XXXXXXON</span><span class="w"> </span><span class="n">a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">where</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="k">exists</span><span class="w"> </span><span class="p">(</span><span class="k">select</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">CMSCONFIG</span><span class="p">.</span><span class="n">T_XXX_REPORT_XXX</span><span class="w"> </span><span class="n">t</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                      </span><span class="k">where</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">app_no</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="k">and</span><span class="w"> </span><span class="n">t</span><span class="p">.</span><span class="n">report_type2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> to_date(to_char(to_timestamp(<span style="color:#e6db74">&#39;2024-6-1 17.38.54.000000000&#39;</span>,
-</span></span><span style="display:flex;"><span>                                    <span style="color:#e6db74">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span>),
-</span></span><span style="display:flex;"><span>                       <span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>),
-</span></span><span style="display:flex;"><span>               <span style="color:#e6db74">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span>) <span style="color:#66d9ef">as</span> datetime
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> dual;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">to_date</span><span class="p">(</span><span class="n">to_char</span><span class="p">(</span><span class="n">to_timestamp</span><span class="p">(</span><span class="s1">&#39;2024-6-1 17.38.54.000000000&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                                    </span><span class="s1">&#39;yyyy-mm-dd hh24:mi:ss.ff&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                       </span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="s1">&#39;yyyy/mm/dd hh24:mi:ss&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">datetime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>但是换库之后，日期格式改变了，变为了如下形式：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#e6db74">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span>
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="s1">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>此时，还是继续使用上述的SQL进行日期转换，则会报错无效的月份</p>
 <p>当时尝试了很多</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- 在Oracle中报错日期格式无法识别
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> TO_DATE(<span style="color:#e6db74">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span>,
-</span></span><span style="display:flex;"><span>               <span style="color:#e6db74">&#39;YY-MON-DD HH.MI.SS.FF9 PM&#39;</span>) <span style="color:#66d9ef">AS</span> datetime
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">FROM</span> dual;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 在Oracle中报错无效的月份
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> TO_TIMESTAMP(<span style="color:#e6db74">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span>,
-</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#39;YY-MON-DD HH.MI.SS.FF9 PM&#39;</span>) <span style="color:#66d9ef">AS</span> datetime
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">FROM</span> dual;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 在Oracle中报错要求AM/A.M.或PM/P.M.
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> TO_TIMESTAMP(<span style="color:#e6db74">&#39;18-3-24 03.44.12.000000000 PM&#39;</span>,
-</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#39;YY-MM-DD HH.MI.SS.FF9 PM&#39;</span>) <span style="color:#66d9ef">AS</span> datetime
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">FROM</span> dual;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 在Oracle中报错日期格式无法识别
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">TO_DATE</span><span class="p">(</span><span class="s1">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">               </span><span class="s1">&#39;YY-MON-DD HH.MI.SS.FF9 PM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">datetime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 在Oracle中报错无效的月份
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">TO_TIMESTAMP</span><span class="p">(</span><span class="s1">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="s1">&#39;YY-MON-DD HH.MI.SS.FF9 PM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">datetime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 在Oracle中报错要求AM/A.M.或PM/P.M.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="n">TO_TIMESTAMP</span><span class="p">(</span><span class="s1">&#39;18-3-24 03.44.12.000000000 PM&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="s1">&#39;YY-MM-DD HH.MI.SS.FF9 PM&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">datetime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><strong>到底应该如何将 &lsquo;18-MAR-24 03.44.12.000000000 PM&rsquo; 转换为 &lsquo;2024/3/18 15:44:12&rsquo; 呢？？？</strong></p>
 <p>当时百度了很多路子，试过很多方法，在一篇帖子上看到可能跟NLS_LANGUAGE有关，随后去ORACLE官网看相关解答：</p>
@@ -580,23 +577,23 @@
 ></p>
 <p>上游的库NLS_LANGUAGE，让客户帮忙咨询，是<code>american</code></p>
 <p>在本地尝试</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> to_date(
-</span></span><span style="display:flex;"><span>                to_char(
-</span></span><span style="display:flex;"><span>                       to_timestamp(<span style="color:#e6db74">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span>, <span style="color:#e6db74">&#39;DD-MON-RR HH.MI.SS.FF AM&#39;</span>, <span style="color:#e6db74">&#39;NLS_DATE_LANGUAGE = AMERICAN&#39;</span>), 
-</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#39;YYYY/MM/DD HH24:MI:SS&#39;</span>),
-</span></span><span style="display:flex;"><span>                                       <span style="color:#e6db74">&#39;YYYY/MM/DD HH24:MI:SS&#39;</span>) <span style="color:#66d9ef">AS</span> datetime
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> dual;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">to_date</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">to_char</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                       </span><span class="n">to_timestamp</span><span class="p">(</span><span class="s1">&#39;18-MAR-24 03.44.12.000000000 PM&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DD-MON-RR HH.MI.SS.FF AM&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;NLS_DATE_LANGUAGE = AMERICAN&#39;</span><span class="p">),</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s1">&#39;YYYY/MM/DD HH24:MI:SS&#39;</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                                       </span><span class="s1">&#39;YYYY/MM/DD HH24:MI:SS&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">datetime</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222547069.png"
 	width="782"
@@ -815,12 +812,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

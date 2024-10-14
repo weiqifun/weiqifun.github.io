@@ -1,0 +1,2317 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="更新\r20240909\n优化了监控日志按照 年月 目录存放 新增对同一个数据库多实例情况的巡检 简要说明\r这个 shell 脚本用于数据库服务器上的日常检查：\n系统检查：系统时间、CPU、内存、磁盘、IO 达梦数据库服务：实例、数据守护、集群状态 实例检查：日志是否出现 ERROR \\ FATAL 等报错，出现报错则将报错信息重定向到存放报错的文件 这个 shell 脚本使用的命令都是平时工作中使用到的命令\n">
+<meta name="keywords" content="shell, 达梦监控, 数据库监控"><title>Shell 监控达梦数据库服务、日志健康状态</title>
+
+<link rel='canonical' href='http://localhost:1313/posts/2024/07/shell-%E7%9B%91%E6%8E%A7%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97%E7%9B%91%E6%8E%A7%E7%8A%B6%E6%80%81/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="Shell 监控达梦数据库服务、日志健康状态">
+<meta property='og:description' content="更新\r20240909\n优化了监控日志按照 年月 目录存放 新增对同一个数据库多实例情况的巡检 简要说明\r这个 shell 脚本用于数据库服务器上的日常检查：\n系统检查：系统时间、CPU、内存、磁盘、IO 达梦数据库服务：实例、数据守护、集群状态 实例检查：日志是否出现 ERROR \\ FATAL 等报错，出现报错则将报错信息重定向到存放报错的文件 这个 shell 脚本使用的命令都是平时工作中使用到的命令\n">
+<meta property='og:url' content='http://localhost:1313/posts/2024/07/shell-%E7%9B%91%E6%8E%A7%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97%E7%9B%91%E6%8E%A7%E7%8A%B6%E6%80%81/'>
+<meta property='og:site_name' content='阿琦同学'>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='LINUX' /><meta property='article:tag' content='SHELL' /><meta property='article:published_time' content='2024-07-23T10:02:49&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T21:10:28&#43;08:00'/>
+<meta name="twitter:title" content="Shell 监控达梦数据库服务、日志健康状态">
+<meta name="twitter:description" content="更新\r20240909\n优化了监控日志按照 年月 目录存放 新增对同一个数据库多实例情况的巡检 简要说明\r这个 shell 脚本用于数据库服务器上的日常检查：\n系统检查：系统时间、CPU、内存、磁盘、IO 达梦数据库服务：实例、数据守护、集群状态 实例检查：日志是否出现 ERROR \\ FATAL 等报错，出现报错则将报错信息重定向到存放报错的文件 这个 shell 脚本使用的命令都是平时工作中使用到的命令\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="/img/tx.png" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">阿琦同学</a></h1>
+            <h2 class="site-description">Life is Passion !</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/weiqifun'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/tags/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+                
+                <span>标签</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E9%93%BE/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友链</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#更新">更新</a></li>
+    <li><a href="#简要说明">简要说明</a>
+      <ol>
+        <li><a href="#复用性">复用性</a></li>
+      </ol>
+    </li>
+    <li><a href="#脚本">脚本</a>
+      <ol>
+        <li><a href="#效果">效果</a></li>
+      </ol>
+    </li>
+    <li><a href="#脚本-20240911">脚本 20240911</a>
+      <ol>
+        <li><a href="#效果-1">效果</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/linux/" >
+                LINUX
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/posts/2024/07/shell-%E7%9B%91%E6%8E%A7%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97%E7%9B%91%E6%8E%A7%E7%8A%B6%E6%80%81/">Shell 监控达梦数据库服务、日志健康状态</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2024年7月23号</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 15 分钟
+                </time>
+            </div>
+        
+
+        
+        
+        <footer class="article-wordcount">
+            <div>
+                <span class="article-wordcount--count">字数: 7051</span>
+            </div>
+        </footer>
+        
+        
+
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="更新">更新
+</h2><hr>
+<p>20240909</p>
+<ul>
+<li>优化了监控日志按照 年月 目录存放</li>
+<li>新增对同一个数据库多实例情况的巡检</li>
+</ul>
+<hr>
+<h2 id="简要说明">简要说明
+</h2><p>这个 shell 脚本用于数据库服务器上的日常检查：</p>
+<ul>
+<li>系统检查：系统时间、CPU、内存、磁盘、IO</li>
+<li>达梦数据库服务：实例、数据守护、集群状态</li>
+<li>实例检查：日志是否出现 ERROR \ FATAL 等报错，出现报错则将报错信息重定向到存放报错的文件</li>
+</ul>
+<p>这个 <code>shell</code> 脚本使用的命令都是平时工作中使用到的命令</p>
+<p>特别是查看文件内容并输出指定的内容，使用 <code>grep</code> <code>awk</code> <code>sed</code> <code>cut</code> 等命令结合。</p>
+<ul>
+<li>
+<p>例如 <code>awk '/^avg-cpu/ {getline; print$6}'</code> 找到 <code>avg-cpu</code>开头的行，然后使用 <code>getline</code>读取下一行列的内容并输出第 6 列</p>
+</li>
+<li>
+<p>例如 <code>grep -e</code> 使用正则表达式</p>
+</li>
+<li>
+<p>例如 <code>awk -v</code> 使用变量</p>
+</li>
+<li>
+<p>还有使用 <code>while</code> 循环打印内容，<code>if</code> 进行条件判断，还有对 <code>|</code>管道符的用法，它可以将上一个命令返回的内容传递给下一个命令</p>
+</li>
+</ul>
+<h3 id="复用性">复用性
+</h3><p>此脚本直接拿到新机器执行，只需要修改 实例数据文件 的路径就可以了，虽然在脚本里可以实现查找实例数据文件，考虑到有的服务器上文件特别多，每次执行脚本都查找一遍，效率不好（虽然也不差这几秒）。</p>
+<p>此外，达梦数据库的配置文件名称其实都是一致的，不需要修改</p>
+<h2 id="脚本">脚本
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span><span class="lnt">312
+</span><span class="lnt">313
+</span><span class="lnt">314
+</span><span class="lnt">315
+</span><span class="lnt">316
+</span><span class="lnt">317
+</span><span class="lnt">318
+</span><span class="lnt">319
+</span><span class="lnt">320
+</span><span class="lnt">321
+</span><span class="lnt">322
+</span><span class="lnt">323
+</span><span class="lnt">324
+</span><span class="lnt">325
+</span><span class="lnt">326
+</span><span class="lnt">327
+</span><span class="lnt">328
+</span><span class="lnt">329
+</span><span class="lnt">330
+</span><span class="lnt">331
+</span><span class="lnt">332
+</span><span class="lnt">333
+</span><span class="lnt">334
+</span><span class="lnt">335
+</span><span class="lnt">336
+</span><span class="lnt">337
+</span><span class="lnt">338
+</span><span class="lnt">339
+</span><span class="lnt">340
+</span><span class="lnt">341
+</span><span class="lnt">342
+</span><span class="lnt">343
+</span><span class="lnt">344
+</span><span class="lnt">345
+</span><span class="lnt">346
+</span><span class="lnt">347
+</span><span class="lnt">348
+</span><span class="lnt">349
+</span><span class="lnt">350
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">####################################################################################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Author:	Wei Qi</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Remark:	1.系统检查：CPU、内存、磁盘、IO、网络、系统时间</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 		  	2.数据库服务检查：实例、守护、监视器</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 			3.实例检查：日志、会话</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 			全局变量使用 VarName 方式命名，局部变量使用 var_name 方式命名</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># CreateDate:	2024-07-23</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Version:	1.0</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ModifyDate: </span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ModifyRemark: </span>
+</span></span><span class="line"><span class="cl"><span class="c1">####################################################################################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">###################################### 全局变量 手动修改 ############################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 服务、实例全局变量</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 服务配置文件名</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmIniName</span><span class="o">=</span><span class="s2">&#34;dm.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmWatcherIniName</span><span class="o">=</span><span class="s2">&#34;dmwatcher.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmMonitorIniName</span><span class="o">=</span><span class="s2">&#34;dmmonitor.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmMalIniName</span><span class="o">=</span><span class="s2">&#34;dmmal.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 配置备库 IP PORT</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># TelnetIP=&#34;10.xx.xx.xxx&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># TelnetPORT=&#34;5236&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## 查找 数据库用户 的主目录</span>
+</span></span><span class="line"><span class="cl"><span class="c1">## cut -d: 是根据 : 进行分割		-f6  是返回分割后的第6列</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># UserHomePath=$(getent passwd dmdba | cut -d: -f6)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 有的实例数据文件不在主目录下，手动配置</span>
+</span></span><span class="line"><span class="cl"><span class="nv">UserHomePath</span><span class="o">=</span><span class="s2">&#34;/u01/dmdata/zgfxq&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 定义变量，实例配置文件路径</span>
+</span></span><span class="line"><span class="cl"><span class="nv">FindDmIniPath</span><span class="o">=</span><span class="k">$(</span>find <span class="si">${</span><span class="nv">UserHomePath</span><span class="si">}</span> -name <span class="si">${</span><span class="nv">DmIniName</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmIniPath</span><span class="o">=</span><span class="si">${</span><span class="nv">FindDmIniPath</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># DmIniPath=$(find / -name &#34;dm.ini&#34;)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># FindDmWatcherIniPath=$(find ${UserHomePath} -name ${DmWatcherIniName})</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># DmWatcherIniPath=${FindDmWatcherIniPath}</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># FindDmMonitorIniPath=$(find ${UserHomePath} -name ${DmMonitorIniName})</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># DmMonitorIniPath=${FindDmMonitorIniPath}</span>
+</span></span><span class="line"><span class="cl"><span class="nv">FindDmMalIniPath</span><span class="o">=</span><span class="k">$(</span>find <span class="si">${</span><span class="nv">UserHomePath</span><span class="si">}</span> -name <span class="si">${</span><span class="nv">DmMalIniName</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmMalIniPath</span><span class="o">=</span><span class="si">${</span><span class="nv">FindDmMalIniPath</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;DmIniPath :  </span><span class="si">${</span><span class="nv">DmIniPath</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;DmMalIniPath :  </span><span class="si">${</span><span class="nv">DmMalIniPath</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 定义达梦各服务端口变量</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># grep -w 使用精准匹配</span>
+</span></span><span class="line"><span class="cl"><span class="nv">AllDmServicePort</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmIniPath</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -w PORT_NUM <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>	<span class="c1"># 数据实例端口</span>
+</span></span><span class="line"><span class="cl"><span class="nv">AllDmWatcherPort</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmMalIniPath</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -w MAL_DW_PORT <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>	<span class="c1"># 数据守护进程端口</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;AllDmServicePort :  </span><span class="si">${</span><span class="nv">AllDmServicePort</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;AllDmWatcherPort :  </span><span class="si">${</span><span class="nv">AllDmWatcherPort</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取实例名称</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmInstanceName</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmIniPath</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -w INSTANCE_NAME <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取当前 IP</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># GetSystemIp=$(hostname -I)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">####################################################################################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 巡检开始</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;巡检脚本开始&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">########################################## 系统巡检 ################################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 系统时间检查</span>
+</span></span><span class="line"><span class="cl">getSystemTime<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">current_time</span><span class="o">=</span><span class="k">$(</span>date<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;当前系统时间: </span><span class="si">${</span><span class="nv">current_time</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 当前系统信息</span>
+</span></span><span class="line"><span class="cl">getOsSystem<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_type</span><span class="o">=</span><span class="k">$(</span>uname<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_hostname</span><span class="o">=</span><span class="k">$(</span>hostname<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_ip</span><span class="o">=</span><span class="k">$(</span>hostname -I <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;当前机器：</span><span class="si">${</span><span class="nv">os_type</span><span class="si">}</span><span class="s2"> | </span><span class="si">${</span><span class="nv">os_hostname</span><span class="si">}</span><span class="s2"> | </span><span class="si">${</span><span class="nv">os_ip</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取CPU使用率</span>
+</span></span><span class="line"><span class="cl">getCpuUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 使用 bn1 获取固定的 top 输出</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cpu_usage</span><span class="o">=</span><span class="k">$(</span>top -bn1 <span class="p">|</span> grep <span class="s2">&#34;Cpu(s)&#34;</span> <span class="p">|</span> sed <span class="s2">&#34;s/.*, *\([0-9.]*\)%* id.*/\1/&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print 100 - $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;CPU使用率: </span><span class="si">${</span><span class="nv">cpu_usage</span><span class="si">}</span><span class="s2">%&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取内存使用率</span>
+</span></span><span class="line"><span class="cl">getMemUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_total</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_used</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_usage</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print$3/$2 * 100.0}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;内存总量：</span><span class="si">${</span><span class="nv">mem_total</span><span class="si">}</span><span class="s2">; 内存使用：</span><span class="si">${</span><span class="nv">mem_used</span><span class="si">}</span><span class="s2">; 内存使用率: </span><span class="si">${</span><span class="nv">mem_usage</span><span class="si">}</span><span class="s2">%&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取磁盘空间使用情况</span>
+</span></span><span class="line"><span class="cl">getDiskUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;磁盘空间使用情况：&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 获取标题行</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># df -h | head -n 1</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 排除这些盘，并循环打印排除后的每一行</span>
+</span></span><span class="line"><span class="cl">	df -h <span class="p">|</span> grep -vE <span class="s1">&#39;^Filesystem|tmpfs|cdrom&#39;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> line
+</span></span><span class="line"><span class="cl">	<span class="k">do</span>
+</span></span><span class="line"><span class="cl">	   <span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">line</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">done</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取磁盘IO监控数据</span>
+</span></span><span class="line"><span class="cl">getIoStat<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;磁盘IO情况: &#34;</span>
+</span></span><span class="line"><span class="cl">	iostat
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1"># 判断 iowait 值</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">iostatIowait</span><span class="o">=</span><span class="k">$(</span>iostat <span class="p">|</span> awk <span class="s1">&#39;/^avg-cpu/ {getline; print$4 * 100.0}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="nv">$iostatIowait</span> -ge <span class="m">80</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;磁盘 IO </span><span class="si">${</span><span class="nv">iostatIowait</span><span class="si">}</span><span class="s2">% 大于 80%，可能存在 IO 瓶颈&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;磁盘 IO </span><span class="si">${</span><span class="nv">iostatIowait</span><span class="si">}</span><span class="s2">% 正常&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1"># 判断 idel 值</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">iostatIdel</span><span class="o">=</span><span class="k">$(</span>iostat <span class="p">|</span> awk <span class="s1">&#39;/^avg-cpu/ {getline; print$6}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># bash 只支持整数比较, 采用 bc 进行判断是否为 true, true = 1 则返回</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># if [[ $iostatIdel -ge 80 ]]; then</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="k">$(</span><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$iostatIdel</span><span class="s2"> &gt;= 80&#34;</span> <span class="p">|</span> bc<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源充足&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">elif</span> <span class="o">[[</span> <span class="k">$(</span><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$iostatIdel</span><span class="s2"> &lt;= 10&#34;</span><span class="p">|</span> bc<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源紧张&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源适中&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取网络资源监控数据</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># getNetwork() {</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	echo &#34;网络接口流量统计(单位: KB/s): &#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	sar -n DEV 1 1 | grep Average</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	echo &#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># }</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">########################################## 服务巡检 ################################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;服务检查开始 --------------------------- &#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦数据库服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseService<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dm_service</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep dmserver <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dm_service_port</span><span class="o">=</span><span class="k">$(</span>netstat -nltp <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">AllDmServicePort</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> cut -d: -f4<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_service</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_service_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_service</span><span class="si">}</span><span class="s2">, 端口：</span><span class="si">${</span><span class="nv">dm_service_port</span><span class="si">}</span><span class="s2"> | dm 正常&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;没有找到 达梦服务 进程&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦数据守护服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseWatcher<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dm_watcher</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmWatcherIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dm_watcher_port</span><span class="o">=</span><span class="k">$(</span>netstat -nltp <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">AllDmWatcherPort</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> cut -d: -f4<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_watcher</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_watcher_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_watcher</span><span class="si">}</span><span class="s2"> | dmwatcher 正常&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;没有找到 达梦数据守护 进程&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦确认监视器服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseMonitor<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dm_monitor</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="si">${</span><span class="nv">DmMonitorIniName</span><span class="si">}</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_monitor</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_monitor</span><span class="si">}</span><span class="s2"> | dmmonitor 正常&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;没有找到 达梦监视器 进程&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 主备网络连通</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># getDatabaseTelnetIpPort() {</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	telnet &#34;${TelnetIP}&#34; &#34;${TelnetPORT}&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 	if [ $? -eq 0 ]; then</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 		echo &#34;达梦端口连通正常&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	else</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 		echo &#34;达梦端口连通失败！！！&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 	fi</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># }</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">########################################## 实例巡检 ################################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 日志检查</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 变量</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 实例路径（用户主目录）</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmServicePath</span><span class="o">=</span><span class="k">$(</span>getent passwd dmdba <span class="p">|</span> cut -d: -f6<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取当前目录</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PwdPath</span><span class="o">=</span><span class="k">$(</span><span class="nb">cd</span> <span class="s2">&#34;</span><span class="k">$(</span>dirname <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">&#34;</span> <span class="o">||</span> exit<span class="p">;</span> <span class="nb">pwd</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;PwdPath : </span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取当前日期</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CurrentYearMonth</span><span class="o">=</span><span class="k">$(</span>date +%Y%m<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CurrentYearMonthDay</span><span class="o">=</span><span class="k">$(</span>date +%Y-%m-%d<span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 检查目录文件是否存在, 不存在则创建，用于存放 ErrorLog</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LogPathName</span><span class="o">=</span><span class="s2">&#34;dmErrorLog&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LogFileName</span><span class="o">=</span><span class="s2">&#34;dm_error_log_</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 判断目录文件</span>
+</span></span><span class="line"><span class="cl">getCreateDir<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> ! -d <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		mkdir -p <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;日志目录已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;日志目录已存在&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">getCreateFile<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> ! -f <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		touch <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;日志文件已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;日志文件已存在&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;实例检查开始 --------------------------- &#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 会话数量</span>
+</span></span><span class="line"><span class="cl">getMaxSession<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">max_session</span><span class="o">=</span><span class="k">$(</span>netstat -nat <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> grep <span class="m">5236</span> <span class="p">|</span> wc -l<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 引用配置文件路径变量</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">cat_dmini_max_session</span><span class="o">=</span><span class="k">$(</span>cat <span class="si">${</span><span class="nv">DmIniPath</span><span class="si">}</span> <span class="p">|</span> grep MAX_SESSIONS <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;当前会话数量：</span><span class="si">${</span><span class="nv">max_session</span><span class="si">}</span><span class="s2">, 达梦最大会话数量：</span><span class="si">${</span><span class="nv">cat_dmini_max_session</span><span class="si">}</span><span class="s2">, 活动会话占比：</span><span class="si">${</span><span class="nv">max_session</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">cat_dmini_max_session</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 实例日志</span>
+</span></span><span class="line"><span class="cl">getDmServiceLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmservice_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log/dm_</span><span class="si">${</span><span class="nv">DmInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmservice_error_log</span><span class="o">=</span><span class="k">$(</span>cat <span class="si">${</span><span class="nv">dmservice_log_full_path</span><span class="si">}</span> <span class="p">|</span> grep -e <span class="s1">&#39;\[ERROR]&#39;</span> -e <span class="s1">&#39;\[FATAL]&#39;</span> <span class="p">|</span> grep <span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nv">save_dmserver_error_log</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmservice_error_log</span><span class="si">}</span><span class="s2">&#34;</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">[</span> -s <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;警告：今天 </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据库实例日志已写入&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;================ </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> : dm_</span><span class="si">${</span><span class="nv">DmInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log 写入完成 =======================&#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;数据库实例日志无新内容&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">fi</span>	
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;正常：</span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据库实例日志 dm_server 无 Error or Fatal&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># echo &#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 数据守护日志</span>
+</span></span><span class="line"><span class="cl">getDmWatcherLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmwatcher_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log/dm_dmwatcher_</span><span class="si">${</span><span class="nv">DmInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmwatcher_error_log</span><span class="o">=</span><span class="k">$(</span>cat <span class="si">${</span><span class="nv">dmwatcher_log_full_path</span><span class="si">}</span> <span class="p">|</span> grep -e <span class="s1">&#39;\[ERROR]&#39;</span> -e <span class="s1">&#39;\[FATAL]&#39;</span> <span class="p">|</span> grep <span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 有输出内容则返回状态码 0 ，表示成功匹配到了相应的内容</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nv">save_dmserver_error_log</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmwatcher_error_log</span><span class="si">}</span><span class="s2">&#34;</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">[</span> -s <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;警告：今天 </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据守护日志已写入&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;================= </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> : dm_dmwatcher_</span><span class="si">${</span><span class="nv">DmInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log 写入完成 ======================= &#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;数据守护日志无新内容&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;正常：</span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据守护进程日志 dm_watcher 无 Error or Fatal&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>	
+</span></span><span class="line"><span class="cl">	<span class="c1"># echo &#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 监视器（检查集群状态）</span>
+</span></span><span class="line"><span class="cl">getDmMonitorLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmmonitor_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log/&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">save_dmserver_error_log</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># ls -lt 按修改时间，正序排序， head -n 1 显示第一个文件（最新文件）</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmmonitor_log_new_head</span><span class="o">=</span><span class="k">$(</span>ls -lt <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dmmonitor_log_full_path</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep dmmonitor <span class="p">|</span> head -n <span class="m">1</span> <span class="p">|</span> awk <span class="s1">&#39;{print $9}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 从 dmmal.ini 获取集群各个节点IP</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># grep -n 打印行号， -w 输出相关的行内容</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">get_dmgroup_ip_a</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmMalIniPath</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -n MAL_INST_HOST <span class="p">|</span> grep -w <span class="m">8</span> <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">get_dmgroup_ip_b</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmMalIniPath</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -n MAL_INST_HOST <span class="p">|</span> grep -w <span class="m">18</span> <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 需要绝对路径，不然找不到这个日志名</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmmonit_status</span><span class="o">=</span><span class="k">$(</span>tail -n <span class="m">35</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dmmonitor_log_full_path</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">dmmonitor_log_new_head</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># awk 使用 ip1 和 ip2 存储 集群IP 信息，找到第 5 列 ISTATUS 的值</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 使用正确的方式传递变量给 awk	。 这里将这个变量的输出内容 &lt;&lt;&lt; 传给 awk 命令</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">check_dmmonitor_status</span><span class="o">=</span><span class="k">$(</span>awk -v <span class="nv">ip1</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">get_dmgroup_ip_a</span><span class="si">}</span><span class="s2">&#34;</span> -v <span class="nv">ip2</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">get_dmgroup_ip_b</span><span class="si">}</span><span class="s2">&#34;</span> <span class="s1">&#39;$1 == ip1 { istatus1 = $5 }$1 == ip2 { istatus2 = $5 } END { print istatus1, istatus2 }&#39;</span> <span class="o">&lt;&lt;&lt;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmmonit_status</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 检查 istatus1 和 istatus2 的值</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="nv">$check_dmmonitor_status</span> <span class="o">==</span> *<span class="s2">&#34;OPEN&#34;</span>* <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;正常：集群节点服务状态为 OPEN&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;警告：集群节点服务状态不为 OPEN&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="c1"># 如果服务异常，将状态写入日志文件</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;警告：</span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 集群节点服务状态异常 -</span><span class="si">${</span><span class="nv">check_dmmonitor_status</span><span class="si">}</span><span class="s2">&#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;================= </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> : dmmonitor_</span><span class="si">${</span><span class="nv">DmInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log 写入完成 ======================= &#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 保存巡检报告</span>
+</span></span><span class="line"><span class="cl"><span class="nv">report_file</span><span class="o">=</span><span class="s2">&#34;/opt/checkDayBash/log/system_check_</span><span class="k">$(</span>date +%Y%m%d%H%M%S<span class="k">)</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;============================== 系统巡检 ==============================&#34;</span>
+</span></span><span class="line"><span class="cl">	getSystemTime	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getOsSystem	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">    getCpuUsage	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getMemUsage	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getDiskUsage	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getIoStat	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># getNetwork	# ok</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;=========================== 数据库服务巡检 ===========================&#34;</span>
+</span></span><span class="line"><span class="cl">	getDatabaseService	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getDatabaseWatcher	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getDatabaseMonitor	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># getDatabaseTelnetIpPort	# ok</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;============================== 实例巡检 ==============================&#34;</span>
+</span></span><span class="line"><span class="cl">	getCreateDir
+</span></span><span class="line"><span class="cl">	getCreateFile
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;日志检查: &#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">	getDmServiceLog	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getDmWatcherLog	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getDmMonitorLog <span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">	getMaxSession	<span class="c1"># ok</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span> &gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">report_file</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;巡检脚本结束&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;巡检报告已保存至 </span><span class="si">${</span><span class="nv">report_file</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="效果">效果
+</h3><p>查看巡检报告</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">==============================</span> <span class="nv">系统巡检</span> <span class="o">==============================</span>
+</span></span><span class="line"><span class="cl">当前系统时间: 2024年 07月 26日 星期五 08:37:26 CST
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">当前机器：Linux <span class="p">|</span> YD-FXQDB01-3-161 <span class="p">|</span> 1X.XXX.XXX.161
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CPU使用率: 0.2%
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">内存总量：254Gi<span class="p">;</span> 内存使用：37Gi<span class="p">;</span> 内存使用率: 14.5669%
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘空间使用情况：
+</span></span><span class="line"><span class="cl">文件系统               容量  已用  可用 已用% 挂载点
+</span></span><span class="line"><span class="cl">/dev/mapper/klas-root  860G  107G  754G   13% /
+</span></span><span class="line"><span class="cl">/dev/sda2             1014M  194M  821M   20% /boot
+</span></span><span class="line"><span class="cl">/dev/sda1              511M  6.5M  505M    2% /boot/efi
+</span></span><span class="line"><span class="cl">/dev/loop0             1.1G  1.1G     <span class="m">0</span>  100% /mnt/dmrom
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘IO情况:
+</span></span><span class="line"><span class="cl">Linux 4.19.90-24.4.v2101.ky10.aarch64 <span class="o">(</span>YD-FXQDB01-3-161<span class="o">)</span>        2024年07月26日  _aarch64_       <span class="o">(</span><span class="m">64</span> CPU<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+</span></span><span class="line"><span class="cl">           0.03    0.00    0.02    0.00    0.00   99.95
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+</span></span><span class="line"><span class="cl">dm-0              6.61         0.23       369.90         0.00     <span class="m">863876</span> <span class="m">1365033852</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">loop0             0.00         0.46         0.00         0.00    <span class="m">1686907</span>          <span class="m">0</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">sda               6.39         0.24       369.90         0.00     <span class="m">887725</span> <span class="m">1365036529</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘 IO 0% 正常
+</span></span><span class="line"><span class="cl">当前 CPU 99.95% <span class="nv">资源充足</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">===========================</span> <span class="nv">数据库服务巡检</span> <span class="o">===========================</span>
+</span></span><span class="line"><span class="cl">当前用户、进程 PID : dmdba 2834456, 端口：5236 <span class="p">|</span> dm 正常
+</span></span><span class="line"><span class="cl">当前用户、进程 PID : dmdba <span class="m">2616858</span> <span class="p">|</span> dmwatcher 正常
+</span></span><span class="line"><span class="cl">当前用户、进程 PID : dmdba <span class="m">2617379</span> <span class="p">|</span> dmmonitor <span class="nv">正常</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">==============================</span> <span class="nv">实例巡检</span> <span class="o">==============================</span>
+</span></span><span class="line"><span class="cl">日志目录已存在
+</span></span><span class="line"><span class="cl">日志文件已创建
+</span></span><span class="line"><span class="cl">日志检查:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">正常：2024-07-26 数据库实例日志 dm_server 无 Error or Fatal
+</span></span><span class="line"><span class="cl">正常：2024-07-26 数据守护进程日志 dm_watcher 无 Error or Fatal
+</span></span><span class="line"><span class="cl">正常：集群节点服务状态为 OPEN
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">当前会话数量：79, 达梦最大会话数量：5000, 活动会话占比：79/5000
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="脚本-20240911">脚本 20240911
+</h2><p>在函数内部定义一个参数，用来传入数组里的变量，实现循环的效果。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span><span class="lnt">257
+</span><span class="lnt">258
+</span><span class="lnt">259
+</span><span class="lnt">260
+</span><span class="lnt">261
+</span><span class="lnt">262
+</span><span class="lnt">263
+</span><span class="lnt">264
+</span><span class="lnt">265
+</span><span class="lnt">266
+</span><span class="lnt">267
+</span><span class="lnt">268
+</span><span class="lnt">269
+</span><span class="lnt">270
+</span><span class="lnt">271
+</span><span class="lnt">272
+</span><span class="lnt">273
+</span><span class="lnt">274
+</span><span class="lnt">275
+</span><span class="lnt">276
+</span><span class="lnt">277
+</span><span class="lnt">278
+</span><span class="lnt">279
+</span><span class="lnt">280
+</span><span class="lnt">281
+</span><span class="lnt">282
+</span><span class="lnt">283
+</span><span class="lnt">284
+</span><span class="lnt">285
+</span><span class="lnt">286
+</span><span class="lnt">287
+</span><span class="lnt">288
+</span><span class="lnt">289
+</span><span class="lnt">290
+</span><span class="lnt">291
+</span><span class="lnt">292
+</span><span class="lnt">293
+</span><span class="lnt">294
+</span><span class="lnt">295
+</span><span class="lnt">296
+</span><span class="lnt">297
+</span><span class="lnt">298
+</span><span class="lnt">299
+</span><span class="lnt">300
+</span><span class="lnt">301
+</span><span class="lnt">302
+</span><span class="lnt">303
+</span><span class="lnt">304
+</span><span class="lnt">305
+</span><span class="lnt">306
+</span><span class="lnt">307
+</span><span class="lnt">308
+</span><span class="lnt">309
+</span><span class="lnt">310
+</span><span class="lnt">311
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="c1">#####################################################################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Author:	Wei Qi</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Remark:	1.系统检查：CPU、内存、磁盘、IO、网络、系统时间</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 		  	2.数据库服务检查：实例、守护、监视器</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 			3.实例检查：日志、会话</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 			全局变量使用 VarName 方式命名，局部变量使用 var_name 方式命名</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># CreateDate:	2024-07-23</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Version:	2.0</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Modify： 	2024-09-11 1.采用循环传参的方式，增加检查第二个数据库实例的数据库服务状态、日志、会话</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#                      2.优化日志输出，以年月为一个目录存放</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#####################################################################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">################################ 全局变量 手动修改 #####################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 数据库实例</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DBInstanceName</span><span class="o">=(</span><span class="s2">&#34;AMOP&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;zgfxq&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 数据库实例配置文件</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmIniName</span><span class="o">=</span><span class="s2">&#34;dm.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmWatcherIniName</span><span class="o">=</span><span class="s2">&#34;dmwatcher.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmMalIniName</span><span class="o">=</span><span class="s2">&#34;dmmal.ini&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmMonitorIniName</span><span class="o">=</span><span class="s2">&#34;dmmonitor.ini&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 数据库服务路径</span>
+</span></span><span class="line"><span class="cl"><span class="nv">DmServicePath</span><span class="o">=</span><span class="k">$(</span>getent passwd dmdba <span class="p">|</span> cut -d: -f6<span class="k">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">############################### 判断目录是否创建 #####################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建存放日志的文件</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取当前目录</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PwdPath</span><span class="o">=</span><span class="k">$(</span><span class="nb">cd</span> <span class="s2">&#34;</span><span class="k">$(</span>dirname <span class="s2">&#34;</span><span class="nv">$0</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2">&#34;</span> <span class="o">||</span> exit<span class="p">;</span> <span class="nb">pwd</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取当前日期</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CurrentYearMonth</span><span class="o">=</span><span class="k">$(</span>date +%Y%m<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CurrentYearMonthDay</span><span class="o">=</span><span class="k">$(</span>date +%Y-%m-%d<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 检查目录文件是否存在, 不存在则创建，用于存放 ErrorLog</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LogPathName</span><span class="o">=</span><span class="s2">&#34;dmErrorLog&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">LogFileName</span><span class="o">=</span><span class="s2">&#34;dm_error_log_</span><span class="k">$(</span>date +%Y%m%d<span class="k">)</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建存放达梦日志的错误输出文件</span>
+</span></span><span class="line"><span class="cl">getCreateDirDm<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> ! -d <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		mkdir -p <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] 达梦日志记录目录已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 达梦日志记录目录已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">getCreateFileDm<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> ! -f <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		touch <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] 达梦日志文件已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 达梦日志文件已存在&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 创建存放巡检日志的文件</span>
+</span></span><span class="line"><span class="cl">getCreateDirLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> ! -d <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/log/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		mkdir -p <span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/log/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] 巡检日志目录已创建&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 巡检日志目录已存在&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#################################### 服务巡检 #########################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦数据库服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseService<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">local</span> <span class="nv">service</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">local</span> <span class="nv">service_port</span><span class="o">=</span><span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">dm_service</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="si">${</span><span class="nv">service</span><span class="si">}</span> <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">dm_service_port</span><span class="o">=</span><span class="k">$(</span>netstat -nltp <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> cut -d: -f4<span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_service</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_service_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;[OK] 当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_service</span><span class="si">}</span><span class="s2">, 端口：</span><span class="si">${</span><span class="nv">dm_service_port</span><span class="si">}</span><span class="s2"> | dm 正常&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;[WARNING] 没有找到达梦服务进程&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦数据守护服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseWatcher<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">local</span> <span class="nv">service</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">local</span> <span class="nv">service_port</span><span class="o">=</span><span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">dm_watcher</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="si">${</span><span class="nv">service</span><span class="si">}</span> <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmWatcherIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">dm_watcher_port</span><span class="o">=</span><span class="k">$(</span>netstat -nltp <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> cut -d: -f4<span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_watcher</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_watcher_port</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">    	<span class="nb">echo</span> <span class="s2">&#34;[OK] 当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_watcher</span><span class="si">}</span><span class="s2"> | dmwatcher 正常&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">    	<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 没有找到达梦数据守护进程&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 达梦确认监视器服务</span>
+</span></span><span class="line"><span class="cl">getDatabaseMonitor<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">local</span> <span class="nv">service</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 检查达梦确认监视器进程</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">dm_monitor</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep <span class="si">${</span><span class="nv">service</span><span class="si">}</span> <span class="p">|</span> grep <span class="si">${</span><span class="nv">DmMonitorIniName</span><span class="si">}</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $1,$2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># 检查变量是否非空</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dm_monitor</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;[OK] 当前用户、进程 PID : </span><span class="si">${</span><span class="nv">dm_monitor</span><span class="si">}</span><span class="s2"> | dmmonitor 正常&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">else</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;[WARNING] 没有找到达梦监视器进程&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">fi</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#################################### 实例巡检 #########################################</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 会话数量</span>
+</span></span><span class="line"><span class="cl">getMaxSession<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">local</span> <span class="nv">DBServicePort</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">max_session</span><span class="o">=</span><span class="k">$(</span>netstat -nat <span class="p">|</span> awk <span class="s1">&#39;{print $4}&#39;</span> <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBServicePort</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> wc -l<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 引用配置文件路径变量</span>
+</span></span><span class="line"><span class="cl">    <span class="nv">cat_dmini_max_session</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceNameProfilePath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">DmIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep MAX_SESSIONS <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;当前会话数量：</span><span class="si">${</span><span class="nv">max_session</span><span class="si">}</span><span class="s2">, 达梦最大会话数量：</span><span class="si">${</span><span class="nv">cat_dmini_max_session</span><span class="si">}</span><span class="s2">, 活动会话占比：</span><span class="si">${</span><span class="nv">max_session</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">cat_dmini_max_session</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 实例日志</span>
+</span></span><span class="line"><span class="cl">getDmServiceLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">local</span> <span class="nv">DBInstanceName</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmservice_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log/dm_</span><span class="si">${</span><span class="nv">DBInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmservice_error_log</span><span class="o">=</span><span class="k">$(</span>cat <span class="si">${</span><span class="nv">dmservice_log_full_path</span><span class="si">}</span> <span class="p">|</span> grep -e <span class="s1">&#39;\[ERROR]&#39;</span> -e <span class="s1">&#39;\[FATAL]&#39;</span> <span class="p">|</span> grep <span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nv">save_dmserver_error_log</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmservice_error_log</span><span class="si">}</span><span class="s2">&#34;</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">[</span> -s <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 今天 </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据库实例日志已写入&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;================ </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> : dm_</span><span class="si">${</span><span class="nv">DBInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log 写入完成 =======================&#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;数据库实例日志无新内容&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">fi</span>	
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据库实例日志 dm_server 无 Error or Fatal. 扫描日志文件: </span><span class="si">${</span><span class="nv">dmservice_log_full_path</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># echo &#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 数据守护日志</span>
+</span></span><span class="line"><span class="cl">getDmWatcherLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">local</span> <span class="nv">DBInstanceName</span><span class="o">=</span><span class="nv">$1</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmwatcher_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log/dm_dmwatcher_</span><span class="si">${</span><span class="nv">DBInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmwatcher_error_log</span><span class="o">=</span><span class="k">$(</span>cat <span class="si">${</span><span class="nv">dmwatcher_log_full_path</span><span class="si">}</span> <span class="p">|</span> grep -e <span class="s1">&#39;\[ERROR]&#39;</span> -e <span class="s1">&#39;\[FATAL]&#39;</span> <span class="p">|</span> grep <span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 有输出内容则返回状态码 0 ，表示成功匹配到了相应的内容</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[</span> <span class="nv">$?</span> -eq <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nv">save_dmserver_error_log</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">PwdPath</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogPathName</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">LogFileName</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmwatcher_error_log</span><span class="si">}</span><span class="s2">&#34;</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="o">[</span> -s <span class="s2">&#34;</span><span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span><span class="s2">&#34;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 今天 </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据守护日志已写入&#34;</span>
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;================= </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> : dm_dmwatcher_</span><span class="si">${</span><span class="nv">DBInstanceName</span><span class="si">}</span><span class="s2">_</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">.log 写入完成 ======================= &#34;</span> &gt;&gt; <span class="si">${</span><span class="nv">save_dmserver_error_log</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">			<span class="nb">echo</span> <span class="s2">&#34;数据守护日志无新内容&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] </span><span class="si">${</span><span class="nv">CurrentYearMonthDay</span><span class="si">}</span><span class="s2"> 数据守护进程日志 dm_watcher 无 Error or Fatal. 扫描日志文件: </span><span class="si">${</span><span class="nv">dmwatcher_log_full_path</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>	
+</span></span><span class="line"><span class="cl">	<span class="c1"># echo &#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 监视器（检查集群状态）</span>
+</span></span><span class="line"><span class="cl">getDmMonitorLog<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmmonitor_log_full_path</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">DmServicePath</span><span class="si">}</span><span class="s2">/dmdbms/log&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># ls -lt 按修改时间，正序排序， head -n 1 显示第一个文件（最新文件）</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">dmmonitor_log_new_head</span><span class="o">=</span><span class="k">$(</span>ls -lt <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dmmonitor_log_full_path</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep dmmonitor <span class="p">|</span> head -n <span class="m">1</span> <span class="p">|</span> awk <span class="s1">&#39;{print $9}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 从 dmmal.ini 获取集群各个节点IP</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># grep -n 打印行号， -w 输出相关的行内容</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">get_dmgroup_ip_a</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceNameProfilePath</span><span class="si">}${</span><span class="nv">DmMalIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -n MAL_INST_HOST <span class="p">|</span> grep -w <span class="m">8</span> <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">get_dmgroup_ip_b</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceNameProfilePath</span><span class="si">}${</span><span class="nv">DmMalIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -n MAL_INST_HOST <span class="p">|</span> grep -w <span class="m">18</span> <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 需要绝对路径，不然找不到这个日志名</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cat_dmmonit_status</span><span class="o">=</span><span class="k">$(</span>tail -n <span class="m">35</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">dmmonitor_log_full_path</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">dmmonitor_log_new_head</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># awk 使用 ip1 和 ip2 存储 集群IP 信息，找到第 5 列 ISTATUS 的值</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 使用正确的方式传递变量给 awk	。 这里将这个变量的输出内容 &lt;&lt;&lt; 传给 awk 命令</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">check_dmmonitor_status</span><span class="o">=</span><span class="k">$(</span>awk -v <span class="nv">ip1</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">get_dmgroup_ip_a</span><span class="si">}</span><span class="s2">&#34;</span> -v <span class="nv">ip2</span><span class="o">=</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">get_dmgroup_ip_b</span><span class="si">}</span><span class="s2">&#34;</span> <span class="s1">&#39;$1 == ip1 { istatus1 = $5 }$1 == ip2 { istatus2 = $5 } END { print istatus1, istatus2 }&#39;</span> <span class="o">&lt;&lt;&lt;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">cat_dmmonit_status</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 检查 istatus1 和 istatus2 的值</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="nv">$check_dmmonitor_status</span> <span class="o">==</span> *<span class="s2">&#34;OPEN&#34;</span>* <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[OK] 集群节点服务状态为 OPEN&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;[WARNING] 集群节点服务状态: 非 OPEN 状态&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#################################### 系统巡检 ########################################</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 系统时间检查</span>
+</span></span><span class="line"><span class="cl">getSystemTime<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">current_time</span><span class="o">=</span><span class="k">$(</span>date<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;当前系统时间: </span><span class="si">${</span><span class="nv">current_time</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 当前系统信息</span>
+</span></span><span class="line"><span class="cl">getOsSystem<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_type</span><span class="o">=</span><span class="k">$(</span>uname<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_hostname</span><span class="o">=</span><span class="k">$(</span>hostname<span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">os_ip</span><span class="o">=</span><span class="k">$(</span>hostname -I <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;当前机器：</span><span class="si">${</span><span class="nv">os_type</span><span class="si">}</span><span class="s2"> | </span><span class="si">${</span><span class="nv">os_hostname</span><span class="si">}</span><span class="s2"> | </span><span class="si">${</span><span class="nv">os_ip</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取CPU使用率</span>
+</span></span><span class="line"><span class="cl">getCpuUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 使用 bn1 获取固定的 top 输出</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">cpu_usage</span><span class="o">=</span><span class="k">$(</span>top -bn1 <span class="p">|</span> grep <span class="s2">&#34;Cpu(s)&#34;</span> <span class="p">|</span> sed <span class="s2">&#34;s/.*, *\([0-9.]*\)%* id.*/\1/&#34;</span> <span class="p">|</span> awk <span class="s1">&#39;{print 100 - $1}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;CPU使用率: </span><span class="si">${</span><span class="nv">cpu_usage</span><span class="si">}</span><span class="s2">%&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取内存使用率</span>
+</span></span><span class="line"><span class="cl">getMemUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_total</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print $2}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_used</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">mem_usage</span><span class="o">=</span><span class="k">$(</span>free -h <span class="p">|</span> grep Mem <span class="p">|</span> awk <span class="s1">&#39;{print$3/$2 * 100.0}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;内存总量：</span><span class="si">${</span><span class="nv">mem_total</span><span class="si">}</span><span class="s2">; 内存使用：</span><span class="si">${</span><span class="nv">mem_used</span><span class="si">}</span><span class="s2">; 内存使用率: </span><span class="si">${</span><span class="nv">mem_usage</span><span class="si">}</span><span class="s2">%&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取磁盘空间使用情况</span>
+</span></span><span class="line"><span class="cl">getDiskUsage<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;磁盘空间使用情况：&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 获取标题行</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># df -h | head -n 1</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># 排除这些盘，并循环打印排除后的每一行</span>
+</span></span><span class="line"><span class="cl">	df -h <span class="p">|</span> grep -vE <span class="s1">&#39;^Filesystem|tmpfs|cdrom&#39;</span> <span class="p">|</span> <span class="k">while</span> <span class="nb">read</span> line
+</span></span><span class="line"><span class="cl">	<span class="k">do</span>
+</span></span><span class="line"><span class="cl">	   <span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">line</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">done</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 获取磁盘IO监控数据</span>
+</span></span><span class="line"><span class="cl">getIoStat<span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;磁盘IO情况: &#34;</span>
+</span></span><span class="line"><span class="cl">	iostat
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1"># 判断 iowait 值</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">iostatIowait</span><span class="o">=</span><span class="k">$(</span>iostat <span class="p">|</span> awk <span class="s1">&#39;/^avg-cpu/ {getline; print$4 * 100.0}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="nv">$iostatIowait</span> -ge <span class="m">80</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;磁盘 IO </span><span class="si">${</span><span class="nv">iostatIowait</span><span class="si">}</span><span class="s2">% 大于 80%，可能存在 IO 瓶颈&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;磁盘 IO </span><span class="si">${</span><span class="nv">iostatIowait</span><span class="si">}</span><span class="s2">% 正常&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="c1"># 判断 idel 值</span>
+</span></span><span class="line"><span class="cl">	<span class="nv">iostatIdel</span><span class="o">=</span><span class="k">$(</span>iostat <span class="p">|</span> awk <span class="s1">&#39;/^avg-cpu/ {getline; print$6}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># bash 只支持整数比较, 采用 bc 进行判断是否为 true, true = 1 则返回</span>
+</span></span><span class="line"><span class="cl">	<span class="c1"># if [[ $iostatIdel -ge 80 ]]; then</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="o">[[</span> <span class="k">$(</span><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$iostatIdel</span><span class="s2"> &gt;= 80&#34;</span> <span class="p">|</span> bc<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源充足&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">elif</span> <span class="o">[[</span> <span class="k">$(</span><span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$iostatIdel</span><span class="s2"> &lt;= 10&#34;</span><span class="p">|</span> bc<span class="k">)</span> -eq <span class="m">1</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源紧张&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> 
+</span></span><span class="line"><span class="cl">		<span class="nb">echo</span> <span class="s2">&#34;当前 CPU </span><span class="si">${</span><span class="nv">iostatIdel</span><span class="si">}</span><span class="s2">% 资源适中&#34;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">fi</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#################################### 脚本运行 #########################################</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;脚本开始 </span><span class="k">$(</span>date +%Y-%m-%d_%H:%M:%S<span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">getCreateDirDm
+</span></span><span class="line"><span class="cl">getCreateFileDm
+</span></span><span class="line"><span class="cl">getCreateDirLog
+</span></span><span class="line"><span class="cl"><span class="nv">report_file</span><span class="o">=</span><span class="s2">&#34;/opt/checkDayBash/log/</span><span class="si">${</span><span class="nv">CurrentYearMonth</span><span class="si">}</span><span class="s2">/system_check_</span><span class="k">$(</span>date +%Y%m%d_%H%M%S<span class="k">)</span><span class="s2">.log&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">echo</span> <span class="s2">&#34;============================== 系统巡检 ==============================&#34;</span>
+</span></span><span class="line"><span class="cl">    getSystemTime
+</span></span><span class="line"><span class="cl">    getOsSystem
+</span></span><span class="line"><span class="cl">    getCpuUsage
+</span></span><span class="line"><span class="cl">	getMemUsage
+</span></span><span class="line"><span class="cl">	getDiskUsage
+</span></span><span class="line"><span class="cl">	getIoStat
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">	<span class="nb">echo</span> <span class="s2">&#34;============================== 数据库巡检 ==============================&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> service in <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceName</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">;</span> <span class="k">do</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 当前实例名</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;当前实例名 </span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">: &#34;</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">report_file</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 实例配置文件路径</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">DBInstanceNameProfilePath</span><span class="o">=</span><span class="k">$(</span>ps -ef <span class="p">|</span> grep dmserver <span class="p">|</span> grep <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -v grep <span class="p">|</span> awk <span class="s1">&#39;{print $9}&#39;</span> <span class="p">|</span> cut -d<span class="o">=</span> -f2 <span class="p">|</span> sed <span class="s1">&#39;s/\dm.ini//&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 数据库实例端口</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">DBServicePort</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceNameProfilePath</span><span class="si">}${</span><span class="nv">DmIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -w PORT_NUM <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">DBWatcherPort</span><span class="o">=</span><span class="k">$(</span>cat <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBInstanceNameProfilePath</span><span class="si">}${</span><span class="nv">DmMalIniName</span><span class="si">}</span><span class="s2">&#34;</span> <span class="p">|</span> grep -w MAL_DW_PORT <span class="p">|</span> awk <span class="s1">&#39;{print $3}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># echo &#34;数据库实例端口：${DBServicePort}&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># echo &#34;守护端口：${DBWatcherPort}&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;# 服务巡检&#34;</span>
+</span></span><span class="line"><span class="cl">        getDatabaseService <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBServicePort</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        getDatabaseWatcher <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBWatcherPort</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        getDatabaseMonitor <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">echo</span> <span class="s2">&#34;# 实例巡检&#34;</span>
+</span></span><span class="line"><span class="cl">        getMaxSession <span class="s2">&#34;</span><span class="si">${</span><span class="nv">DBServicePort</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        getDmServiceLog <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        getDmWatcherLog <span class="s2">&#34;</span><span class="si">${</span><span class="nv">service</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">        getDmMonitorLog
+</span></span><span class="line"><span class="cl">    <span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span> &gt;&gt; <span class="s2">&#34;</span><span class="si">${</span><span class="nv">report_file</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;脚本结束 </span><span class="k">$(</span>date +%Y-%m-%d_%H:%M:%S<span class="k">)</span><span class="s2">&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="效果-1">效果
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@YD-FXQDB01-3-161 202409<span class="o">]</span><span class="c1"># cat system_check_20240913_090114.log</span>
+</span></span><span class="line"><span class="cl"><span class="o">==============================</span> <span class="nv">系统巡检</span> <span class="o">==============================</span>
+</span></span><span class="line"><span class="cl">当前系统时间: 2024年 09月 13日 星期五 09:01:14 CST
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">当前机器：Linux <span class="p">|</span> YD-FXQDB01-3-161 <span class="p">|</span> 1XX.XXX.XXX.161
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CPU使用率: 0.2%
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">内存总量：254Gi<span class="p">;</span> 内存使用：49Gi<span class="p">;</span> 内存使用率: 19.2913%
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘空间使用情况：
+</span></span><span class="line"><span class="cl">文件系统               容量  已用  可用 已用% 挂载点
+</span></span><span class="line"><span class="cl">/dev/mapper/klas-root  860G  127G  733G   15% /
+</span></span><span class="line"><span class="cl">/dev/sda2             1014M  194M  821M   20% /boot
+</span></span><span class="line"><span class="cl">/dev/sda1              511M  6.5M  505M    2% /boot/efi
+</span></span><span class="line"><span class="cl">/dev/loop0             1.1G  1.1G     <span class="m">0</span>  100% /mnt/dmrom
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘IO情况:
+</span></span><span class="line"><span class="cl">Linux 4.19.90-24.4.v2101.ky10.aarch64 <span class="o">(</span>YD-FXQDB01-3-161<span class="o">)</span>        2024年09月13日  _aarch64_       <span class="o">(</span><span class="m">64</span> CPU<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+</span></span><span class="line"><span class="cl">           0.05    0.00    0.02    0.00    0.00   99.93
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+</span></span><span class="line"><span class="cl">dm-0              8.32         0.11       501.58         0.00     <span class="m">868852</span> <span class="m">3975183572</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">loop0             0.00         0.21         0.00         0.00    <span class="m">1686907</span>          <span class="m">0</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">sda               8.12         0.11       501.58         0.00     <span class="m">892701</span> <span class="m">3975186249</span>          <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">磁盘 IO 0% 正常
+</span></span><span class="line"><span class="cl">当前 CPU 99.93% <span class="nv">资源充足</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">==============================</span> <span class="nv">数据库巡检</span> <span class="o">==============================</span>
+</span></span><span class="line"><span class="cl">当前实例名 AMOP:
+</span></span><span class="line"><span class="cl"><span class="c1"># 服务巡检</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 当前用户、进程 PID : dmdba 2750927, 端口：5237 <span class="p">|</span> dm 正常
+</span></span><span class="line"><span class="cl"><span class="o">[</span>WARNING<span class="o">]</span> 没有找到达梦数据守护进程
+</span></span><span class="line"><span class="cl"><span class="o">[</span>WARNING<span class="o">]</span> 没有找到达梦监视器进程
+</span></span><span class="line"><span class="cl"><span class="c1"># 实例巡检</span>
+</span></span><span class="line"><span class="cl">当前会话数量：128, 达梦最大会话数量：10000, 活动会话占比：128/10000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 2024-09-13 数据库实例日志 dm_server 无 Error or Fatal. 扫描日志文件: /home/dmdba/dmdbms/log/dm_AMOP_202409.log
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 2024-09-13 数据守护进程日志 dm_watcher 无 Error or Fatal. 扫描日志文件: /home/dmdba/dmdbms/log/dm_dmwatcher_AMOP_202409.log
+</span></span><span class="line"><span class="cl"><span class="o">[</span>WARNING<span class="o">]</span> 集群节点服务状态: 非 OPEN 状态
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">当前实例名 zgfxq:
+</span></span><span class="line"><span class="cl"><span class="c1"># 服务巡检</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 当前用户、进程 PID : dmdba 2834456, 端口：5236 <span class="p">|</span> dm 正常
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 当前用户、进程 PID : dmdba <span class="m">2616858</span> <span class="p">|</span> dmwatcher 正常
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 当前用户、进程 PID : dmdba <span class="m">2617379</span> <span class="p">|</span> dmmonitor 正常
+</span></span><span class="line"><span class="cl"><span class="c1"># 实例巡检</span>
+</span></span><span class="line"><span class="cl">当前会话数量：110, 达梦最大会话数量：5000, 活动会话占比：110/5000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 2024-09-13 数据库实例日志 dm_server 无 Error or Fatal. 扫描日志文件: /home/dmdba/dmdbms/log/dm_zgfxq_202409.log
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 2024-09-13 数据守护进程日志 dm_watcher 无 Error or Fatal. 扫描日志文件: /home/dmdba/dmdbms/log/dm_dmwatcher_zgfxq_202409.log
+</span></span><span class="line"><span class="cl"><span class="o">[</span>OK<span class="o">]</span> 集群节点服务状态为 OPEN
+</span></span></code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux/">LINUX</a>
+        
+            <a href="/tags/shell/">SHELL</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2024年10月14号 21:10
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/posts/2024/07/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux-挂载共享文件系统</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/linux-%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86%E5%85%A8/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux-命令整理（全）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/linux-%E5%B7%A5%E4%BD%9C%E4%B8%AD%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux-工作中常用命令总结与常见错误</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/linux-%E6%9B%B4%E6%94%B9swap%E5%88%86%E5%8C%BA/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux 更改swap分区</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Wei Qi
+    </section>
+    
+    <section class="powerby">
+        
+
+        
+
+        
+        
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+
+        
+        
+        
+        
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
+        <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
+
+
+        <section class="powerby">
+            <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
+        </section>
+
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/js/nprogress.min.js"
+    integrity="sha384-bHDlAEUFxsRI7JfULv3DTpL2IXbbgn4JHQJibgo5iiXSK6Iu8muwqHANhun74Cqg"
+    crossorigin="anonymous"
+></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/css/nprogress.css"
+    integrity="sha384-KJyhr2syt5+4M9Pz5dipCvTrtvOmLk/olWVdfhAp858UCa64Ia5GFpTN7+G4BWpE"
+    crossorigin="anonymous"
+/>
+<script>
+    NProgress.start();
+    document.addEventListener("readystatechange", () => {
+        if (document.readyState === "interactive") NProgress.inc(0.8);
+        if (document.readyState === "complete") NProgress.done();
+    });
+</script>
+<script defer src="https://cn.vercount.one/js"></script>
+    </body>
+</html>

@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="实施部署-信创项目环境搭建准备（一）">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="实施部署-信创项目环境搭建准备（一）">
 <meta property='og:description' content="前言\r在做交付工作的时候，环境的搭建也是工作的一个重要环节。公司现在一个产品的架构：B/S架构，采用的技术路基本是低代码平台 + JAVA后端：低代码平台里使用 javascrpit 做功能页面的开发，对于JAVA类也只是调用；业务逻辑都写在数据库的存储过程中。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -367,9 +367,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -397,30 +394,30 @@
 内核：AMD、ARM</p>
 <h3 id="确认服务器架构信息">确认服务器架构信息
 </h3><p>信创，产品的框架与数据平台均做了适配，都需要根据内核来确认使用哪个版本。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#75715e"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 返回内核版本、架构</span>
-</span></span><span style="display:flex;"><span>uname <span style="color:#f92672">-</span>a
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 返回内核版本</span>
-</span></span><span style="display:flex;"><span>cat <span style="color:#e6db74">/proc/</span>version
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 返回系统信息（包括内核、操作系统版本）</span>
-</span></span><span style="display:flex;"><span>hostnamectl
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="c1"># 在Linux服务器上输入命令获取内核信息，通常有3种方式</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回信息中包含了 x86_64 表示该服务器内核为 AMD</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回信息中包含 arrch64 或者 arm64 表示该服务器内核为 ARM</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回内核版本、架构</span>
+</span></span><span class="line"><span class="cl"><span class="n">uname</span> <span class="o">-</span><span class="n">a</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回内核版本</span>
+</span></span><span class="line"><span class="cl"><span class="n">cat</span> <span class="sr">/proc/</span><span class="n">version</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 返回系统信息（包括内核、操作系统版本）</span>
+</span></span><span class="line"><span class="cl"><span class="n">hostnamectl</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="确认服务器内存信息">确认服务器内存信息
@@ -501,17 +498,17 @@
 </h5><p>大小写敏感：查数据内容时，查 a 就是 a，查 A 就是 A</p>
 <p>大小写不敏感：查数据内容时，查 a 返回 A、a</p>
 <p>如果不设置大小写敏感，不仅是在写查询SQL的时候会影响，在创建对象、写存储过程时，对象名称、字段名称也会受到影响。比如：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> table_A (id varchar2(<span style="color:#ae81ff">8</span>));
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">insert</span> table_a <span style="color:#66d9ef">values</span>(<span style="color:#e6db74">&#39;001&#39;</span>);
-</span></span><span style="display:flex;"><span><span style="color:#f92672">#</span> <span style="color:#66d9ef">insert</span> <span style="color:#960050;background-color:#1e0010">就会报错，因为</span> table_a <span style="color:#960050;background-color:#1e0010">不存在，必须与创建的表名一模一样才可以</span>
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">table_A</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">8</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">insert</span><span class="w"> </span><span class="n">table_a</span><span class="w"> </span><span class="k">values</span><span class="p">(</span><span class="s1">&#39;001&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="k">insert</span><span class="w"> </span><span class="err">就会报错，因为</span><span class="w"> </span><span class="n">table_a</span><span class="w"> </span><span class="err">不存在，必须与创建的表名一模一样才可以</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="其他可能需要修改的参数">其他可能需要修改的参数
 </h4><p>此处的参数指，达梦数据库 <code>dm.ini</code> 配置文件里的参数。在开发环境、测试环境可由自己根据实际情况更改，在生产上必须与DBA沟通后进行更改，也需要保持三个环境中参数的一致性。</p>
@@ -528,34 +525,34 @@
 <p>通常项目上，此参数设置为2，可以更好的适配基于ORACLE开发的产品代码。</p>
 <h6 id="例子">【例子】
 </h6><p>达梦数据库默认<code>NULL</code> 与<code>空值</code>是不等价的，NULL就是NULL，空值就是空值。某个功能查询需要同时满足它们，需要这样写：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> col_A
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">from</span> table_A
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">where</span> col_A <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">null</span> <span style="color:#66d9ef">or</span> col_A <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">col_A</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">table_A</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">col_A</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">null</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="n">col_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>ORACLE中默认<code>NULL</code> 和<code>空值</code>是等价的，同时满足只需要：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> col_A
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">from</span> table_A
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">where</span> col_A <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
-</span></span><span style="display:flex;"><span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">col_A</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">from</span><span class="w"> </span><span class="n">table_A</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">where</span><span class="w"> </span><span class="n">col_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>修改<code>COMPATIBLE_MODE</code>参数为<code>2</code>即可跟在ORACLE上的查询写法一致。</p>
 <h5 id="2pk_with_cluster">2）PK_WITH_CLUSTER
@@ -563,24 +560,24 @@
 <p>该参数与建表时的主键索引有关，达梦数据库在创建表时，如果创建主键，则默认主键是聚簇索引键。如果没有主键，则默认<code>rowid</code> 作为聚簇索引键</p>
 <h6 id="例子-1">【例子】
 </h6><p>当在达梦数据建表时，同时出现主键、字段为大字段CLOB类型的时候，就会报错：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> table_A(
-</span></span><span style="display:flex;"><span>	id varchar2(<span style="color:#ae81ff">8</span>) <span style="color:#66d9ef">primary</span> <span style="color:#66d9ef">key</span>,
-</span></span><span style="display:flex;"><span>    name varchar2(<span style="color:#ae81ff">20</span>),
-</span></span><span style="display:flex;"><span>    addr <span style="color:#66d9ef">clob</span>
-</span></span><span style="display:flex;"><span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">table_A</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">id</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="k">primary</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="n">varchar2</span><span class="p">(</span><span class="mi">20</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">addr</span><span class="w"> </span><span class="k">clob</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 该语句会报错：表[xxxxxx]中不能同时包含聚集 KEY 和大字段
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>此时，修改参数<code>PK_WITH_CLUSTER=0</code> ，再创建有主键、字段为CLOB类型的表，就可以创建成功。</p>
@@ -596,87 +593,87 @@
 </h5><p>该参数是控制 整数除法运算是否舍弃小数。</p>
 <p>在达梦数据库中，整数相除或者使用<code>ROUND</code>函数，结果如果有小数位，会被直接舍弃，返回整数。</p>
 <p>比如</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> <span style="color:#ae81ff">9</span><span style="color:#f92672">/</span><span style="color:#ae81ff">2</span> <span style="color:#66d9ef">from</span> dual;
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 会返回4
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="mi">9</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">dual</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 会返回4
 </span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>可修改<code>CALC_AS_DECIMAL=1</code> 让运算不舍弃小数位</p>
 <h5 id="关于参数修改方式">关于参数修改方式
 </h5><p>第一种：通过<code>dm.ini</code> 修改参数</p>
 <p>第二种：在达梦SQL窗口中，执行：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span>sp_set_para_value(old_values, <span style="color:#e6db74">&#39;param_name&#39;</span>, new_values);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 例如
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>sp_set_para_value(<span style="color:#ae81ff">1</span>,<span style="color:#e6db74">&#39;PK_WITH_CLUSTER&#39;</span>,<span style="color:#ae81ff">0</span>);
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">sp_set_para_value</span><span class="p">(</span><span class="n">old_values</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;param_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">new_values</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 例如
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">sp_set_para_value</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="s1">&#39;PK_WITH_CLUSTER&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="确认数据库用户权限">确认数据库用户权限
 </h3><p>产品需要的用户大部分情况下是使用了DBA角色的权限，但是在项目实施时（特别是在生产环境中），会有部分客户认为产品上 DBA 权限不合理，也会有部分客户授权 DBA 是需要走流程申请。</p>
 <p>所以这一点在前期就需要跟客户确认，用户权限能否授予DBA权限。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#75715e">-- 创建达梦用户脚本
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 创建表空间
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">-- 默认初始大小 500MB，每次自增 40MB，最大 10G
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">create</span> tablespace <span style="color:#e6db74">&#34;TS_TEST&#34;</span> datafile <span style="color:#e6db74">&#39;/dm8/data/DAMENG/TS_TEST.DBF&#39;</span> <span style="color:#66d9ef">size</span> <span style="color:#ae81ff">500</span> autoextend <span style="color:#66d9ef">on</span> <span style="color:#66d9ef">next</span> <span style="color:#ae81ff">40</span> maxsize <span style="color:#ae81ff">10240</span>;    <span style="color:#75715e">-- 生产上可扩展为 unlimited
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">user</span> <span style="color:#e6db74">&#34;test&#34;</span> identified <span style="color:#66d9ef">by</span> <span style="color:#e6db74">&#34;testdata123&#34;</span> <span style="color:#66d9ef">default</span> tablespace TS_test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#e6db74">&#34;DBA&#34;</span> <span style="color:#66d9ef">to</span> <span style="color:#e6db74">&#34;test&#34;</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">delete</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">execute</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">procedure</span> <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">insert</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">dictionary</span> <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">select</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> unlimited tablespace <span style="color:#66d9ef">to</span> test;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">grant</span> <span style="color:#66d9ef">update</span> <span style="color:#66d9ef">any</span> <span style="color:#66d9ef">table</span> <span style="color:#66d9ef">to</span> test;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 创建达梦用户脚本
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 创建表空间
+</span></span></span><span class="line"><span class="cl"><span class="c1">-- 默认初始大小 500MB，每次自增 40MB，最大 10G
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">create</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="s2">&#34;TS_TEST&#34;</span><span class="w"> </span><span class="n">datafile</span><span class="w"> </span><span class="s1">&#39;/dm8/data/DAMENG/TS_TEST.DBF&#39;</span><span class="w"> </span><span class="k">size</span><span class="w"> </span><span class="mi">500</span><span class="w"> </span><span class="n">autoextend</span><span class="w"> </span><span class="k">on</span><span class="w"> </span><span class="k">next</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="n">maxsize</span><span class="w"> </span><span class="mi">10240</span><span class="p">;</span><span class="w">    </span><span class="c1">-- 生产上可扩展为 unlimited
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">create</span><span class="w"> </span><span class="k">user</span><span class="w"> </span><span class="s2">&#34;test&#34;</span><span class="w"> </span><span class="n">identified</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="s2">&#34;testdata123&#34;</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="n">TS_test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="s2">&#34;DBA&#34;</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="s2">&#34;test&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">delete</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">execute</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">procedure</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">insert</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">dictionary</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="n">unlimited</span><span class="w"> </span><span class="n">tablespace</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">grant</span><span class="w"> </span><span class="k">update</span><span class="w"> </span><span class="k">any</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>甚至有的客户（我遇到的一个），认为<code>ANY</code>权限也是有大隐患的，需要针对到具体表名的权限。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">DELETE</span> <span style="color:#66d9ef">ANY</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">TO</span> TEST;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">ANY</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">TO</span> TEST;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">UPDATE</span> <span style="color:#66d9ef">ANY</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">TO</span> TEST;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">INSERT</span> <span style="color:#66d9ef">ANY</span> <span style="color:#66d9ef">TABLE</span> <span style="color:#66d9ef">TO</span> TEST;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">GRANT</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">UPDATE</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">TEST</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>这种情况就没办法了，很麻烦，一个成熟且功能复杂的产品，可能标准版初始的表就有上千张（还不包括后续的开发新的功能表），存储过程、自定义函数等等也有上千个。每个存储过程用到的表都不一样，要一一梳理哪些用户select，哪个用户要delete等等，后期就需要额外的花时间去进行梳理。<del>（虽然更安全、合规，但是麻烦的是我~吐槽一下）</del></p>
 <h2 id="达梦权限说明">达梦权限说明
@@ -684,48 +681,48 @@
 <p>使用了 <code>WOLF</code> 用户去配置 JDBC 连接，那么此时，在系统进行日常操作的时候，在数据库中就是基于 <code>WOLF</code> 用户对对各个对象（TABLE \ SP \ FUNCTION \ VIEW \ TYPE \ PACKAGE 等）进行增删改查操作。</p>
 <p>通常情况下，框架提供的默认权限脚本权限多含 <code>DBA</code> 或者 <code>ANY</code> 权限，但是在生产环境上其实是不被允许的。在用户具备 DBA \ DROP ANY OBJECTS 的情况，能做的事情比较多，包括了对表空间（数据文件）的更改、跨用户删除表 等危险操作。</p>
 <p>因此在权限上，有的客户会要求梳理到具体的表需要什么权限。</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span><span style="color:#ae81ff">1</span><span style="color:#f92672">.</span>除了本身的 ROURCE 角色外<span style="color:#960050;background-color:#1e0010">，</span>需要对系统表的查询权限<span style="color:#960050;background-color:#1e0010">，</span>SOV<span style="color:#f92672">\</span>SVI 角色
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">2</span><span style="color:#f92672">.</span>需要对 WOLFDATA 具有完全执行权<span style="color:#960050;background-color:#1e0010">，</span>WOLFDATA 下一般只有表<span style="color:#960050;background-color:#1e0010">，</span>对这些表有增删改查即可
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">3</span><span style="color:#f92672">.</span>对产品用户的对象<span style="color:#960050;background-color:#1e0010">：（</span>不包含达梦自身用户的对象<span style="color:#960050;background-color:#1e0010">）</span>
-</span></span><span style="display:flex;"><span>  所有 TABLE 有 INSERT <span style="color:#f92672">\</span> DELETE <span style="color:#f92672">\</span> UPDATE <span style="color:#f92672">\</span> SELECT 权限
-</span></span><span style="display:flex;"><span>  所有 VIEW  有 SELECT 权限
-</span></span><span style="display:flex;"><span>  所有 SP    有 EXECUTE 权限
-</span></span><span style="display:flex;"><span>  所有的 FUNC 有 EXECUTE
-</span></span><span style="display:flex;"><span>  所有的 PACKAGE 有 EXECUTE  <span style="color:#960050;background-color:#1e0010">（</span>达梦的 TYPE 类型集合到了 PACKAGE 里<span style="color:#960050;background-color:#1e0010">）</span>
-</span></span><span style="display:flex;"><span>  所有的 CLASS 有 EXECUTE
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="mi">1</span><span class="o">.</span><span class="n">除了本身的</span> <span class="n">ROURCE</span> <span class="n">角色外</span><span class="err">，</span><span class="n">需要对系统表的查询权限</span><span class="err">，</span><span class="n">SOV</span><span class="o">\</span><span class="n">SVI</span> <span class="n">角色</span>
+</span></span><span class="line"><span class="cl"><span class="mi">2</span><span class="o">.</span><span class="n">需要对</span> <span class="n">WOLFDATA</span> <span class="n">具有完全执行权</span><span class="err">，</span><span class="n">WOLFDATA</span> <span class="n">下一般只有表</span><span class="err">，</span><span class="n">对这些表有增删改查即可</span>
+</span></span><span class="line"><span class="cl"><span class="mi">3</span><span class="o">.</span><span class="n">对产品用户的对象</span><span class="err">：（</span><span class="n">不包含达梦自身用户的对象</span><span class="err">）</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有</span> <span class="n">TABLE</span> <span class="n">有</span> <span class="n">INSERT</span> <span class="o">\</span> <span class="n">DELETE</span> <span class="o">\</span> <span class="n">UPDATE</span> <span class="o">\</span> <span class="n">SELECT</span> <span class="n">权限</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有</span> <span class="n">VIEW</span>  <span class="n">有</span> <span class="n">SELECT</span> <span class="n">权限</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有</span> <span class="n">SP</span>    <span class="n">有</span> <span class="n">EXECUTE</span> <span class="n">权限</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有的</span> <span class="n">FUNC</span> <span class="n">有</span> <span class="n">EXECUTE</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有的</span> <span class="n">PACKAGE</span> <span class="n">有</span> <span class="n">EXECUTE</span>  <span class="err">（</span><span class="n">达梦的</span> <span class="n">TYPE</span> <span class="n">类型集合到了</span> <span class="n">PACKAGE</span> <span class="n">里</span><span class="err">）</span>
+</span></span><span class="line"><span class="cl">  <span class="n">所有的</span> <span class="n">CLASS</span> <span class="n">有</span> <span class="n">EXECUTE</span>
 </span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-perl" data-lang="perl"><span style="display:flex;"><span>其他的产品用户<span style="color:#960050;background-color:#1e0010">，</span>权限则需要有自身的 RESOURCE 用户外<span style="color:#960050;background-color:#1e0010">，</span>
-</span></span><span style="display:flex;"><span>还应该从自身的 SP 中逐一排查需要的 跨用户对象的某个权限
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>比如 RISKCONFIG 的 SP 中通常含有对中间层表的 DELETE <span style="color:#f92672">\</span> INSERT <span style="color:#f92672">\</span> SELECT <span style="color:#f92672">\</span> UPDATE
-</span></span><span style="display:flex;"><span>则应该为 RISKCONFIG 用户赋予中间层表的 DELETE <span style="color:#f92672">\</span> INSERT <span style="color:#f92672">\</span> SELECT <span style="color:#f92672">\</span> UPDATE 权限<span style="color:#960050;background-color:#1e0010">。</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>不需要 WOLF 对中间层表有权限<span style="color:#960050;background-color:#1e0010">，</span>WOLF 只需要有执行该 SP 的权限即可<span style="color:#960050;background-color:#1e0010">。</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-perl" data-lang="perl"><span class="line"><span class="cl"><span class="n">其他的产品用户</span><span class="err">，</span><span class="n">权限则需要有自身的</span> <span class="n">RESOURCE</span> <span class="n">用户外</span><span class="err">，</span>
+</span></span><span class="line"><span class="cl"><span class="n">还应该从自身的</span> <span class="n">SP</span> <span class="n">中逐一排查需要的</span> <span class="n">跨用户对象的某个权限</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">比如</span> <span class="n">RISKCONFIG</span> <span class="n">的</span> <span class="n">SP</span> <span class="n">中通常含有对中间层表的</span> <span class="n">DELETE</span> <span class="o">\</span> <span class="n">INSERT</span> <span class="o">\</span> <span class="n">SELECT</span> <span class="o">\</span> <span class="n">UPDATE</span>
+</span></span><span class="line"><span class="cl"><span class="n">则应该为</span> <span class="n">RISKCONFIG</span> <span class="n">用户赋予中间层表的</span> <span class="n">DELETE</span> <span class="o">\</span> <span class="n">INSERT</span> <span class="o">\</span> <span class="n">SELECT</span> <span class="o">\</span> <span class="n">UPDATE</span> <span class="n">权限</span><span class="err">。</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">不需要</span> <span class="n">WOLF</span> <span class="n">对中间层表有权限</span><span class="err">，</span><span class="n">WOLF</span> <span class="n">只需要有执行该</span> <span class="n">SP</span> <span class="n">的权限即可</span><span class="err">。</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>前期将这些沟通好，等客户给服务器的相关信息，就可以开始着手准备实施部署产品了。</p>
@@ -784,6 +781,19 @@
             
                 
 <article class="">
+    <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦数据库备份还原实践（四）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
     <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">
         
         
@@ -829,19 +839,6 @@
 
         <div class="article-details">
             <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
-        </div>
-    </a>
-</article>
-
-            
-                
-<article class="">
-    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-nginx%E5%9C%A8%E4%BF%A1%E5%88%9B%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
-        
-        
-
-        <div class="article-details">
-            <h2 class="article-title">实施部署-Nginx在项目上的应用与常见问题（四）</h2>
         </div>
     </a>
 </article>
@@ -947,12 +944,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

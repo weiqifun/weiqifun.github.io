@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/08/sp-%E6%97%A0dba%E6%9D%83%E9%99%90%E5%A6%82%E4%BD%95kill%E4%BC%9A%E8%AF%9D/sp-%E6%97%A0dba%E6%9D%83%E9%99%90%E5%A6%82%E4%BD%95kill%E4%BC%9A%E8%AF%9D/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="SP 无DBA权限如何KILL会话">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="SP 无DBA权限如何KILL会话">
 <meta property='og:description' content="问题\r生产环境中，有些项目的用户是不给 DBA 权限的，导致了执行了这个SQL，但是耗时很久形成阻塞，想 KILL 它，怎么办？\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/08/sp-%E6%97%A0dba%E6%9D%83%E9%99%90%E5%A6%82%E4%BD%95kill%E4%BC%9A%E8%AF%9D/sp-%E6%97%A0dba%E6%9D%83%E9%99%90%E5%A6%82%E4%BD%95kill%E4%BC%9A%E8%AF%9D/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -346,9 +346,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -365,182 +362,182 @@
 <h2 id="思路">思路
 </h2><p>1.使用 DBA 用户创建存储过程，里边写 KILL 掉自己会话的代码</p>
 <h3 id="写法一">写法一
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">OR</span> <span style="color:#66d9ef">REPLACE</span> <span style="color:#66d9ef">PROCEDURE</span> DBAUSER.CLOSE_USER_SESSION(SESSION_ID BIGINT) 
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">AS</span>
-</span></span><span style="display:flex;"><span>    CURR_NAME VARCHAR(<span style="color:#ae81ff">32</span>);
-</span></span><span style="display:flex;"><span>    SESS_NAME VARCHAR(<span style="color:#ae81ff">32</span>);
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">BEGIN</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">--校验用户，只能杀自己执行的
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">USER</span> <span style="color:#66d9ef">INTO</span> CURR_NAME;
-</span></span><span style="display:flex;"><span>     
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">SELECT</span> USER_NAME <span style="color:#66d9ef">INTO</span> SESS_NAME <span style="color:#66d9ef">FROM</span> V$SESSIONS <span style="color:#66d9ef">WHERE</span> SESS_ID<span style="color:#f92672">=</span>SESSION_ID;
-</span></span><span style="display:flex;"><span>     
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">IF</span> CURR_NAME <span style="color:#f92672">=</span> SESS_NAME <span style="color:#66d9ef">THEN</span>
-</span></span><span style="display:flex;"><span>        SP_CLOSE_SESSION(SESSION_ID);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">ELSE</span>
-</span></span><span style="display:flex;"><span>        PRINT <span style="color:#e6db74">&#39; &#39;</span>;
-</span></span><span style="display:flex;"><span>        PRINT <span style="color:#e6db74">&#39;执行失败,只能关闭当前用户连接的会话!!!&#39;</span> ;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">END</span> <span style="color:#66d9ef">IF</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">EXCEPTION</span>
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHEN</span> NO_DATA_FOUND <span style="color:#66d9ef">THEN</span>
-</span></span><span style="display:flex;"><span>    PRINT <span style="color:#e6db74">&#39; &#39;</span>;
-</span></span><span style="display:flex;"><span>    PRINT <span style="color:#e6db74">&#39;执行失败,没有找到对应的会话 !!!&#39;</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">WHEN</span> OTHERS <span style="color:#66d9ef">THEN</span>
-</span></span><span style="display:flex;"><span>    PRINT <span style="color:#e6db74">&#39; &#39;</span>;
-</span></span><span style="display:flex;"><span>    PRINT <span style="color:#66d9ef">SQLCODE</span><span style="color:#f92672">||</span><span style="color:#e6db74">&#39; &#39;</span><span style="color:#f92672">||</span>SQLERRM;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">END</span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="w"> </span><span class="n">DBAUSER</span><span class="p">.</span><span class="n">CLOSE_USER_SESSION</span><span class="p">(</span><span class="n">SESSION_ID</span><span class="w"> </span><span class="nb">BIGINT</span><span class="p">)</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">AS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">CURR_NAME</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">--校验用户，只能杀自己执行的
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">CURR_NAME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">USER_NAME</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">V$SESSIONS</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">SESS_ID</span><span class="o">=</span><span class="n">SESSION_ID</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">     
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="n">CURR_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="k">THEN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">SP_CLOSE_SESSION</span><span class="p">(</span><span class="n">SESSION_ID</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">ELSE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">PRINT</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">PRINT</span><span class="w"> </span><span class="s1">&#39;执行失败,只能关闭当前用户连接的会话!!!&#39;</span><span class="w"> </span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="k">IF</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">EXCEPTION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHEN</span><span class="w"> </span><span class="n">NO_DATA_FOUND</span><span class="w"> </span><span class="k">THEN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PRINT</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PRINT</span><span class="w"> </span><span class="s1">&#39;执行失败,没有找到对应的会话 !!!&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">WHEN</span><span class="w"> </span><span class="n">OTHERS</span><span class="w"> </span><span class="k">THEN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PRINT</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">PRINT</span><span class="w"> </span><span class="k">SQLCODE</span><span class="o">||</span><span class="s1">&#39; &#39;</span><span class="o">||</span><span class="n">SQLERRM</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="写法二">写法二
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">CREATE</span> <span style="color:#66d9ef">OR</span> <span style="color:#66d9ef">REPLACE</span> <span style="color:#66d9ef">PROCEDURE</span> CLOSE_USER_SESSION( SESSION_ID <span style="color:#66d9ef">IN</span> BIGINT,
-</span></span><span style="display:flex;"><span>                                               O_RETURN_MSG <span style="color:#66d9ef">OUT</span> VARCHAR2,
-</span></span><span style="display:flex;"><span>                                               O_RETURN_CODE <span style="color:#66d9ef">OUT</span> INTEGER )
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">IS</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">--=========================================================================
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">-- AUTHOR:    WQ
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">-- CREATE_DATE: 20240719
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">-- VERSION:    1.0
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">-- MARK:     普通用户 KILL 会话的方式
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">--=========================================================================
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">--=========================================================================
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#75715e">-- 业务变量
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    CURR_NAME VARCHAR(<span style="color:#ae81ff">32</span>);
-</span></span><span style="display:flex;"><span>    SESS_NAME VARCHAR(<span style="color:#ae81ff">32</span>);
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">--=========================================================================
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">BEGIN</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">-- 校验用户，只能杀自己执行的
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">SELECT</span> <span style="color:#66d9ef">USER</span> <span style="color:#66d9ef">INTO</span> CURR_NAME;
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">SELECT</span> USER_NAME <span style="color:#66d9ef">INTO</span> SESS_NAME <span style="color:#66d9ef">FROM</span> V$SESSIONS <span style="color:#66d9ef">WHERE</span> SESS_ID<span style="color:#f92672">=</span>SESSION_ID;
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">-- 当前用户 = V$SESSION里当前会话ID用户
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">IF</span> CURR_NAME <span style="color:#f92672">=</span> SESS_NAME <span style="color:#66d9ef">THEN</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#75715e">-- 关闭会话
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        SP_CLOSE_SESSION(SESSION_ID);
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">ELSE</span>
-</span></span><span style="display:flex;"><span>        O_RETURN_CODE :<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39; &#39;</span>;
-</span></span><span style="display:flex;"><span>        O_RETURN_MSG  :<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;执行失败，非当前用户的会话&#39;</span>;
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">END</span> <span style="color:#66d9ef">IF</span>;
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span>    O_RETURN_CODE :<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;1&#39;</span>;
-</span></span><span style="display:flex;"><span>    O_RETURN_MSG  :<span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;执行成功&#39;</span>;
-</span></span><span style="display:flex;"><span>    
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">EXCEPTION</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#75715e">/* -- NO_DATA_FOUND 是达梦自带的预定义异常，为描述数据未找到
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    WHEN NO_DATA_FOUND THEN
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    PRINT &#39; &#39;;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    PRINT &#39;执行失败,没有找到对应的会话 !!!&#39;;
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e">    */</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">WHEN</span> OTHERS <span style="color:#66d9ef">THEN</span>
-</span></span><span style="display:flex;"><span>        O_RETURN_CODE :<span style="color:#f92672">=</span> <span style="color:#66d9ef">SQLCODE</span>;
-</span></span><span style="display:flex;"><span>        O_RETURN_MSG  :<span style="color:#f92672">=</span> SQLERRM;
-</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">ROLLBACK</span>;
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">END</span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">OR</span><span class="w"> </span><span class="k">REPLACE</span><span class="w"> </span><span class="k">PROCEDURE</span><span class="w"> </span><span class="n">CLOSE_USER_SESSION</span><span class="p">(</span><span class="w"> </span><span class="n">SESSION_ID</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="nb">BIGINT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                                               </span><span class="n">O_RETURN_MSG</span><span class="w"> </span><span class="k">OUT</span><span class="w"> </span><span class="n">VARCHAR2</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                                               </span><span class="n">O_RETURN_CODE</span><span class="w"> </span><span class="k">OUT</span><span class="w"> </span><span class="nb">INTEGER</span><span class="w"> </span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">IS</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">--=========================================================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">-- AUTHOR:    WQ
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">-- CREATE_DATE: 20240719
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">-- VERSION:    1.0
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">-- MARK:     普通用户 KILL 会话的方式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">--=========================================================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">--=========================================================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="c1">-- 业务变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="n">CURR_NAME</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">--=========================================================================
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">-- 校验用户，只能杀自己执行的
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">CURR_NAME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">USER_NAME</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">V$SESSIONS</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">SESS_ID</span><span class="o">=</span><span class="n">SESSION_ID</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">-- 当前用户 = V$SESSION里当前会话ID用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">IF</span><span class="w"> </span><span class="n">CURR_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SESS_NAME</span><span class="w"> </span><span class="k">THEN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">-- 关闭会话
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">        </span><span class="n">SP_CLOSE_SESSION</span><span class="p">(</span><span class="n">SESSION_ID</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">ELSE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">O_RETURN_CODE</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">O_RETURN_MSG</span><span class="w">  </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;执行失败，非当前用户的会话&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="k">IF</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">O_RETURN_CODE</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;1&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">O_RETURN_MSG</span><span class="w">  </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;执行成功&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">EXCEPTION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/* -- NO_DATA_FOUND 是达梦自带的预定义异常，为描述数据未找到
+</span></span></span><span class="line"><span class="cl"><span class="cm">    WHEN NO_DATA_FOUND THEN
+</span></span></span><span class="line"><span class="cl"><span class="cm">    PRINT &#39; &#39;;
+</span></span></span><span class="line"><span class="cl"><span class="cm">    PRINT &#39;执行失败,没有找到对应的会话 !!!&#39;;
+</span></span></span><span class="line"><span class="cl"><span class="cm">    */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">WHEN</span><span class="w"> </span><span class="n">OTHERS</span><span class="w"> </span><span class="k">THEN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">O_RETURN_CODE</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="k">SQLCODE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">O_RETURN_MSG</span><span class="w">  </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">SQLERRM</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">ROLLBACK</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>2.把存储过程的执行权限授予普通用户</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">GRANT</span> <span style="color:#66d9ef">EXECUTE</span> <span style="color:#66d9ef">ON</span> DBAUSER.CLOSE_USER_SESSION <span style="color:#66d9ef">TO</span> TESTUSER;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">GRANT</span><span class="w"> </span><span class="k">EXECUTE</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">DBAUSER</span><span class="p">.</span><span class="n">CLOSE_USER_SESSION</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">TESTUSER</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>3.普通用户查询需要 KILL 的会话ID 并 执行存储过程</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-SQL" data-lang="SQL"><span style="display:flex;"><span><span style="color:#75715e">-- 查询 会话 ID
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> SYS.V$SESSIONS A <span style="color:#66d9ef">WHERE</span> A.<span style="color:#66d9ef">STATE</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;ACTIVE&#39;</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">-- 执行存储过程
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">CALL</span> TEST.CLOSE_USER_SESSION(<span style="color:#e6db74">&#39;140052047263656&#39;</span>,<span style="color:#66d9ef">NULL</span>,<span style="color:#66d9ef">NULL</span>);
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-SQL" data-lang="SQL"><span class="line"><span class="cl"><span class="c1">-- 查询 会话 ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">SYS</span><span class="p">.</span><span class="n">V$SESSIONS</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="k">STATE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ACTIVE&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 执行存储过程
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CALL</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">CLOSE_USER_SESSION</span><span class="p">(</span><span class="s1">&#39;140052047263656&#39;</span><span class="p">,</span><span class="k">NULL</span><span class="p">,</span><span class="k">NULL</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
@@ -746,12 +743,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

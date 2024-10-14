@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/05/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="SQL-违反表的唯一约束条件（主键冲突）问题">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="SQL-违反表的唯一约束条件（主键冲突）问题">
 <meta property='og:description' content="问题\r实际的项目中，采集上游数据到数据集市的贴源层 &raquo; 跑数据转换任务，将数据写入到我们的业务表，在跑转换任务的时候，时不时会报错主键冲突。转换里，通常写着insert update 语句，当向表执行插入和更新操作，时不时出现报错：违反表的唯一约束条件。\n因为在实际业务中，中间层或者业务层表，通常情况下，是具有主键的（可能是单一主键，可能是复合主键）。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/05/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -342,9 +342,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -377,17 +374,17 @@
 <p>根据这两种情况对数据进行排查，看看是哪些数据重复了。</p>
 <h2 id="思路">思路
 </h2><p>1.根据报错的主键名称，查找该索引名是哪张表的主键名</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> all_indexes a
-</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">where</span> a.index_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;报错的主键名&#39;</span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">all_indexes</span><span class="w"> </span><span class="n">a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">index_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;报错的主键名&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p><img src="/posts/2024/05/SQL-%E4%B8%BB%E9%94%AE%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/image-20240603212340949.png"
 	width="715"
@@ -416,81 +413,81 @@
 ></p>
 <p>3.对于第一种情况，根据这些字段，将目标表与转换里源表进行<code>join</code>，对索引字段进行<code>count</code>，查看是否有重复数据</p>
 <p>例如这张表在转换里源表（from的表）为 <code>ct.st_xxx</code>，那么可以如下，查到重复的数据</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> a.contract_no, a.stock_account, <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>)
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> sett.t_ref_contract a
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">join</span> ct.st_xxx b
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">on</span> a.contract_no <span style="color:#f92672">=</span> b.jys <span style="color:#75715e">-- 关联字段
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>   <span style="color:#66d9ef">and</span> a.stock_account <span style="color:#f92672">=</span> b.zqzh
-</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> a.contract_no, a.stock_account
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">having</span> <span style="color:#66d9ef">count</span>(<span style="color:#f92672">*</span>) <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1</span>;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="p">,</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">sett</span><span class="p">.</span><span class="n">t_ref_contract</span><span class="w"> </span><span class="n">a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">join</span><span class="w"> </span><span class="n">ct</span><span class="p">.</span><span class="n">st_xxx</span><span class="w"> </span><span class="n">b</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">on</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">jys</span><span class="w"> </span><span class="c1">-- 关联字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">   </span><span class="k">and</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">zqzh</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">having</span><span class="w"> </span><span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>然后，对比该数据，是否完全一致（因为数据可能出现只有主键字段是相同的，但是其他字段不同的情况）</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">select</span> a.<span style="color:#f92672">*</span>
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> sett.t_ref_contract a
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">join</span> ct.st_xxx b
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">on</span> a.contract_no <span style="color:#f92672">=</span> b.jys <span style="color:#75715e">-- 关联字段
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>   <span style="color:#66d9ef">and</span> a.stock_account <span style="color:#f92672">=</span> b.zqzh
-</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">where</span> a.contract_no <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;查到的contract_no&#39;</span>
-</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">and</span> a.stock_account <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;查到的stock_account&#39;</span>
-</span></span><span style="display:flex;"><span> <span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> a.contract_no, a.stock_account;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">select</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="o">*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">sett</span><span class="p">.</span><span class="n">t_ref_contract</span><span class="w"> </span><span class="n">a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">join</span><span class="w"> </span><span class="n">ct</span><span class="p">.</span><span class="n">st_xxx</span><span class="w"> </span><span class="n">b</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">on</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">jys</span><span class="w"> </span><span class="c1">-- 关联字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">   </span><span class="k">and</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">zqzh</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">where</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;查到的contract_no&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">and</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;查到的stock_account&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"> </span><span class="k">group</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">contract_no</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">stock_account</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>3.1）若一致，则可将目标表里的数据删掉</p>
 <p>3.2）若不一致，应咨询业务，它们是否有区别，根据业务沟通后的方案，将数据备份后，对其更改或删除等操作</p>
 <p>4.对于第二种情况，则需要看转换里，它的<code>insert</code> 或者<code>update</code> 的逻辑，类似：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sql" data-lang="sql"><span style="display:flex;"><span><span style="color:#66d9ef">insert</span> table_a (
-</span></span><span style="display:flex;"><span>	col_1,
-</span></span><span style="display:flex;"><span>    col_2,
-</span></span><span style="display:flex;"><span>    ...
-</span></span><span style="display:flex;"><span>)
-</span></span><span style="display:flex;"><span><span style="color:#66d9ef">select</span> col_a,
-</span></span><span style="display:flex;"><span>	   col_b,
-</span></span><span style="display:flex;"><span>	   ...
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">from</span> table_b t1
-</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">join</span> table_c t2
-</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">on</span> t1.col_a <span style="color:#f92672">=</span> t2.col_a
-</span></span><span style="display:flex;"><span>   <span style="color:#66d9ef">and</span> t1.col_b <span style="color:#f92672">=</span> t2.col_b;
-</span></span></code></pre></td></tr></table>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">insert</span><span class="w"> </span><span class="n">table_a</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">col_1</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">col_2</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">select</span><span class="w"> </span><span class="n">col_a</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	   </span><span class="n">col_b</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	   </span><span class="p">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">from</span><span class="w"> </span><span class="n">table_b</span><span class="w"> </span><span class="n">t1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">join</span><span class="w"> </span><span class="n">table_c</span><span class="w"> </span><span class="n">t2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">on</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">col_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">col_a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   </span><span class="k">and</span><span class="w"> </span><span class="n">t1</span><span class="p">.</span><span class="n">col_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t2</span><span class="p">.</span><span class="n">col_b</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
 </div>
 </div><p>然后对关联条件进行检查，看看是不是关联条件出现了 <code>1:N</code> <code>N:N</code> 的情况，如果是，则根据代码的逻辑，对该数据产生的原因进行定位，根据实际情况进行解决。</p>
 </section>
@@ -696,12 +693,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 

@@ -1,0 +1,3549 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 根据《docker 技术入门与实践（第 3 版）》进行学习\n对命令有疑问，可使用：\n1）docker 命令 &ndash;help\n2）man docker 命令\n查看帮助，其中 man docker 命令 里边有详细的解释，包括示例\n">
+<meta name="keywords" content="Docker, Docker基础, Docker入门"><title>Docker-基础</title>
+
+<link rel='canonical' href='http://localhost:1313/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="Docker-基础">
+<meta property='og:description' content=" 根据《docker 技术入门与实践（第 3 版）》进行学习\n对命令有疑问，可使用：\n1）docker 命令 &ndash;help\n2）man docker 命令\n查看帮助，其中 man docker 命令 里边有详细的解释，包括示例\n">
+<meta property='og:url' content='http://localhost:1313/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/'>
+<meta property='og:site_name' content='阿琦同学'>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='Docker' /><meta property='article:published_time' content='2024-09-01T13:56:41&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T15:27:00&#43;08:00'/>
+<meta name="twitter:title" content="Docker-基础">
+<meta name="twitter:description" content=" 根据《docker 技术入门与实践（第 3 版）》进行学习\n对命令有疑问，可使用：\n1）docker 命令 &ndash;help\n2）man docker 命令\n查看帮助，其中 man docker 命令 里边有详细的解释，包括示例\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="/img/tx.png" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">阿琦同学</a></h1>
+            <h2 class="site-description">Life is Passion !</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/weiqifun'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/tags/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+                
+                <span>标签</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E9%93%BE/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友链</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#docker-核心概念">Docker 核心概念</a>
+      <ol>
+        <li><a href="#镜像">镜像</a></li>
+        <li><a href="#容器">容器</a></li>
+        <li><a href="#仓库">仓库</a></li>
+      </ol>
+    </li>
+    <li><a href="#docker-基础">Docker 基础</a>
+      <ol>
+        <li><a href="#docker-镜像">Docker 镜像</a>
+          <ol>
+            <li><a href="#搜索镜像">搜索镜像</a></li>
+            <li><a href="#获取镜像">获取镜像</a></li>
+            <li><a href="#查看镜像信息">查看镜像信息</a>
+              <ol>
+                <li><a href="#使用-images-命令列出镜像">使用 images 命令列出镜像</a></li>
+                <li><a href="#使用-tag-命令添加镜像标签">使用 tag 命令添加镜像标签</a></li>
+                <li><a href="#使用-inspect-命令查看详细信息">使用 inspect 命令查看详细信息</a></li>
+                <li><a href="#使用-history-命令查看镜像历史">使用 history 命令查看镜像历史</a></li>
+              </ol>
+            </li>
+            <li><a href="#删除镜像">删除镜像</a>
+              <ol>
+                <li><a href="#使用名称标签删除镜像">使用名称+标签删除镜像</a></li>
+                <li><a href="#使用镜像id删除镜像">使用镜像ID删除镜像</a></li>
+              </ol>
+            </li>
+            <li><a href="#清理镜像">清理镜像</a></li>
+            <li><a href="#创建镜像">创建镜像</a>
+              <ol>
+                <li><a href="#基于已有容器创建">基于已有容器创建</a></li>
+                <li><a href="#基于本地模板导入镜像">基于本地模板导入镜像</a></li>
+                <li><a href="#基于-dockerfile-创建镜像">基于 Dockerfile 创建镜像</a></li>
+              </ol>
+            </li>
+            <li><a href="#存出和载入镜像">存出和载入镜像</a>
+              <ol>
+                <li><a href="#存出镜像">存出镜像</a></li>
+                <li><a href="#载入镜像">载入镜像</a></li>
+              </ol>
+            </li>
+            <li><a href="#上传镜像">上传镜像</a>
+              <ol>
+                <li><a href="#例子-2">例子</a></li>
+              </ol>
+            </li>
+            <li><a href="#运行镜像">运行镜像</a></li>
+          </ol>
+        </li>
+        <li><a href="#docker-容器">Docker 容器</a>
+          <ol>
+            <li><a href="#创建容器">创建容器</a>
+              <ol>
+                <li><a href="#新建容器">新建容器</a></li>
+                <li><a href="#启动容器">启动容器</a></li>
+                <li><a href="#新建并启动容器">新建并启动容器</a></li>
+                <li><a href="#退出容器-">退出容器 *</a></li>
+                <li><a href="#后台运行容器">后台运行容器</a></li>
+                <li><a href="#查看容器输出">查看容器输出</a></li>
+              </ol>
+            </li>
+            <li><a href="#列出容器">列出容器</a></li>
+            <li><a href="#停止容器">停止容器</a>
+              <ol>
+                <li><a href="#暂停容器">暂停容器</a></li>
+                <li><a href="#恢复运行">恢复运行</a></li>
+                <li><a href="#终止容器">终止容器</a></li>
+                <li><a href="#重启容器">重启容器</a></li>
+              </ol>
+            </li>
+            <li><a href="#进入容器">进入容器</a></li>
+            <li><a href="#删除容器">删除容器</a></li>
+            <li><a href="#导入和导出容器">导入和导出容器</a>
+              <ol>
+                <li><a href="#导出容器">导出容器</a></li>
+                <li><a href="#导入容器">导入容器</a></li>
+                <li><a href="#迁移环境有-2-种方式">迁移环境有 2 种方式</a></li>
+              </ol>
+            </li>
+            <li><a href="#查看容器">查看容器</a>
+              <ol>
+                <li><a href="#查看容器详情">查看容器详情</a></li>
+                <li><a href="#查看容器内进程">查看容器内进程</a></li>
+                <li><a href="#查看统计信息">查看统计信息</a></li>
+              </ol>
+            </li>
+            <li><a href="#其他容器命令">其他容器命令</a>
+              <ol>
+                <li><a href="#复制文件-cp">复制文件 cp</a></li>
+                <li><a href="#查看变更-diff">查看变更 diff</a></li>
+                <li><a href="#查看端口映射-port">查看端口映射 port</a></li>
+                <li><a href="#更新配置-update">更新配置 update</a></li>
+              </ol>
+            </li>
+            <li><a href="#仓库-1">仓库</a>
+              <ol>
+                <li><a href="#搭建本地私有仓库-">搭建本地私有仓库 *</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#docker-进阶">Docker 进阶</a>
+      <ol>
+        <li><a href="#docker-数据管理">Docker 数据管理</a>
+          <ol>
+            <li><a href="#数据卷">数据卷</a>
+              <ol>
+                <li><a href="#创建数据卷">创建数据卷</a></li>
+                <li><a href="#绑定数据卷">绑定数据卷</a></li>
+              </ol>
+            </li>
+            <li><a href="#数据卷容器">数据卷容器</a>
+              <ol>
+                <li><a href="#例子-4">例子</a></li>
+                <li><a href="#注意">注意</a></li>
+              </ol>
+            </li>
+            <li><a href="#利用数据卷容器进行数据迁移">利用数据卷容器进行数据迁移</a>
+              <ol>
+                <li><a href="#使用数据卷容器备份数据">使用数据卷容器备份数据</a></li>
+                <li><a href="#使用数据卷容器font-stylecolordf2a3f备份font数据卷">使用数据卷容器<font style="color:#DF2A3F;">备份</font>数据卷</a></li>
+                <li><a href="#注意-1">注意</a></li>
+                <li><a href="#使用数据卷容器恢复数据-">使用数据卷容器恢复数据 *</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#端口映射容器互联">端口映射、容器互联</a>
+          <ol>
+            <li><a href="#容器的端口映射">容器的端口映射</a>
+              <ol>
+                <li><a href="#从外部访问容器应用">从外部访问容器应用</a></li>
+                <li><a href="#映射所有接口地址">映射所有接口地址</a></li>
+                <li><a href="#映射到指定地址的指定端口">映射到指定地址的指定端口</a></li>
+                <li><a href="#映射到指定地址的任意端口">映射到指定地址的任意端口</a></li>
+                <li><a href="#查看映射端口的配置">查看映射端口的配置</a></li>
+              </ol>
+            </li>
+            <li><a href="#查看容器的-ip">查看容器的 IP</a></li>
+            <li><a href="#容器互联">容器互联</a>
+              <ol>
+                <li><a href="#network-用法">network 用法</a></li>
+                <li><a href="#例子-5">例子</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#dockerfile-构建镜像">Dockerfile 构建镜像</a>
+          <ol>
+            <li><a href="#dockerfile-主要指令">Dockerfile 主要指令</a></li>
+            <li><a href="#配置指令">配置指令</a>
+              <ol>
+                <li><a href="#from">FROM</a></li>
+                <li><a href="#label">LABEL</a></li>
+                <li><a href="#expose">EXPOSE</a></li>
+                <li><a href="#env">ENV</a></li>
+                <li><a href="#volume">VOLUME</a></li>
+                <li><a href="#user">USER</a></li>
+                <li><a href="#workdir">WORKDIR</a></li>
+                <li><a href="#shell">SHELL</a></li>
+              </ol>
+            </li>
+            <li><a href="#操作指令">操作指令</a>
+              <ol>
+                <li><a href="#run">RUN</a></li>
+                <li><a href="#cmd">CMD</a></li>
+                <li><a href="#add">ADD</a></li>
+                <li><a href="#copy">COPY</a></li>
+              </ol>
+            </li>
+            <li><a href="#创建镜像-1">创建镜像</a>
+              <ol>
+                <li><a href="#选择父镜像">选择父镜像</a></li>
+                <li><a href="#使用-dockerignore-文件">使用 .dockerignore 文件</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#heading"></a>
+          <ol>
+            <li>
+              <ol>
+                <li><a href="#多步骤创建">多步骤创建</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#总结">总结</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%AE%B9%E5%99%A8/" >
+                容器
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/">Docker-基础</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2024年9月1号</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 26 分钟
+                </time>
+            </div>
+        
+
+        
+        
+        <footer class="article-wordcount">
+            <div>
+                <span class="article-wordcount--count">字数: 12560</span>
+            </div>
+        </footer>
+        
+        
+
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>根据《docker 技术入门与实践（第 3 版）》进行学习</p>
+</blockquote>
+<p>对命令有疑问，可使用：</p>
+<p>1）docker 命令 &ndash;help</p>
+<p>2）man docker 命令</p>
+<p>查看帮助，其中 <code>man docker 命令</code> 里边有详细的解释，包括示例</p>
+<p>Docker 安装的目录：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status volumes<span class="o">]</span><span class="c1"># cd /var/lib/docker/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status docker<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">36</span>
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">4</span> root root <span class="m">4096</span> Aug <span class="m">30</span> 13:23 containers		<span class="c1"># 容器</span>
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">3</span> root root <span class="m">4096</span> Jul <span class="m">22</span> 14:58 image				<span class="c1"># 镜像</span>
+</span></span><span class="line"><span class="cl">drwxr-x---  <span class="m">3</span> root root <span class="m">4096</span> Jul <span class="m">22</span> 14:58 network			<span class="c1"># 网络</span>
+</span></span><span class="line"><span class="cl">drwx------ <span class="m">10</span> root root <span class="m">4096</span> Aug <span class="m">30</span> 13:28 overlay2
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">4</span> root root <span class="m">4096</span> Jul <span class="m">22</span> 14:58 plugins
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">2</span> root root <span class="m">4096</span> Jul <span class="m">22</span> 14:58 swarm
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">2</span> root root <span class="m">4096</span> Aug <span class="m">29</span> 14:52 tmp
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">2</span> root root <span class="m">4096</span> Jul <span class="m">22</span> 14:58 trust
+</span></span><span class="line"><span class="cl">drwx------  <span class="m">3</span> root root <span class="m">4096</span> Aug <span class="m">30</span> 16:27 volumes			<span class="c1"># 数据卷</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="docker-核心概念">Docker 核心概念
+</h2><p>三大核心概念：</p>
+<ul>
+<li>镜像 image</li>
+<li>容器 container</li>
+<li>仓库 repository</li>
+</ul>
+<p>Docker 大部分的操作都是围绕这三个核心进行</p>
+<h3 id="镜像">镜像
+</h3><ul>
+<li>镜像是创建容器的基础：运行镜像 &raquo; 生成容器</li>
+<li>镜像本身是只读的。</li>
+</ul>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>启动镜像生成容器的时候，容器会在镜像的最上层创建一个可写层。
+可以把镜像看作一块光盘，里边有黑神话，直接插入光盘，游戏就可以运行，省去不同平台下载安装的麻烦。</p>
+</blockquote>
+<h3 id="容器">容器
+</h3><p>容器就是一个盒子，里边打包放了很多东西：操作系统、进程、网络、用户等。</p>
+<h3 id="仓库">仓库
+</h3><p>仓库注册服务器是存放仓库的地方，仓库就是存放镜像的地方，各个镜像文件通过不同的标签进行区分。</p>
+<p>仓库有公开仓库和私有仓库</p>
+<h2 id="docker-基础">Docker 基础
+</h2><h3 id="docker-镜像">Docker 镜像
+</h3><h4 id="搜索镜像">搜索镜像
+</h4><p>使用 <code>search</code> 命令在 Docker 仓库中搜索镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker search 镜像名
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 例子</span>
+</span></span><span class="line"><span class="cl">docker search nginx
+</span></span><span class="line"><span class="cl">docker search centos
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="获取镜像">获取镜像
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker pull 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里的标签就是这个镜像的版本号，可忽略，不指定的话会默认下载仓库中最新版本（latest）的镜像。一般从稳定性考虑，最好还是输入标签，让各个环境的版本一致。</p>
+<p>但是一开始如何知道 <code>pull</code> 了什么版本的镜像呢？</p>
+<p>当我们 <code>pull</code> 镜像到本机，可以使用 <code>docker inspect</code> 查看镜像的详细信息。然后里边会有相关的信息版本，比如这里的 nginx_version=1.21.5</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"> <span class="s2">&#34;Env&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;NGINX_VERSION=1.21.5&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;NJS_VERSION=0.7.1&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;PKG_RELEASE=1~bullseye&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后可以给这个镜像打上版本的 <code>tag</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker tag nginx:latest naginx:1.21.5
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="查看镜像信息">查看镜像信息
+</h4><p>Docker 镜像的信息可以通过相关命令查看</p>
+<h5 id="使用-images-命令列出镜像">使用 images 命令列出镜像
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 2 种查看命令</span>
+</span></span><span class="line"><span class="cl">docker images
+</span></span><span class="line"><span class="cl">docker image ls
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>列出本地主机上已有镜像的基本信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">docker.io/centos    latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker image ls</span>
+</span></span><span class="line"><span class="cl">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">docker.io/centos    latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>基本信息解释如下：</p>
+<p>REPOSITORY - 来源哪个库</p>
+<p>TAG - 镜像标签（版本）</p>
+<p>IMAGE_ID - 镜像ID</p>
+<p>CREATED - 创建时间</p>
+<p>SIZE - 镜像大小</p>
+<h5 id="使用-tag-命令添加镜像标签">使用 tag 命令添加镜像标签
+</h5><p>可以使用 <code>docker tag</code> 命令为本地镜像添加新的标签</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker tag 镜像名:标签 新镜像名:新标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>相等于这个镜像的别名，因为添加新的标签，它俩的镜像ID是一样的，本质上都是一个镜像。跟 Linux 里的 链接 类似。</p>
+<p>这个例子，给 <code>centos:latest</code> 镜像添加新的标签 <code>test:10086</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker tag centos:latest test:10086</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">docker.io/centos    latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span><span class="line"><span class="cl"><span class="nb">test</span>                <span class="m">10086</span>               5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="使用-inspect-命令查看详细信息">使用 inspect 命令查看详细信息
+</h5><p>使用 <code>docker inspect</code> 命令获取镜像的详细信息：制作者、适用框架、各层数字摘要等</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker inspect 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span><span class="line"><span class="cl">docker inspect 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="使用-history-命令查看镜像历史">使用 history 命令查看镜像历史
+</h5><p>镜像文件由多个层组成，查看各个层的内容具体是什么，使用 <code>history</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status test<span class="o">]</span><span class="c1"># docker history centos</span>
+</span></span><span class="line"><span class="cl">IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+</span></span><span class="line"><span class="cl">5d0da3dc9764        <span class="m">2</span> years ago         /bin/sh -c <span class="c1">#(nop)  CMD [&#34;/bin/bash&#34;]            0 B                 </span>
+</span></span><span class="line"><span class="cl">&lt;missing&gt;           <span class="m">2</span> years ago         /bin/sh -c <span class="c1">#(nop)  LABEL org.label-schema....   0 B                 </span>
+</span></span><span class="line"><span class="cl">&lt;missing&gt;           <span class="m">2</span> years ago         /bin/sh -c <span class="c1">#(nop) ADD file:805cb5e15fb6e0b...   231 MB   </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="删除镜像">删除镜像
+</h4><p><code>docker rmi</code> 或者 <code>docker image rm</code> 命令可以删除镜像</p>
+<h5 id="使用名称标签删除镜像">使用名称+标签删除镜像
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rmi 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span><span class="line"><span class="cl">docker image rm 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker rmi <span class="o">[</span>options<span class="o">]</span> 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span><span class="line"><span class="cl">docker image rm <span class="o">[</span>options<span class="o">]</span> 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>该命令支持的选项：</p>
+<ul>
+<li>-force 强制删除镜像，有容器依赖这个镜像，也会删除</li>
+<li>-no-prune 不要清理未带标签的父镜像</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rmi -force -no-prune 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>例子：删除【1.3.2】步骤中的 <code>test:10086</code> 镜像标签</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status test<span class="o">]</span><span class="c1"># docker rmi test:10086</span>
+</span></span><span class="line"><span class="cl">Untagged: test:10086
+</span></span><span class="line"><span class="cl">Untagged: docker.io/centos@sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status test<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">docker.io/centos    latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>例子：彻底删除镜像，当该镜像没有任何标签的时候，删除镜像，就真的没有了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status test<span class="o">]</span><span class="c1"># docker rmi centos:latest</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="使用镜像id删除镜像">使用镜像ID删除镜像
+</h5><p>使用镜像ID进行删除，会将该镜像+它的标签，一起删除</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rmi 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>镜像已经运行，生成容器了，那这个镜像是无法被删除的。可以通过 <code>-force</code> 强制删除。</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rmi -force 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>不推荐直接删除镜像的，应该先删除该镜像相关的容器，再删除镜像</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rm 容器ID
+</span></span><span class="line"><span class="cl">docker rmi 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="清理镜像">清理镜像
+</h4><p>在 Docker 使用一段时间后，可能会遗留一些临时的镜像文件，以及一些没有使用的镜像，可以通过 <code>docker image prune</code> 命令清理掉。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker image prune
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>该命令支持的选项：</p>
+<ul>
+<li>-a 删除所有无用镜像（临时 + 没有被使用的）</li>
+<li>-f 强制删除</li>
+<li>-filter 只清理复核给定过滤器的镜像</li>
+</ul>
+<p>例子：自动清理临时的镜像文件层</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status test<span class="o">]</span><span class="c1"># docker image prune -f</span>
+</span></span><span class="line"><span class="cl">Total reclaimed space: <span class="m">0</span> B
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="创建镜像">创建镜像
+</h4><p>创建镜像的方法：</p>
+<ul>
+<li>基于已有容器创建（前提是这个容器的镜像还在）</li>
+<li>基于本地模板导入</li>
+<li>基于 <code>Dockerfile</code> 创建</li>
+</ul>
+<h5 id="基于已有容器创建">基于已有容器创建
+</h5><p>使用 <code>docker commit</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker commit 容器ID 镜像名<span class="o">[</span>:标签<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>支持的选项：</p>
+<ul>
+<li>-a 作者信息</li>
+<li>-m 给这个镜像添加备注（可以使用 <code>docker inspect 镜像名[:标签]</code> 查看，具体见【1.3.3】步骤）</li>
+<li>-p 提交时暂停容器的运行（一般不用的吧？）</li>
+</ul>
+<h6 id="例子">例子
+</h6><p>1）先启动一个镜像，并到容器里执行一个命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker run -it centos:latest /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@720ef900dddc /<span class="o">]</span><span class="c1"># touch  test</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@720ef900dddc /<span class="o">]</span><span class="c1"># exit</span>
+</span></span><span class="line"><span class="cl"><span class="nb">exit</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个容器ID = 720ef900dddc</p>
+<p>这个容器，因为已经在里边进行增删改操作，容器内容与它的镜像内容已经不一样了。这个时候可以基于这个容器进行创建一个新的镜像出来。</p>
+<p>2）基于这个容器创建新的镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker commit -m &#34;Add a new file&#34; -a &#34;weiqi&#34; 720ef900dddc test:20240829_V1 </span>
+</span></span><span class="line"><span class="cl">sha256:9e0017db11d154d7c08c964a14745afd25a667a7b82b68a8a61381bd7a5de205
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>详解：</p>
+<p>-m 	给这个镜像加备注</p>
+<p>-a 	作者信息</p>
+<p>720ef900dddc 	容器ID</p>
+<p>test:20240829_V1 	镜像名:标签</p>
+<p>3）查看镜像列表</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl"><span class="nb">test</span>                20240829_V1         9e0017db11d1        <span class="m">50</span> seconds ago      <span class="m">231</span> MB
+</span></span><span class="line"><span class="cl">docker.io/centos    latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里生成了一个新的镜像 <code>test</code></p>
+<p>可以使用 <code>docker inspect 9e0017db11d1</code> 查看它的详细信息，里边就有作者信息、镜像的备注</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span><span class="lnt">89
+</span><span class="lnt">90
+</span><span class="lnt">91
+</span><span class="lnt">92
+</span><span class="lnt">93
+</span><span class="lnt">94
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker inspect 9e0017db11d1</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Id&#34;</span>: <span class="s2">&#34;sha256:9e0017db11d154d7c08c964a14745afd25a667a7b82b68a8a61381bd7a5de205&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;RepoTags&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;test:20240829_V1&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;RepoDigests&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Parent&#34;</span>: <span class="s2">&#34;sha256:5d0da3dc976460b72c77d94c8a1ad043720b0416bfc16c52c45d4847e53fadb6&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Comment&#34;</span>: <span class="s2">&#34;Add a new file&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Created&#34;</span>: <span class="s2">&#34;2024-08-29T06:26:49.211537969Z&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Container&#34;</span>: <span class="s2">&#34;720ef900dddc4666e553ed9c26458b6fd4df541fa0939930b4479925d2ca2f0e&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;ContainerConfig&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Hostname&#34;</span>: <span class="s2">&#34;720ef900dddc&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Domainname&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;User&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStdin&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStdout&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStderr&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Tty&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;OpenStdin&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;StdinOnce&#34;</span>: true,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Env&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Cmd&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;/bin/bash&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Image&#34;</span>: <span class="s2">&#34;centos:latest&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Volumes&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;WorkingDir&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Entrypoint&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;OnBuild&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Labels&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.build-date&#34;</span>: <span class="s2">&#34;20210915&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.license&#34;</span>: <span class="s2">&#34;GPLv2&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.name&#34;</span>: <span class="s2">&#34;CentOS Base Image&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.schema-version&#34;</span>: <span class="s2">&#34;1.0&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.vendor&#34;</span>: <span class="s2">&#34;CentOS&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;DockerVersion&#34;</span>: <span class="s2">&#34;1.13.1&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Author&#34;</span>: <span class="s2">&#34;weiqi&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Config&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Hostname&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Domainname&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;User&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStdin&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStdout&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;AttachStderr&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Tty&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;OpenStdin&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;StdinOnce&#34;</span>: false,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Env&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Cmd&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;/bin/bash&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Image&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Volumes&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;WorkingDir&#34;</span>: <span class="s2">&#34;&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Entrypoint&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;OnBuild&#34;</span>: null,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Labels&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.build-date&#34;</span>: <span class="s2">&#34;20210915&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.license&#34;</span>: <span class="s2">&#34;GPLv2&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.name&#34;</span>: <span class="s2">&#34;CentOS Base Image&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.schema-version&#34;</span>: <span class="s2">&#34;1.0&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;org.label-schema.vendor&#34;</span>: <span class="s2">&#34;CentOS&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Architecture&#34;</span>: <span class="s2">&#34;amd64&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Os&#34;</span>: <span class="s2">&#34;linux&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Size&#34;</span>: 231268873,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;VirtualSize&#34;</span>: 231268873,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;GraphDriver&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;overlay2&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Data&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;LowerDir&#34;</span>: <span class="s2">&#34;/var/lib/docker/overlay2/c36ca0390a29eaefd180fcb6f80d57f127acfa92b9bedbd09a6d84c3a2e6e9f2/diff&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MergedDir&#34;</span>: <span class="s2">&#34;/var/lib/docker/overlay2/8548138b25638a23cdff292a6548e6e8698d59d98afde1866ea91684cfd2600b/merged&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;UpperDir&#34;</span>: <span class="s2">&#34;/var/lib/docker/overlay2/8548138b25638a23cdff292a6548e6e8698d59d98afde1866ea91684cfd2600b/diff&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;WorkDir&#34;</span>: <span class="s2">&#34;/var/lib/docker/overlay2/8548138b25638a23cdff292a6548e6e8698d59d98afde1866ea91684cfd2600b/work&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;RootFS&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Type&#34;</span>: <span class="s2">&#34;layers&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Layers&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;sha256:74ddd0ec08fa43d09f32636ba91a0a3053b02cb4627c35051aff89f853606b59&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;sha256:b43592c44888d32269515c418d4f4d02b9517cc0642ef2960bbe9c4efbd0924c&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="基于本地模板导入镜像">基于本地模板导入镜像
+</h5><p>使用 <code>docker import</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker import fileName - 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><font style="color:#DF2A3F;">这个就不试了，没有本地模板</font></p>
+<h5 id="基于-dockerfile-创建镜像">基于 Dockerfile 创建镜像
+</h5><p>实际工作中，这个方式最常见</p>
+<p>Dockerfile 是一个文件，利用给定的指令描述基于某个父镜像创建新的镜像。它里边相当于描述了创建的过程。</p>
+<h6 id="例子-1">例子
+</h6><p><font style="color:#DF2A3F;">没有例子，先了解，后边再补充</font></p>
+<h4 id="存出和载入镜像">存出和载入镜像
+</h4><p>存出和载入镜像如何理解？就是导出和导入的意思。</p>
+<ul>
+<li>存出镜像：就是将镜像保存到本地，方便给别的机器使用</li>
+<li>载入镜像：在新机器把镜像文件给加载出来使用</li>
+</ul>
+<h5 id="存出镜像">存出镜像
+</h5><p>使用 <code>docker save</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker save -o 存出的文件名 镜像名:标签
+</span></span><span class="line"><span class="cl">docker save -o 存出的文件名 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>-o 就是 output 的意思</p>
+<p>例子</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker save -o centos.tar.gz centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># docker save -o test.tar.gz 9e0017db11d1</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status go<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">466000</span>
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> root root <span class="m">238581248</span> Aug <span class="m">29</span> 14:50 centos.tar.gz
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> root root <span class="m">238587904</span> Aug <span class="m">29</span> 14:52 test.tar.gz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这两个就是镜像文件了，把这个拿给别人，直接加载使用就可以</p>
+<h5 id="载入镜像">载入镜像
+</h5><p>使用 <code>docker load</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker load -i centos.tar.gz
+</span></span><span class="line"><span class="cl">docker load -i test.tar.gz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后再使用 <code>docker images</code> 查看镜像列表，看看加载成功没，就可以了。</p>
+<h4 id="上传镜像">上传镜像
+</h4><p>使用 <code>docker push</code> 命令推送镜像到镜像仓库，默认是推送到 Docker Hub 的。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker push 镜像名:标签 <span class="p">|</span> 仓库IP:仓库端口/镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="例子-2">例子
+</h5><p>用户 WeiQ 想要推送本地的镜像 <code>centos:latest</code> 到仓库中，怎么推？</p>
+<p>先给要推送的镜像添加新的标签，再推送这个标签的镜像，方便区分是 WeiQ 推送的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker tag centos:latest WeiQ/centos:latest
+</span></span><span class="line"><span class="cl">docker push WeiQ/centos:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="运行镜像">运行镜像
+</h4><p>使用 <code>docker run</code> 命令，它是运行镜像，生成对应的容器，所以这个命令也可以归为<font style="color:#DF2A3F;">运行容器</font>。</p>
+<p>与启动容器命令是一样的</p>
+<h3 id="docker-容器">Docker 容器
+</h3><ul>
+<li>容器，是运行镜像生成的，并且是有可写文件层的</li>
+<li>容器，是集合了 应用 + 操作环境 的一个盒子</li>
+</ul>
+<h4 id="创建容器">创建容器
+</h4><p>创建容器涉及到</p>
+<ul>
+<li>create 创建</li>
+<li>start 启动容器</li>
+<li>run 创建并启动</li>
+<li>wait</li>
+<li>logs</li>
+</ul>
+<h5 id="新建容器">新建容器
+</h5><p>创建容器的命令是 <code>docker create</code> ，创建的容器是非运行状态；可通过 <code>docker ps -a</code> 查看新创建的容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker create -it 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>它支持的选项很多，一般常用就 <code>-it</code> <code>--name</code> <code>-d</code> <code>-p</code> <code>-e</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">--name：为容器指定一个名称。
+</span></span><span class="line"><span class="cl">-it：这是两个选项的组合，-i 允许你通过 STDIN 与容器交互，-t 分配一个伪终端。
+</span></span><span class="line"><span class="cl">-d：以守护态（后台）运行容器。
+</span></span><span class="line"><span class="cl">-p：映射容器的端口到宿主机的端口。
+</span></span><span class="line"><span class="cl">-P：随机映射所有暴露的端口到宿主机的端口。
+</span></span><span class="line"><span class="cl">-v：挂载宿主机的一个卷到容器内。
+</span></span><span class="line"><span class="cl">-e：设置环境变量。
+</span></span><span class="line"><span class="cl">--env-file：从一个文件中读取环境变量。
+</span></span><span class="line"><span class="cl">--network：将容器连接到指定的网络。
+</span></span><span class="line"><span class="cl">--restart：设置容器的重启策略。
+</span></span><span class="line"><span class="cl">--cpus：限制容器可以使用的 CPU 数量。
+</span></span><span class="line"><span class="cl">--memory：限制容器可以使用的内存量。
+</span></span><span class="line"><span class="cl">--memory-swap：限制容器可以使用的内存加上交换空间的总和。
+</span></span><span class="line"><span class="cl">--entrypoint：覆盖镜像的默认入口点。
+</span></span><span class="line"><span class="cl">--cmd：覆盖镜像的默认命令。
+</span></span><span class="line"><span class="cl">--label：设置容器的元数据标签。
+</span></span><span class="line"><span class="cl">--user：指定运行容器的用户。
+</span></span><span class="line"><span class="cl">--workdir：指定容器的工作目录。
+</span></span><span class="line"><span class="cl">--hostname：设置容器的主机名。
+</span></span><span class="line"><span class="cl">--mac-address：设置容器的 MAC 地址。
+</span></span><span class="line"><span class="cl">--ip：设置容器的 IPv4 地址（当使用自定义网络时）。
+</span></span><span class="line"><span class="cl">--add-host：添加自定义的 host-to-IP 映射（host:IP）。
+</span></span><span class="line"><span class="cl">--volume-driver：指定容器的卷驱动。
+</span></span><span class="line"><span class="cl">--stop-signal：设置停止容器的信号。
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>例子，创建一个别名为 centos7 的容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker create --name centos7 -it centos:latest</span>
+</span></span><span class="line"><span class="cl">77c3b94004ddb337d7a1fd66aa4b7a4c45347918a1664020618e82eb1438655a
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps -a</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS                         PORTS               NAMES
+</span></span><span class="line"><span class="cl">77c3b94004dd        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">2</span> seconds ago        Created                                            centos7
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="启动容器">启动容器
+</h5><p>使用 <code>docker start</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker start 容器名
+</span></span><span class="line"><span class="cl">docker start 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后可以使用 <code>docker ps</code> 查看正在运行的容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker start centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">77c3b94004dd        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">23</span> minutes ago      Up <span class="m">6</span> seconds                            centos7
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="新建并启动容器">新建并启动容器
+</h5><p>使用 <code>docker run</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -it 镜像名:标签
+</span></span><span class="line"><span class="cl">docker run -it 镜像ID
+</span></span><span class="line"><span class="cl">docker run -it --name 容器名称 镜像ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>-i	让容器的标准输入保存打开，就是打开容器的执行窗口</p>
+<p>-t	让 Docker 分配一个伪终端并绑定到容器的标准输入上</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -d --name centos7 -it centos:latest</span>
+</span></span><span class="line"><span class="cl">c0121f9cb884f0783b86c077cb027025cc472515fe2d9267d4073e7000a9bd7c
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">c0121f9cb884        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">30</span> minutes ago      Up <span class="m">30</span> minutes                           centos7
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="执行-docker-run-的原理">执行 docker run 的原理
+</h6><p>执行时，docker 在后台的操作：</p>
+<p>1）检查本地是否存在镜像，不存在则从共有仓库拉取</p>
+<p>2）利用镜像创建一个容器，并启动容器</p>
+<p>3）分配一个文件系统给容器，并在只读的镜像层外挂载一层可读写层</p>
+<p>4）从宿主主机配置的网桥接口接一个虚拟接口到容器中</p>
+<p>5）从网桥的地址池配置一个 IP 地址给容器</p>
+<p>6）执行用户指定的应用程序</p>
+<h6 id="exit-退出销毁容器-">exit 退出销毁容器 *
+</h6><p><code>docker run</code> 是会生成容器的，那这里的创建容器是为了什么？因为创建新容器，它里边不就什么都没有？</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>run 命令其实是 create 与 start 命令的合集，它等于创建容器、启动容器</p>
+</blockquote>
+<p>验证：</p>
+<p>1）运行镜像，进入容器进行增删改操作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@b0d385386935 /<span class="o">]</span><span class="c1"># cd /home/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@b0d385386935 home<span class="o">]</span><span class="c1"># touch test.txt</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@b0d385386935 home<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test.txt
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）然后退出容器，看看容器是否存在</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@b0d385386935 home<span class="o">]</span><span class="c1"># exit</span>
+</span></span><span class="line"><span class="cl"><span class="nb">exit</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）不存在容器，重新运行镜像，进入容器，查看刚刚创建的 test.txt 文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@6e198af7152d /<span class="o">]</span><span class="c1"># cd /home/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@6e198af7152d home<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@6e198af7152d home<span class="o">]</span><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>已经没有了，且这个容器ID也改变了。</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>结论，运行镜像生成容器，<del>在容器内使用 exit 命令退出的时候，容器也会销毁</del>。重新运行镜像则是会生成一个全新的容器。</p>
+</blockquote>
+<p>20241009：这里其实是退出容器，并且这个容器因为执行完命令了，处于退出的状态，并没有销毁，可使用 <code>docker ps -a</code> 查看它。</p>
+<h6 id="退出不销毁容器-">退出不销毁容器 *
+</h6><p>在容器内部，我退出的时候，不销毁容器，让容器继续运行，应该如何操作？</p>
+<p>1）使用 <code>ctrl + p</code> 再使用 <code>ctrl + q</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ctrl + p</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># ctrl + q</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">7f64fc558ccb        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">14</span> seconds ago      Up <span class="m">13</span> seconds                           loving_swanson
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）可以重新进入这个容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it 7f64fc558ccb /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@7f64fc558ccb /<span class="o">]</span><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="退出容器-">退出容器 *
+</h5><p>如果是退出并销毁容器，使用 <code>exit</code> 命令；</p>
+<p>如果是退出但保留容器在后台运行，使用 <code>ctrl + p</code> 再使用 <code>ctrl + q</code></p>
+<h5 id="后台运行容器">后台运行容器
+</h5><p>让容器在后台运行，使用 <code>-d</code> 选项</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -d 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="查看容器输出">查看容器输出
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker logs <span class="o">[</span>选项<span class="o">]</span> 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>选项可以有：</p>
+<p>&ndash;detail	打印详细信息</p>
+<p>-f	持续保持输出</p>
+<p>&ndash;tail string	输出从某个时间开始的日志</p>
+<h4 id="列出容器">列出容器
+</h4><p>使用 <code>docker ps</code> 命令，列出容器列表</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>docker ps 	列出当前运行的容器</p>
+<p>支持的参数：</p>
+<p>-a 	列出所有的容器（运行 + 已停止）</p>
+<p>-q	只列出容器 ID</p>
+<p>-aq	列出所有容器ID</p>
+<p>-l	显示最近创建的容器信息</p>
+<p>-n 5	显示最后创建的 5 个容器信息</p>
+</blockquote>
+<h4 id="停止容器">停止容器
+</h4><p>有暂停容器、有终止容器，如何理解？</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>可以把容器看作一个应用进程，暂停容器，就是把进程先暂停，后续还可以直接恢复运行状态。</p>
+<p>终止容器，就是把这个应用进程给 KILL 掉了，也就是这个容器被彻底关掉了。</p>
+</blockquote>
+<ul>
+<li>pause</li>
+<li>unpause</li>
+<li>stop</li>
+<li>prune</li>
+</ul>
+<h5 id="暂停容器">暂停容器
+</h5><p>使用 <code>docker pause</code> 命令暂停容器的运行（只是暂停运行，非销毁\删除），使用 <code>docker ps</code> 命令还能查到</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker pause 容器名
+</span></span><span class="line"><span class="cl">docker pause 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">c0121f9cb884        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">30</span> minutes ago      Up <span class="m">30</span> minutes                           centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker pause centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                   PORTS               NAMES
+</span></span><span class="line"><span class="cl">c0121f9cb884        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">32</span> minutes ago      Up <span class="m">32</span> minutes <span class="o">(</span>Paused<span class="o">)</span>                       centos7
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>停止之后，<code>STUTAS</code> 变为了 <code>Paused</code></p>
+<h5 id="恢复运行">恢复运行
+</h5><p>使用 <code>docker unpause</code> 命令恢复容器的运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker unpause 容器名
+</span></span><span class="line"><span class="cl">docker unpause 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="终止容器">终止容器
+</h5><p>使用 <code>docker stop</code> 命令。把容器给 KILL 掉，使用 <code>docker ps</code> 查看不到了。（这个不是删除容器！）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker stop 容器名
+</span></span><span class="line"><span class="cl">docker stop 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker stop centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 docker ps -a 还是可以看到这个容器</p>
+<h5 id="重启容器">重启容器
+</h5><p>其实就是【2.1.2 启动容器】步骤</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker start 容器名
+</span></span><span class="line"><span class="cl">docker start 容器ID
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 重启</span>
+</span></span><span class="line"><span class="cl">docker restart 容器名
+</span></span><span class="line"><span class="cl">docker restart 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker start centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">c0121f9cb884        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">46</span> minutes ago      Up <span class="m">5</span> seconds                            centos7
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="进入容器">进入容器
+</h4><p>在【2.1.3 新建并启动容器】步骤中，通过 <code>-d</code> 让容器后台运行</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --name centos7 -itd centos:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>容器后台运行，是不会进入到容器内部的</p>
+<p>需要进入容器，使用 <code>docker exec</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker <span class="nb">exec</span> -it 容器名 /bin/bash
+</span></span><span class="line"><span class="cl">docker <span class="nb">exec</span> -it 容器ID /bin/bash
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it centos7 /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@c0121f9cb884 /<span class="o">]</span><span class="c1">#</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里不使用 <code>/bin/bash</code> ，会进不去</p>
+<h4 id="删除容器">删除容器
+</h4><p><code>docker rm</code> 命令是删除容器</p>
+<p><code>docker rmi</code> 命令是删除镜像</p>
+<p>注意区别</p>
+<ul>
+<li>删除容器，通常是只能删除非运行状态的容器，使用 <code>pause</code> 暂停的容器也删除不了。必须是 <code>docker ps</code> 命令查不到的容器</li>
+<li>强行删除，加入 <code>-f</code> 参数，或者先使用 <code>stop</code> 终止容器</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rm -f 容器名
+</span></span><span class="line"><span class="cl">docker rm -f 容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker stop 容器名<span class="p">&amp;</span>容器ID
+</span></span><span class="line"><span class="cl">docker rm 容器名<span class="p">&amp;</span>容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">c0121f9cb884        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">2</span> hours ago         Up <span class="m">2</span> hours                              centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker stop centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker rm centos7</span>
+</span></span><span class="line"><span class="cl">centos7
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps -a</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="导入和导出容器">导入和导出容器
+</h4><p>这个就跟 【1.7 存出和载入镜像】类似，将整体容器导出到文件，然后导入到其他机器中，就可以使用了。</p>
+<h5 id="导出容器">导出容器
+</h5><p>使用 <code>docker export</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker <span class="nb">export</span> -o 文件名.tar.gz 容器名或者容器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run --name centos7 -itd centos:latest</span>
+</span></span><span class="line"><span class="cl">9fb9bacc6189204e54463401d3e91326a1256a8bec59d4737e600bc76d789d11
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">9fb9bacc6189        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">3</span> seconds ago       Up <span class="m">2</span> seconds                            centos7
+</span></span><span class="line"><span class="cl">8a848522fedf        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">29</span> seconds ago      Up <span class="m">28</span> seconds                           stupefied_swartz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker export -o container_centos7.tar.gz centos7</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">233008</span>
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> root root <span class="m">238592512</span> Aug <span class="m">30</span> 13:24 container_centos7.tar.gz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="导入容器">导入容器
+</h5><p>使用 <code>docker import</code> 命令，导入容器，将变为镜像文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker import 包名 名称:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="例子-3">例子
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker import container_centos7.tar.gz test_import/centos:20240830_V1</span>
+</span></span><span class="line"><span class="cl">sha256:592397d362e5fb6e89f5718e13c19a9f8a74562a7f97c10108aa4b30c9e3c0f2
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">test_import/centos   20240830_V1         592397d362e5        <span class="m">7</span> seconds ago       <span class="m">231</span> MB
+</span></span><span class="line"><span class="cl"><span class="nb">test</span>                 20240829_V1         9e0017db11d1        <span class="m">23</span> hours ago        <span class="m">231</span> MB
+</span></span><span class="line"><span class="cl">docker.io/centos     latest              5d0da3dc9764        <span class="m">2</span> years ago         <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>将 <code>container_centos7.tar.gz</code> 导入，生成一个 <code>test_import/centos</code> 的镜像文件，标签是 <code>20240830_V1</code></p>
+<h5 id="迁移环境有-2-种方式">迁移环境有 2 种方式
+</h5><h6 id="1-打包镜像">1 打包镜像
+</h6><p>1）打包镜像，【1.6.1 基于已有容器创建】章节，以现在容器创建一个镜像文件</p>
+<p>2）将这个镜像文件，放到其他机器里，载入镜像文件，【1.7.2 载入镜像】章节。</p>
+<h6 id="2-打包容器">2 打包容器
+</h6><p>1）打包容器，【2.6.1 导出容器】，生成一个容器文件</p>
+<p>2）将这个容器文件，放到其他机器里，导入容器文件，【2.6.2 导入容器】</p>
+<h6 id="3-区别">3 区别
+</h6><p>其实没啥区别，除了执行的命令有区别，本质上都是将这个容器打包成文件，然后在其他机器上加载生成新镜像，然后运行这个镜像就可以得到一模一样的容器了。</p>
+<h4 id="查看容器">查看容器
+</h4><p>在【1.3 查看镜像信息】章节，可以使用 <code>inspect</code> 查看镜像的详细信息</p>
+<p>其实 <code>inspect</code> 还可以查看容器的详细信息</p>
+<ul>
+<li>查看镜像信息是 <code>docker inspect</code></li>
+<li>查看容器信息是 <code>docker container inspect</code></li>
+</ul>
+<h5 id="查看容器详情">查看容器详情
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container inspect 容器名<span class="se">\容</span>器ID
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker container <span class="o">[</span>options<span class="o">]</span> inspect 容器名<span class="se">\容</span>器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>支持的选项：</p>
+<p>使用 <code>docker container inspect --help</code> 查看，或者</p>
+<p>使用 <code>man docker container inspect</code> 查看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker container inspect centos7</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>会有容器ID、创建时间、路径、状态、镜像、配置等</p>
+<h5 id="查看容器内进程">查看容器内进程
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container top 容器名<span class="se">\容</span>器ID
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker top 容器名<span class="se">\容</span>器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 <code>docker container top</code> 方便区分是容器的操作命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker container top centos7</span>
+</span></span><span class="line"><span class="cl">UID                 PID                 PPID                C                   STIME               TTY                 TIME                CMD
+</span></span><span class="line"><span class="cl">root                <span class="m">31467</span>               <span class="m">31450</span>               <span class="m">0</span>                   13:23               pts/2               00:00:00            /bin/bash
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="查看统计信息">查看统计信息
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container stats 容器名<span class="se">\容</span>器ID
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">docker container stats <span class="o">[</span>options<span class="o">]</span> 容器名<span class="se">\容</span>器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>支持的选项：</p>
+<p>-a	输出所有容器统计信息，不加就是显示运行状态的容器信息</p>
+<p>&ndash;format string	格式化输出信息</p>
+<p>&ndash;no-stream	不持续输出，默认是自动更新实时结果的</p>
+<h4 id="其他容器命令">其他容器命令
+</h4><ul>
+<li>cp</li>
+<li>diff</li>
+<li>port</li>
+<li>update</li>
+</ul>
+<h5 id="复制文件-cp">复制文件 cp
+</h5><p>cp 命令支持在容器与主机之间复制文件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container cp 主机内容 容器:/容器路径/
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>也可以从容器传到主机</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container cp 容器:/路径/文件 /主机路径
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>例子</p>
+<p>将本地的 sh 文件复制到 centos7 容器的 tmp 目录下</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status shell<span class="o">]</span><span class="c1"># docker container cp /home/shell/serviceCheckDay.sh centos7:/tmp</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status shell<span class="o">]</span><span class="c1"># docker exec -it centos7 /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@9fb9bacc6189 /<span class="o">]</span><span class="c1"># cd tmp/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@9fb9bacc6189 tmp<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">ks-script-4luisyla  ks-script-o23i7rc2  ks-script-x6ei4wuu  serviceCheckDay.sh
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@9fb9bacc6189 tmp<span class="o">]</span><span class="c1"># ls -l</span>
+</span></span><span class="line"><span class="cl">total <span class="m">16</span>
+</span></span><span class="line"><span class="cl">-rwx------ <span class="m">1</span> root root  <span class="m">701</span> Sep <span class="m">15</span>  <span class="m">2021</span> ks-script-4luisyla
+</span></span><span class="line"><span class="cl">-rwx------ <span class="m">1</span> root root  <span class="m">671</span> Sep <span class="m">15</span>  <span class="m">2021</span> ks-script-o23i7rc2
+</span></span><span class="line"><span class="cl">-rwx------ <span class="m">1</span> root root  <span class="m">291</span> Sep <span class="m">15</span>  <span class="m">2021</span> ks-script-x6ei4wuu
+</span></span><span class="line"><span class="cl">-rwxr-xr-x <span class="m">1</span> root root <span class="m">2467</span> Jul <span class="m">23</span> 03:13 serviceCheckDay.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="查看变更-diff">查看变更 diff
+</h5><p><code>diff</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container diff 容器名<span class="se">\容</span>器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status shell<span class="o">]</span><span class="c1"># docker container diff centos7</span>
+</span></span><span class="line"><span class="cl">C /run
+</span></span><span class="line"><span class="cl">D /run/secrets
+</span></span><span class="line"><span class="cl">C /tmp
+</span></span><span class="line"><span class="cl">A /tmp/serviceCheckDay.sh
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>有变更的目录和文件都显示出来</p>
+<h5 id="查看端口映射-port">查看端口映射 port
+</h5><p><code>port</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container port 容器名<span class="se">\容</span>器ID
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="更新配置-update">更新配置 update
+</h5><p><code>update</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container update 容器名<span class="se">\容</span>器ID --需要更新的参数
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>参数：用到再看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status shell<span class="o">]</span><span class="c1"># docker container update --help</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Usage:  docker container update <span class="o">[</span>OPTIONS<span class="o">]</span> CONTAINER <span class="o">[</span>CONTAINER...<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Update configuration of one or more containers
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Options:
+</span></span><span class="line"><span class="cl">      --blkio-weight uint16         Block IO <span class="o">(</span>relative weight<span class="o">)</span>, between <span class="m">10</span> and 1000, or <span class="m">0</span> to disable <span class="o">(</span>default 0<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      --cpu-period int              Limit CPU CFS <span class="o">(</span>Completely Fair Scheduler<span class="o">)</span> period
+</span></span><span class="line"><span class="cl">      --cpu-quota int               Limit CPU CFS <span class="o">(</span>Completely Fair Scheduler<span class="o">)</span> quota
+</span></span><span class="line"><span class="cl">      --cpu-rt-period int           Limit the CPU real-time period in microseconds
+</span></span><span class="line"><span class="cl">      --cpu-rt-runtime int          Limit the CPU real-time runtime in microseconds
+</span></span><span class="line"><span class="cl">  -c, --cpu-shares int              CPU shares <span class="o">(</span>relative weight<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      --cpuset-cpus string          CPUs in which to allow execution <span class="o">(</span>0-3, 0,1<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      --cpuset-mems string          MEMs in which to allow execution <span class="o">(</span>0-3, 0,1<span class="o">)</span>
+</span></span><span class="line"><span class="cl">      --help                        Print usage
+</span></span><span class="line"><span class="cl">      --kernel-memory string        Kernel memory limit
+</span></span><span class="line"><span class="cl">  -m, --memory string               Memory limit
+</span></span><span class="line"><span class="cl">      --memory-reservation string   Memory soft limit
+</span></span><span class="line"><span class="cl">      --memory-swap string          Swap limit equal to memory plus swap: <span class="s1">&#39;-1&#39;</span> to <span class="nb">enable</span> unlimited swap
+</span></span><span class="line"><span class="cl">      --restart string              Restart policy to apply when a container exits
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="仓库-1">仓库
+</h4><p>官方仓库 Docker Hub ，现在已经被墙了</p>
+<p>使用国内的仓库源就可以</p>
+<p>具体配置了一个阿里云的镜像仓库，看《<font style="color:#DF2A3F;">Docker 安装与配置</font>》，配置文件为 <code>/etc/docker/daemon.json</code></p>
+<h5 id="搭建本地私有仓库-">搭建本地私有仓库 *
+</h5><p>先不看</p>
+<h2 id="docker-进阶">Docker 进阶
+</h2><h3 id="docker-数据管理">Docker 数据管理
+</h3><p>在生成环境种使用 Docker ，特别是数据库放在 Docker 里，或者应用中上传的文件、资料等，需要对数据进行持久化，否则在进行应用版本升级或者容器挂掉后，重新利用镜像生成容器，数据全没了。</p>
+<p>之前做某银行的审计内控项目，使用的 Docker 部署应用，每当应用需要修改或者优化的时候，都需要重新上传应用包到某个地方，然后部署。他们应该使用 devops 一键部署的，我上传包到对应的地方，然后执行一个 yaml 命令，每次都是重新生成容器，原先的东西就全没了。</p>
+<p>数据管理有 2 种方式：</p>
+<ul>
+<li>数据卷 Data Volumns：容器内数据直接映射到本地主机环境</li>
+<li>数据卷容器 Data Volume Containers：使用特定容器维护数据卷</li>
+</ul>
+<p>如何在容器内创建数据卷？</p>
+<p>如何把本地目录或者文件挂到容器内的数据卷？</p>
+<p>如何在容器和主机之间共享数据？</p>
+<p>如何实现容器数据的备份和恢复？</p>
+<h4 id="数据卷">数据卷
+</h4><p>数据卷是将主机的目录映射进容器，类似 linux 的 mount 挂载共享盘。</p>
+<ul>
+<li>数据卷，在各个容器之间都可以共享数据</li>
+<li>对数据卷内的数据进行修改，容器和本机的数据也会修改。并且容器可以修改数据卷里的内容，本机也可以</li>
+<li>数据卷内的数据修改，不会影响到镜像</li>
+</ul>
+<h5 id="创建数据卷">创建数据卷
+</h5><p>使用 <code>docker volume</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker volume create -d <span class="nb">local</span> 数据卷名称
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>-d	表示字符串指定卷驱动程序名称（默认为“local”）</p>
+<p>例子</p>
+<p>1）在本地创建一个 <code>vol_test</code> 数据卷</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume create -d local vol_test</span>
+</span></span><span class="line"><span class="cl">vol_test
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）可以在 Docker 安装目录下查看数据卷</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># cd /var/lib/docker/volumes</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status volumes<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">28</span>
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> root root <span class="m">32768</span> Aug <span class="m">30</span> 16:27 metadata.db
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">3</span> root root  <span class="m">4096</span> Aug <span class="m">30</span> 16:27 vol_test
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="查看数据卷详细信息">查看数据卷详细信息
+</h6><p>使用 <code>docker volume inspect</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume inspect vol_test </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Driver&#34;</span>: <span class="s2">&#34;local&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Labels&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Mountpoint&#34;</span>: <span class="s2">&#34;/var/lib/docker/volumes/vol_test/_data&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;vol_test&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Options&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Scope&#34;</span>: <span class="s2">&#34;local&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="列出所有数据卷">列出所有数据卷
+</h6><p>使用 <code>docker volume ls</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume ls</span>
+</span></span><span class="line"><span class="cl">DRIVER              VOLUME NAME
+</span></span><span class="line"><span class="cl"><span class="nb">local</span>               vol_test
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="清理无用数据卷">清理无用数据卷
+</h6><p>使用 <code>docker volume prune</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume prune</span>
+</span></span><span class="line"><span class="cl">WARNING! This will remove all volumes not used by at least one container.
+</span></span><span class="line"><span class="cl">Are you sure you want to <span class="k">continue</span>? <span class="o">[</span>y/N<span class="o">]</span> y
+</span></span><span class="line"><span class="cl">Deleted Volumes:
+</span></span><span class="line"><span class="cl">vol_test
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Total reclaimed space: <span class="m">0</span> B
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume ls</span>
+</span></span><span class="line"><span class="cl">DRIVER              VOLUME NAME
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="删除数据卷">删除数据卷
+</h6><p>使用 <code>docker volume rm</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker volume rm 数据卷名称
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume create -d local data_test</span>
+</span></span><span class="line"><span class="cl">data_test
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume ls</span>
+</span></span><span class="line"><span class="cl">DRIVER              VOLUME NAME
+</span></span><span class="line"><span class="cl"><span class="nb">local</span>               data_test
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume rm data_test </span>
+</span></span><span class="line"><span class="cl">data_test
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status /<span class="o">]</span><span class="c1"># docker volume ls</span>
+</span></span><span class="line"><span class="cl">DRIVER              VOLUME NAME
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="绑定数据卷">绑定数据卷
+</h5><p>创建容器的时候，可以直接将本地的任意路径挂载到容器内作为数据卷，这种形式本质上也是创建一个数据卷，只不过它是在创建容器的时候直接绑定了，所以叫绑定数据卷。</p>
+<p>使用 <code>-mount</code> 命令进行绑定，它有 3 种类型的数据卷：</p>
+<ul>
+<li>volume 普通数据卷，映射到主机 <code>/var/lib/docker/volume</code> 路径下</li>
+<li>bind 绑定数据卷，映射到主机指定路径下</li>
+<li>tmpfs 临时数据卷，只存在内存中</li>
+</ul>
+<p>例子：</p>
+<p>将本地的 <code>/home/go</code> 目录挂载到容器 <code>/opt/web</code> 内，作为容器卷</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -d -P --name web -v /home/go:/opt/web centos:latest
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li><code>-P</code> 是映射所有端口</li>
+</ul>
+<p>这里直接绑定数据卷的容器，使用 <code>docker ps -a</code> 命令查看，它的状态是：<code>Exited</code></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps -a</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+</span></span><span class="line"><span class="cl">3577d310d7b1        centos:latest       <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">4</span> minutes ago       Exited <span class="o">(</span>0<span class="o">)</span> <span class="m">4</span> minutes ago                       web
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>不清楚啥原因，先把它删了：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker rm 3577d310d7b1
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>再重新创建容器并绑定数据卷，这次在命令后边接执行命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -d -P --name web -v /home/go:/opt/web centos:latest /bin/bash
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>啊，不行，先跳过，这个不知道为啥</p>
+<h4 id="数据卷容器">数据卷容器
+</h4><p>如果需要在多个容器之间共享一些持续更新的数据，使用数据卷容器是最简单的方式。</p>
+<p>数据卷容器也是一个容器，只不过它提供数据卷，给其他容器挂载。</p>
+<h5 id="例子-4">例子
+</h5><p>1）创建一个数据卷容器，并在其中创建数据卷挂载到容器里，将本地的 /dbdata 挂载到容器 dbdata 里</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it -v /dbdata --name dbdata centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># [root@status ~]# </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>使用 <code>ctrl+p</code> 再 <code>ctrl+q</code> 让容器在后台运行</p>
+<p>2）在其他容器中使用 <code>--volumes-from</code> 来挂载容器中的数据卷</p>
+<p>可以创建新的容器，并挂载这个数据卷容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it --volumes-from dbdata --name db1 centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@64e8cf50b3be /<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里 <code>db1</code> 容器里，已经有了这个 <code>dbdata</code> 数据卷容器了</p>
+<p>3）在容器内，往数据卷容器创建新文件，看看数据卷容器是否也被创建</p>
+<p>进入数据卷容器，可以看到，是可以同步的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it dbdata /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># cd /dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test.go
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>4）再创建一个容器并挂载数据卷容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -it --volumes-from dbdata --name db2 centos:latest</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@0bcca546d72d /<span class="o">]</span><span class="c1"># ls        </span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@0bcca546d72d /<span class="o">]</span><span class="c1"># cd dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@0bcca546d72d dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test.go
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>5）在数据卷容器里操作，其他容器也同时生效，因为里边的数据是共享的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it dbdata /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># cd dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test.go
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># mkdir test1 test2 test3 </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test.go  test1  test2  test3
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># rm -rf test.go </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># [root@status ~]# </span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it db2 /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@0bcca546d72d /<span class="o">]</span><span class="c1"># cd dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@0bcca546d72d dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test1  test2  test3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p>[!IMPORTANT]</p>
+<p>总结</p>
+<p>正常的，数据卷容器只要存在，就可以相当于 NFS 或者 NAS 一样，作为一个挂载盘在容器之间共享。只要这个容器不被销毁。</p>
+</blockquote>
+<h5 id="注意">注意
+</h5><p>数据卷容器，本质上是一个容器，只不过它是挂载了数据卷，然后又将这个容器挂载到其他容器中。</p>
+<ul>
+<li>使用 <code>docker volume ls</code> 查看的是数据卷</li>
+<li>使用 <code>docker ps</code> 查看的是数据卷容器</li>
+</ul>
+<h4 id="利用数据卷容器进行数据迁移">利用数据卷容器进行数据迁移
+</h4><p>因为数据卷容器，它就是个容器，将这个容器导出来，放到其他机器上，可以实现数据的<font style="color:#DF2A3F;">迁移、备份</font>。</p>
+<h5 id="使用数据卷容器备份数据">使用数据卷容器备份数据
+</h5><p>理论上是可以的，验证一下看看：</p>
+<p>1）导出容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker export -o bak.tar.gz dbdata</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">233008</span>
+</span></span><span class="line"><span class="cl">-rw------- <span class="m">1</span> root root <span class="m">238593024</span> Sep  <span class="m">3</span> 16:13 bak.tar.gz
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）导入容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker import bak.tar.gz bak_test:20240903V1</span>
+</span></span><span class="line"><span class="cl">sha256:01b390296306643a0ea36d203a846b306d185069937ab3f618fbb864fc1a47a5
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker images</span>
+</span></span><span class="line"><span class="cl">REPOSITORY           TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class="line"><span class="cl">bak_test             20240903V1          01b390296306        <span class="m">4</span> minutes ago       <span class="m">231</span> MB
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）进入容器，看看是否 <code>dbdata</code> 目录是否还有文件？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -d -it bak_test:20240903V1 /bin/bash</span>
+</span></span><span class="line"><span class="cl">17a3da2583a3a37c153b6d34afb19c65f8b9f202377ab04af9e315a2edb1db7b
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bak.tar.gz
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE                 COMMAND             CREATED             STATUS              PORTS               NAMES
+</span></span><span class="line"><span class="cl">17a3da2583a3        bak_test:20240903V1   <span class="s2">&#34;/bin/bash&#34;</span>         <span class="m">18</span> seconds ago      Up <span class="m">17</span> seconds                           heuristic_jang
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it heuristic_jang /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@17a3da2583a3 /<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@17a3da2583a3 /<span class="o">]</span><span class="c1"># cd dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@17a3da2583a3 dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@17a3da2583a3 dbdata<span class="o">]</span><span class="c1"># </span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>dbdata 里边没有数据，很奇怪</p>
+<p>4）查看数据卷容器</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker exec -it dbdata /bin/bash</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">bin  dbdata  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 /<span class="o">]</span><span class="c1"># cd dbdata/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@bab3308ef270 dbdata<span class="o">]</span><span class="c1"># ls</span>
+</span></span><span class="line"><span class="cl">test1  test2  test3
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>数据卷容器的文件还是有的，但是导出的时候好像并没有导出来？</p>
+<p>docker 容器是基于镜像生成的，镜像是一个静态的文件系统，<font style="color:#DF2A3F;">它不会自动包含导入时附带的数据卷</font>的。</p>
+<p>如果需要导入时包含数据卷里的数据，可以绑定数据卷，将这个 bak.tar.gz 映射到容器内，然后解压它。</p>
+<p>结论：</p>
+<p>不能使用数据卷容器备份数据</p>
+<h5 id="使用数据卷容器font-stylecolordf2a3f备份font数据卷">使用数据卷容器<font style="color:#DF2A3F;">备份</font>数据卷
+</h5><p>不能使用数据卷容器做备份，但是可以备份它里边的数据卷，使用 <code>docker run</code> 命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --volumes-from 数据卷容器 -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/bakup --name 新容器名 镜像名:标签 执行的命令
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>例子</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run --volumes-from dbdata -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/bakup --name worker centos:latest tar -cvf /bakup/bakup.tar.gz /dbdata
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>命令详解：</p>
+<ul>
+<li><code>--volumes-from</code> 是让容器 worker 挂载 dbdata 数据卷容器</li>
+<li><code>-v $(pwd):/bakup</code> 是将当前目录，都映射到 worker 容器里的 /bakup 目录</li>
+<li><code>tar</code> 命令，就是运行容器之后，立马执行的命令</li>
+</ul>
+<h5 id="注意-1">注意
+</h5><p>这个命令生成的容器，因为 <code>tar</code> 命令是前台命令，命令执行完成后，容器会停止。如果需要在后台继续运行该容器，则可以这样</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -it --volumes-from dbdata -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/bakup --name worker centos:latest /bin/bash -c <span class="s2">&#34;tar -cvf /bakup/bakup.tar.gz /dbdata&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="使用数据卷容器恢复数据-">使用数据卷容器恢复数据 *
+</h5><p>这个百度或者问问 AI</p>
+<p>涉及到数据备份和恢复的，都是挺重要的章节，看看怎么单独实践一张。</p>
+<h3 id="端口映射容器互联">端口映射、容器互联
+</h3><p>生产上，通常各个容器会互相协作，特别是微服务架构的应用，每个服务一个容器。还有数据库与应用之间的互联，应用需要访问到数据库的端口。</p>
+<ul>
+<li>映射容器内应用的服务端口到本地主机</li>
+<li>互联机制实现多个容器间通过容器名来快速访问</li>
+</ul>
+<h4 id="容器的端口映射">容器的端口映射
+</h4><p>如果在启动容器的时候，没有指定对应的端口参数，容器外部是无法通过网络访问容器内的应用服务的。</p>
+<p>通过 <code>-p</code> 或者 <code>-P</code> 参数进行端口映射</p>
+<ul>
+<li>-p 可以指定具体的端口</li>
+<li>-P 是随机映射一个 49000 ~ 49900  的端口</li>
+</ul>
+<p>首先，要知道，容器一旦运行起来是不能修改其端口映射的，必须重新运行一个容器并在启动时就进行映射。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">dokcer run -d --name 容器名 -p 外部映射端口:容器应用端口 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="从外部访问容器应用">从外部访问容器应用
+</h5><p>1）启动 nginx 容器，并进行端口映射</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -d --name nginx -p 8088:80 nginx:1.21.5</span>
+</span></span><span class="line"><span class="cl">1bb6ac4fee9793393c1fa9066f61105201a5f94e3cb5bc1fb4fe463f96bbe647
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker ps</span>
+</span></span><span class="line"><span class="cl">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES
+</span></span><span class="line"><span class="cl">1bb6ac4fee97        nginx:1.21.5        <span class="s2">&#34;/docker-entrypoin...&#34;</span>   <span class="m">6</span> seconds ago       Up <span class="m">5</span> seconds        0.0.0.0:8088-&gt;80/tcp   nginx
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到 <code>0.0.0.0:8088 -&gt; 80/tcp</code> ，说明外部的 8088 端口映射到了容器内部的 80 端口，这个时候，在外部就可以使用 8088 端口访问到容器内部的 80 端口了</p>
+<p>2）通过宿主机 <code>IP:PORT</code> 的形式访问 nginx</p>
+<p>因为使用的阿里云服务器，所以使用阿里云服务器的 IP:8088 去访问 nginx，前提是阿里云服务器上开通 8088 端口</p>
+<p><img src="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589911518-b3681acc-e4d0-44e2-a1de-87e7b07ceb09.png"
+	width="1779"
+	height="237"
+	srcset="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589911518-b3681acc-e4d0-44e2-a1de-87e7b07ceb09_hu13703970289909124684.png 480w, /posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589911518-b3681acc-e4d0-44e2-a1de-87e7b07ceb09_hu6044890468405925566.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="750"
+		data-flex-basis="1801px"
+	
+></p>
+<p>把 阿里云的安全组的访问规则开通一下 8088 端口，然后就可以访问了</p>
+<p><img src="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589954603-8433989c-c431-4bc9-a6d6-95b7d9c2f167.png"
+	width="1541"
+	height="276"
+	srcset="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589954603-8433989c-c431-4bc9-a6d6-95b7d9c2f167_hu7426197036123746533.png 480w, /posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725589954603-8433989c-c431-4bc9-a6d6-95b7d9c2f167_hu11889249866224081511.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="558"
+		data-flex-basis="1340px"
+	
+></p>
+<p>3）查看 docker nginx 日志</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker logs nginx</span>
+</span></span><span class="line"><span class="cl">......
+</span></span><span class="line"><span class="cl">140.207.163.4 - - <span class="o">[</span>06/Sep/2024:02:31:56 +0000<span class="o">]</span> <span class="s2">&#34;GET / HTTP/1.1&#34;</span> <span class="m">200</span> <span class="m">615</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0&#34;</span> <span class="s2">&#34;-&#34;</span>
+</span></span><span class="line"><span class="cl">2024/09/06 02:31:56 <span class="o">[</span>error<span class="o">]</span> 30#30: *1 open<span class="o">()</span> <span class="s2">&#34;/usr/share/nginx/html/favicon.ico&#34;</span> failed <span class="o">(</span>2: No such file or directory<span class="o">)</span>, client: 140.207.163.4, server: localhost, request: <span class="s2">&#34;GET /favicon.ico HTTP/1.1&#34;</span>, host: <span class="s2">&#34;139.196.97.87:8088&#34;</span>, referrer: <span class="s2">&#34;http://139.196.97.87:8088/&#34;</span>
+</span></span><span class="line"><span class="cl">140.207.163.4 - - <span class="o">[</span>06/Sep/2024:02:31:56 +0000<span class="o">]</span> <span class="s2">&#34;GET /favicon.ico HTTP/1.1&#34;</span> <span class="m">404</span> <span class="m">555</span> <span class="s2">&#34;http://139.196.97.87:8088/&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0&#34;</span> <span class="s2">&#34;-&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到里边记录着谁访问了这个地址</p>
+<h5 id="映射所有接口地址">映射所有接口地址
+</h5><p>使用 <code>-p port:容器port</code> 的形式，就是默认映射所有地址的，就上边【2.1.1】步骤，这个就是所有地址都可以访问到 8088 端口</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">dokcer run -d --name 容器名 -p 外部映射端口:容器应用端口 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="映射到指定地址的指定端口">映射到指定地址的指定端口
+</h5><p>使用 <code>-p 指定地址:指定端口:容器端口</code> 可以指定映射的地址和端口</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -d --name 容器名 -p 指定外部地址:指定外部映射端口:容器应用端口 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="映射到指定地址的任意端口">映射到指定地址的任意端口
+</h5><p>使用 <code>-p 指定地址::容器端口</code> 可以映射到指定地址的所有端口</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker run -d --name 容器名 -p 指定外部地址::容器应用端口 镜像名:标签
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="查看映射端口的配置">查看映射端口的配置
+</h5><p>使用 <code>docker port 容器名</code> 命令查看容器当前映射的端口配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker port nginx</span>
+</span></span><span class="line"><span class="cl">80/tcp -&gt; 0.0.0.0:8088
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="查看容器的-ip">查看容器的 IP
+</h4><p>可以使用 <code>docker container inspect</code> 查看容器的详细信息，包含 IP</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker container inspect 容器名
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725590998875-2e24c2c2-0e97-41e3-9b4e-2d388c649fc0.png"
+	width="826"
+	height="475"
+	srcset="/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725590998875-2e24c2c2-0e97-41e3-9b4e-2d388c649fc0_hu12734759754617792811.png 480w, /posts/2024/09/docker-%E5%9F%BA%E7%A1%80/index/1725590998875-2e24c2c2-0e97-41e3-9b4e-2d388c649fc0_hu6223221107890266064.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="173"
+		data-flex-basis="417px"
+	
+></p>
+<h4 id="容器互联">容器互联
+</h4><p>容器互联，可以让多个容器之间的应用进行互相访问，最常见的就是应用容器得访问到数据库容器，应用才能正常运行。</p>
+<p>容器的互相连接，采用容器名的方式连接</p>
+<ul>
+<li>使用 <code>--link</code> 参数，可以让容器互联</li>
+</ul>
+<blockquote>
+<p>[!CAUTION]</p>
+<p>AI回答：</p>
+<p>&ndash;link 是旧版 docker 的用法，新版（docker 1.9）已经不推荐使用了，因为它需要停止容器后，重新 run 容器才能设置互联。</p>
+<p>新版使用 network （docker 的网络功能）连接容器，创建一个网络，然后将需要互联的容器都放到同一个网络中，就可以实现容器互联。</p>
+<p>所以，更推荐 network 用法</p>
+</blockquote>
+<h5 id="network-用法">network 用法
+</h5><p>模板</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker network 命令选项 网络名
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>create 创建</li>
+<li>connection 将容器连接到网络</li>
+<li>disconnection 将容器从网络中移除</li>
+<li>inspect 展示网络的详细信息</li>
+<li>ls 展示网络列表</li>
+<li>prune 删除所有不在使用的网络</li>
+<li>rm 删除网络</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 1.创建</span>
+</span></span><span class="line"><span class="cl">docker network create 网络名称
+</span></span><span class="line"><span class="cl"><span class="c1"># 2.将容器加入网络中</span>
+</span></span><span class="line"><span class="cl">docker network connect 网络名称 &lt;容器1的ID或名字&gt;
+</span></span><span class="line"><span class="cl">docker network connect 网络名称 &lt;容器2的ID或名字&gt;
+</span></span><span class="line"><span class="cl"><span class="c1"># 3.将容器从网络中移除</span>
+</span></span><span class="line"><span class="cl">docker network disconnect 网络名称 &lt;容器1的ID或名字&gt;
+</span></span><span class="line"><span class="cl"><span class="c1"># 4.展示网络详细信息</span>
+</span></span><span class="line"><span class="cl">docker network inspect 网络名称
+</span></span><span class="line"><span class="cl"><span class="c1"># 5.网络列表</span>
+</span></span><span class="line"><span class="cl">docker network ls
+</span></span><span class="line"><span class="cl"><span class="c1"># 6.删除所有不在使用的网络</span>
+</span></span><span class="line"><span class="cl">docker network prune
+</span></span><span class="line"><span class="cl"><span class="c1"># 7.删除网络</span>
+</span></span><span class="line"><span class="cl">docker network rm 网络名称
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="例子-5">例子
+</h5><p>将现有的 nginx 容器与 tomcat 容器进行互联（这里使用 <code>network</code> 进行容器互联）</p>
+<p>1）启动一个 tomcat 容器，不设置映射端口（一般通过 nginx 进行访问 tomcat，所以有 nginx 能在外部访问到就行）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker run -d --name tomcat tomcat:10.0.14 </span>
+</span></span><span class="line"><span class="cl">59c519066587ee0ad708f99b91a8d04f0a66c2e087a9327dfdf003832140503c
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）创建一个 docker 网络</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network create web_network</span>
+</span></span><span class="line"><span class="cl">5b1463443f2a443e2f7fa8277ac96eafcc0c9f0866302b910ce507394d667714
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network ls</span>
+</span></span><span class="line"><span class="cl">NETWORK ID          NAME                DRIVER              SCOPE
+</span></span><span class="line"><span class="cl">833b114c72d5        bridge              bridge              <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">ea34ff8ed89e        host                host                <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">c142124b84e6        none                null                <span class="nb">local</span>
+</span></span><span class="line"><span class="cl">5b1463443f2a        web_network         bridge              <span class="nb">local</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）将 tomcat 容器和 nginx 容器都拉进来</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network connect web_network tomcat</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network connect web_network nginx</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status ~<span class="o">]</span><span class="c1"># docker network inspect web_network </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;web_network&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Id&#34;</span>: <span class="s2">&#34;5b1463443f2a443e2f7fa8277ac96eafcc0c9f0866302b910ce507394d667714&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Created&#34;</span>: <span class="s2">&#34;2024-09-06T11:21:49.319643032+08:00&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Scope&#34;</span>: <span class="s2">&#34;local&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Driver&#34;</span>: <span class="s2">&#34;bridge&#34;</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;EnableIPv6&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;IPAM&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Driver&#34;</span>: <span class="s2">&#34;default&#34;</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Options&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;Config&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">                <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;Subnet&#34;</span>: <span class="s2">&#34;172.18.0.0/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                    <span class="s2">&#34;Gateway&#34;</span>: <span class="s2">&#34;172.18.0.1&#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="o">}</span>
+</span></span><span class="line"><span class="cl">            <span class="o">]</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Internal&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Attachable&#34;</span>: false,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Containers&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;1bb6ac4fee9793393c1fa9066f61105201a5f94e3cb5bc1fb4fe463f96bbe647&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;nginx&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;405bee2c3142c87ac6e9d007e021dd4ea4a95e9191ae72dd394343e7fead50e3&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:12:00:03&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.18.0.3/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">            <span class="s2">&#34;59c519066587ee0ad708f99b91a8d04f0a66c2e087a9327dfdf003832140503c&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;Name&#34;</span>: <span class="s2">&#34;tomcat&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;EndpointID&#34;</span>: <span class="s2">&#34;2296bfc0dbf18154fac66e0100b770cf342b2e8556cde98432bc694839b06ba9&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;MacAddress&#34;</span>: <span class="s2">&#34;02:42:ac:12:00:02&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv4Address&#34;</span>: <span class="s2">&#34;172.18.0.2/16&#34;</span>,
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;IPv6Address&#34;</span>: <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Options&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Labels&#34;</span>: <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="dockerfile-构建镜像">Dockerfile 构建镜像
+</h3><p>Dockerfile 里各个指令填写的文件目录，一般是上下文路径，不需要加路径。只有放入镜像内部的路径才填写绝对路径。</p>
+<p>Dockerfile 是一个文件，主要内容：</p>
+<ul>
+<li>基础镜像信息 FROM</li>
+<li>维护者信息 LABEL</li>
+<li>镜像操作指令 RUN</li>
+<li>容器启动时执行指令 CMD</li>
+<li>设置容器的环境变量 ENV</li>
+</ul>
+<p>使用 FROM 指令指明基于哪个基础镜像创建</p>
+<p>使用 LABEL 指令说明作者信息</p>
+<p>使用 RUN 指令在镜像中执行命令</p>
+<p>使用 CMD 指令来指定容器启动的时候执行哪些命令</p>
+<h4 id="dockerfile-主要指令">Dockerfile 主要指令
+</h4><div class="table-wrapper"><table>
+  <thead>
+      <tr>
+          <th style="text-align: left"><font style="color:rgb(25, 25, 25);">Dockerfile 指令</font></th>
+          <th style="text-align: left"><font style="color:rgb(25, 25, 25);">说明</font></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">FROM</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">指定基础镜像，用于后续的指令构建。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">MAINTAINER</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">指定Dockerfile的作者/维护者。（已弃用，推荐使用LABEL指令）</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">LABEL</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">添加镜像的元数据，使用键值对的形式。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">RUN</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">在构建过程中在镜像中执行命令。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">CMD</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">指定容器创建时的默认命令。（可以被覆盖）</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">ENTRYPOINT</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">设置容器创建时的主要命令。（不可被覆盖）</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">EXPOSE</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">声明容器运行时监听的特定网络端口。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">ENV</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">在容器内部设置环境变量。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">ADD</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">将文件、目录或远程URL复制到镜像中。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">COPY</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">将文件或目录复制到镜像中。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">VOLUME</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">为容器创建挂载点或声明卷。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">WORKDIR</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">设置后续指令的工作目录。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">USER</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">指定后续指令的用户上下文。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">ARG</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">定义在构建过程中传递给构建器的变量，可使用 &ldquo;docker build&rdquo; 命令设置。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">ONBUILD</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">当该镜像被用作另一个构建过程的基础时，添加触发器。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">STOPSIGNAL</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">设置发送给容器以退出的系统调用信号。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">HEALTHCHECK</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">定义周期性检查容器健康状态的命令。</font></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">SHELL</font></td>
+          <td style="text-align: left"><font style="color:rgb(51, 51, 51);">覆盖Docker中默认的shell，用于RUN、CMD和ENTRYPOINT指令。</font></td>
+      </tr>
+  </tbody>
+</table></div>
+<h4 id="配置指令">配置指令
+</h4><h5 id="from">FROM
+</h5><p>Dockerfile中第一条指令必须是 <code>FROM</code> 指令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">FROM 镜像名<span class="o">[</span>:标签<span class="o">]</span> <span class="o">[</span>AS 别名<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>为了保证镜像精简，可以使用包小的镜像，比如 Alpine \ Debian 作为基础镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-dockerfile" data-lang="dockerfile"><span class="line"><span class="cl">好像是可以有几个 FROM 的？<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> </span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>...<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> </span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>....<span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> </span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">RUN</span> <span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span>..。<span class="err">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="label">LABEL
+</h5><p><code>LABEL</code>指令是给镜像添加元数据标签信息的，包含镜像的基本信息，键值对的形式。可以有多个 <code>LABEL</code> 。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">LABEL <span class="nv">键1</span><span class="o">=</span>值1
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">键2</span><span class="o">=</span>值2
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">键3</span><span class="o">=</span>值3
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">LABEL <span class="nv">version</span><span class="o">=</span><span class="s2">&#34;V1.0&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">author</span><span class="o">=</span><span class="s2">&#34;Weii&#34;</span>
+</span></span><span class="line"><span class="cl">LABEL <span class="nv">description</span><span class="o">=</span><span class="s2">&#34;这里一个例子\
+</span></span></span><span class="line"><span class="cl"><span class="s2">      可以换行&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="expose">EXPOSE
+</h5><p>声明镜像内服务监听的端口。仅仅是声明，不会自动完成端口映射，映射还得是启动容器时的 <code>-p</code> 参数【2.1】步骤。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">EXPOSE 端口
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="env">ENV
+</h5><p>指定镜像的环境变量，环境变量在启动容器时也会存在。键值对的形式，也可以有多个 ENV。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ENV <span class="nv">键1</span><span class="o">=</span>值1
+</span></span><span class="line"><span class="cl">ENV <span class="nv">键2</span><span class="o">=</span>值2
+</span></span><span class="line"><span class="cl">ENV <span class="nv">键3</span><span class="o">=</span>值3
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ENV <span class="nv">JAVA_HOME</span><span class="o">=</span>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64
+</span></span><span class="line"><span class="cl">ENV <span class="nv">JRE_HOME</span><span class="o">=</span>/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.272.b10-7.ky10.aarch64/jre
+</span></span><span class="line"><span class="cl">ENV <span class="nv">CLASSPATH</span><span class="o">=</span>.:<span class="nv">$JAVA_HOME</span>/lib:<span class="nv">$JRE_HOME</span>/lib
+</span></span><span class="line"><span class="cl">ENV <span class="nv">PATH</span><span class="o">=</span><span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$PATH</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="volume">VOLUME
+</h5><p>数据卷，给镜像创建一个数据卷挂载点</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">VOLUME <span class="o">[</span><span class="s2">&#34;/path&#34;</span><span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>可以在 Dockerfile 直接用 VOLUME 创建，也可以不用。到时候启动容器的时候使用参数挂载数据卷。</p>
+<h5 id="user">USER
+</h5><p>指定运行容器时的用户名（指服务器用户名）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">USER 用户名
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="workdir">WORKDIR
+</h5><p>配置容器的主工作目录，给后续的 RUN \ CMD 等指令配置工作目录，RUN \ CMD 执行的命令，就是在这个目录下执行的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">WORKDIR /path/to/dir
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="shell">SHELL
+</h5><p>指定使用 shell 时的默认 shell 类型</p>
+<h4 id="操作指令">操作指令
+</h4><h5 id="run">RUN
+</h5><p>运行指令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RUN 命令1
+</span></span><span class="line"><span class="cl">RUN 命令2
+</span></span><span class="line"><span class="cl">RUN 命令3
+</span></span><span class="line"><span class="cl">RUN 命令4 <span class="o">&amp;&amp;</span> 命令5 <span class="o">&amp;&amp;</span> 命令6
+</span></span><span class="line"><span class="cl">RUN 命令7 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> 命令8 <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    <span class="o">&amp;&amp;</span> 命令9
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>注意：</p>
+<ul>
+<li>每条 RUN 指令都会生成一层镜像层，都是在上一层的基础上生成新的一层。</li>
+<li>可以使用 <code>\</code> 来换行</li>
+<li>合理的利用 RUN 分层，可以提供构建效率</li>
+</ul>
+<h5 id="cmd">CMD
+</h5><p>指定启动容器时执行的命令</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CMD 命令
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>注意：</p>
+<ul>
+<li>每个 Dockerfile 只能有一条 CMD 指令，如果有多条，则会被最后一条覆盖，只有最后一条会执行。</li>
+<li>如果启动容器时指定了执行参数，则会覆盖掉 CMD 指令</li>
+</ul>
+<p>docker run -d &ndash;name 容器名 镜像名:标签 执行的命令</p>
+<p>这里执行的命令，会覆盖掉 Dockerfile 里的 CMD 指令</p>
+<h5 id="add">ADD
+</h5><p>添加内容到镜像，一般填写镜像里的绝对路径；</p>
+<p>复制的路径，则是 dockerfile 所在的目录，所有包都需要在同一个目录，不能加路径。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ADD 需要复制的路径 容器里的绝对路径
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>比如：复制当前目录内容到容器内的 /home 目录</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ADD . /home
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>比如</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ADD jdk.tar.gz /home/install
+</span></span><span class="line"><span class="cl">ADD apache-tomcat-10.1.30.tar.gz /home/install
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>它会直接解压这个 tar 包到 /home/install 里，所以 RUN 命令不用跟着 tar -xzvf 命令了。</p>
+<h5 id="copy">COPY
+</h5><p>复制内容到镜像，跟 ADD 差不多，用 ADD。</p>
+<h4 id="创建镜像-1">创建镜像
+</h4><p>在编写完 Dockerfile 后，使用 <code>docker image build</code> 命令创建镜像</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">docker image build -t 镜像名称:标签 Dockerfile的路径
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>该命令的逐条执行 <code>Dockerfile</code> 里的 <code>RUN</code> 指令，如果 <code>RUN</code> 指令过多，会导致创建镜像缓慢。因为每一条 RUN 指令，都会生成一层新镜像，最后才合并到一起。</p>
+<p>同样的，<code>docker image build</code> 支持很多选项，具体可需要时百度</p>
+<h5 id="选择父镜像">选择父镜像
+</h5><p>生成新的镜像都是基于 <code>Dockerfile</code> 的 <code>FROM</code> 指令中指定的父镜像，父镜像是生成镜像的基础，会影响到生成镜像的大小和功能。</p>
+<h5 id="使用-dockerignore-文件">使用 .dockerignore 文件
+</h5><p>不看</p>
+<h3 id="heading">
+</h3><h5 id="多步骤创建">多步骤创建
+</h5><h2 id="总结">总结
+</h2><blockquote>
+<p>[!IMPORTANT]</p>
+<p>docker 主要是4个大部分的命令：</p>
+<ul>
+<li>镜像命令</li>
+<li>容器命令</li>
+<li>数据卷命令</li>
+<li>网络命令</li>
+</ul>
+<p>inspect 都是查看详细信息</p>
+<p>ls 都是列出列表</p>
+</blockquote>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/docker/">Docker</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2024年10月14号 15:27
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Docker-dockerfile构建镜像与network实践</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Wei Qi
+    </section>
+    
+    <section class="powerby">
+        
+
+        
+
+        
+        
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+
+        
+        
+        
+        
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
+        <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
+
+
+        <section class="powerby">
+            <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
+        </section>
+
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/js/nprogress.min.js"
+    integrity="sha384-bHDlAEUFxsRI7JfULv3DTpL2IXbbgn4JHQJibgo5iiXSK6Iu8muwqHANhun74Cqg"
+    crossorigin="anonymous"
+></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/css/nprogress.css"
+    integrity="sha384-KJyhr2syt5+4M9Pz5dipCvTrtvOmLk/olWVdfhAp858UCa64Ia5GFpTN7+G4BWpE"
+    crossorigin="anonymous"
+/>
+<script>
+    NProgress.start();
+    document.addEventListener("readystatechange", () => {
+        if (document.readyState === "interactive") NProgress.inc(0.8);
+        if (document.readyState === "complete") NProgress.done();
+    });
+</script>
+<script defer src="https://cn.vercount.one/js"></script>
+    </body>
+</html>

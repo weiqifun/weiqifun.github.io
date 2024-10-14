@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=" 参考官方文档：物理备份还原 | 达梦技术文档 (dameng.com)\n备份还原过程中的问题解决方案参考：备份还原 | 达梦技术文档 (dameng.com)\n备份还原其实也挺简单，就是备份，一般整库备份，一般开启联机备份。就是把全库导出来，然后重新刷进去的过程\n">
+<meta name="keywords" content="DM, 主备集群, 备份, 还原"><title>主备集群-达梦数据库备份还原实践（四）</title>
+
+<link rel='canonical' href='http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/'>
+
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="主备集群-达梦数据库备份还原实践（四）">
+<meta property='og:description' content=" 参考官方文档：物理备份还原 | 达梦技术文档 (dameng.com)\n备份还原过程中的问题解决方案参考：备份还原 | 达梦技术文档 (dameng.com)\n备份还原其实也挺简单，就是备份，一般整库备份，一般开启联机备份。就是把全库导出来，然后重新刷进去的过程\n">
+<meta property='og:url' content='http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/'>
+<meta property='og:site_name' content='阿琦同学'>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-08-28T13:56:41&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T13:33:58&#43;08:00'/>
+<meta name="twitter:title" content="主备集群-达梦数据库备份还原实践（四）">
+<meta name="twitter:description" content=" 参考官方文档：物理备份还原 | 达梦技术文档 (dameng.com)\n备份还原过程中的问题解决方案参考：备份还原 | 达梦技术文档 (dameng.com)\n备份还原其实也挺简单，就是备份，一般整库备份，一般开启联机备份。就是把全库导出来，然后重新刷进去的过程\n">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    <img src="/img/tx.png" width="300" height="300" class="site-logo" loading="lazy" alt="Avatar">
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">阿琦同学</a></h1>
+            <h2 class="site-description">Life is Passion !</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/weiqifun'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>文章</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/tags/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tag" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11 3L20 12a1.5 1.5 0 0 1 0 2L14 20a1.5 1.5 0 0 1 -2 0L3 11v-4a4 4 0 0 1 4 -4h4" />
+  <circle cx="9" cy="9" r="2" />
+</svg>
+
+
+
+                
+                <span>标签</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>搜索</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%8F%8B%E9%93%BE/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>友链</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>暗色模式</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#备份还原基础">备份还原基础</a>
+      <ol>
+        <li><a href="#相关术语">相关术语</a></li>
+        <li><a href="#备份的前提">备份的前提</a></li>
+        <li><a href="#联机与脱机备份还原的区别">联机与脱机备份还原的区别</a>
+          <ol>
+            <li><a href="#备份还原">备份还原</a>
+              <ol>
+                <li><a href="#备份">备份</a></li>
+                <li><a href="#还原">还原</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#备份还原实践单机版">备份还原实践（单机版）</a>
+      <ol>
+        <li><a href="#场景一删表还原全备--增备还原">场景一：删表还原（全备 + 增备还原）</a>
+          <ol>
+            <li><a href="#备份-1">备份</a>
+              <ol>
+                <li><a href="#在数据库中插入测试数据">在数据库中插入测试数据</a></li>
+                <li><a href="#执行全备">执行全备</a></li>
+                <li><a href="#执行增备">执行增备</a></li>
+                <li><a href="#查看备份集">查看备份集</a></li>
+              </ol>
+            </li>
+            <li><a href="#还原-1">还原</a>
+              <ol>
+                <li><a href="#删除表">删除表</a></li>
+                <li><a href="#还原操作">还原操作</a></li>
+                <li><a href="#恢复操作">恢复操作</a></li>
+                <li><a href="#更新操作">更新操作</a></li>
+                <li><a href="#重启数据库验证还原情况">重启数据库验证还原情况</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#场景二删表空间与用户">场景二：删表空间与用户</a>
+          <ol>
+            <li><a href="#准备工作">准备工作</a>
+              <ol>
+                <li><a href="#新建表空间用户授权">新建表空间、用户、授权</a></li>
+                <li><a href="#添加测试数据">添加测试数据</a></li>
+              </ol>
+            </li>
+            <li><a href="#备份-2">备份</a></li>
+            <li><a href="#还原-2">还原</a>
+              <ol>
+                <li><a href="#删除表空间用户">删除表空间、用户</a></li>
+                <li><a href="#还原操作-1">还原操作</a></li>
+                <li><a href="#恢复操作-1">恢复操作</a></li>
+                <li><a href="#更新操作-1">更新操作</a></li>
+                <li><a href="#重启数据库验证还原情况-1">重启数据库验证还原情况</a></li>
+              </ol>
+            </li>
+          </ol>
+        </li>
+        <li><a href="#实际项目的备份方案">实际项目的备份方案</a>
+          <ol>
+            <li><a href="#管理工具备份">管理工具备份</a>
+              <ol>
+                <li><a href="#管理控制台全量备份">管理控制台全量备份</a></li>
+                <li><a href="#管理控制台增量备份">管理控制台增量备份</a></li>
+              </ol>
+            </li>
+            <li><a href="#sql-备份">SQL 备份</a>
+              <ol>
+                <li><a href="#sql-全量备份">SQL 全量备份</a></li>
+                <li><a href="#sp-详解">SP 详解</a></li>
+                <li><a href="#sql-增量备份">SQL 增量备份</a></li>
+              </ol>
+            </li>
+            <li><a href="#定期删除旧备份文件">定期删除旧备份文件</a></li>
+          </ol>
+        </li>
+      </ol>
+    </li>
+    <li><a href="#总结">总结</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E5%AE%9E%E6%96%BD/" >
+                实施
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/">主备集群-达梦数据库备份还原实践（四）</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">2024年8月28号</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 10 分钟
+                </time>
+            </div>
+        
+
+        
+        
+        <footer class="article-wordcount">
+            <div>
+                <span class="article-wordcount--count">字数: 4908</span>
+            </div>
+        </footer>
+        
+        
+
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <blockquote>
+<p>参考官方文档：<a class="link" href="https://eco.dameng.com/document/dm/zh-cn/ops/physical-backup-restore.html#"  target="_blank" rel="noopener"
+    >物理备份还原 | 达梦技术文档 (dameng.com)</a></p>
+<p>备份还原过程中的问题解决方案参考：<a class="link" href="https://eco.dameng.com/document/dm/zh-cn/faq/faq-backup-restore.html#"  target="_blank" rel="noopener"
+    >备份还原 | 达梦技术文档 (dameng.com)</a></p>
+</blockquote>
+<p>备份还原其实也挺简单，就是备份，一般整库备份，一般开启联机备份。就是把全库导出来，然后重新刷进去的过程</p>
+<p>备份：就是从数据库文件拷贝出有效的数据页保存到备份集中</p>
+<p>还原：就是备份的逆过程，将备份集中的数据内容（数据文件、数据页、归档文件）重新写入到目标数据文件的过程。</p>
+<p>恢复：通过重做归档日志，将数据库恢复到备份结束时的状态，或者恢复到指定的时间点和LSN。</p>
+<h2 id="备份还原基础">备份还原基础
+</h2><h3 id="相关术语">相关术语
+</h3><ul>
+<li>联机备份还原：数据库处于运行状态时，进行的备份还原操作</li>
+<li>脱机备份还原：数据库服务关闭的情况下，进行的备份还原操作</li>
+<li>备份集：存放备份数据</li>
+</ul>
+<h3 id="备份的前提">备份的前提
+</h3><p>对数据库实例<font style="color:#DF2A3F;">开启归档模式</font>，并处于打开的状态（如果是集群的话，就不需要再打开了，因为集群搭建时就会打开归档。如果是单机版，有可能没有打开归档模式，需要先打开）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">MOUNT</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">ARCHIVELOG</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="n">ARCHIVELOG</span><span class="w"> </span><span class="s1">&#39;DEST=/home/dmdba/dmdbms/DMDB/arch, TYPE=LOCAL, FILE_SIZE=1024, SPACE_LIMIT=10240&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">ALTER</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">OPEN</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后重新启动一下 达梦管理工具 ，不然达梦管理工具没刷新生效。建议直接到数据库服务器上使用 <code>./disql</code> 操作</p>
+<h3 id="联机与脱机备份还原的区别">联机与脱机备份还原的区别
+</h3><h4 id="备份还原">备份还原
+</h4><h5 id="备份">备份
+</h5><p>联机备份，就是数据库运行时进行备份。支持的备份有：</p>
+<ul>
+<li>数据库备份</li>
+<li>用户表空间备份</li>
+<li>用户表备份</li>
+<li>归档备份</li>
+</ul>
+<p>脱机备份，只支持：</p>
+<ul>
+<li>数据库备份</li>
+<li>归档备份</li>
+</ul>
+<p><strong>表空间备份、表备份，只能联机备份！</strong></p>
+<h6 id="数据库备份命令">数据库备份命令
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="o">#</span><span class="w"> </span><span class="err">全备</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/opt/dmdbms/BAK/db_full_bak_01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">增备</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">INCREMENT</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/opt/dmdbms/BAK/db_full_bak_01&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">设置备份压缩等级</span><span class="w"> </span><span class="n">COMPRESSED</span><span class="w"> </span><span class="k">LEVEL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dm_bak/db_bak_3_06&#39;</span><span class="w"> </span><span class="n">COMPRESSED</span><span class="w"> </span><span class="k">LEVEL</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">设置并行备份</span><span class="w"> </span><span class="n">PARALLEL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dm_bak/db_bak_3_07&#39;</span><span class="w"> </span><span class="n">PARALLEL</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">设置切片大小</span><span class="w"> </span><span class="n">MAXPIECESIZE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dm_bak/db_bak_3_05&#39;</span><span class="w"> </span><span class="n">MAXPIECESIZE</span><span class="w"> </span><span class="mi">300</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">设置备份文件的名称</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">BAK_NAME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">WEEKLY_FULL_BAK</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dm_bak/db_bak_3_02&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">#</span><span class="w"> </span><span class="err">添加备份备注</span><span class="w"> </span><span class="n">BACKUPINFO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dm_bak/db_bak_3_04&#39;</span><span class="w"> </span><span class="n">BACKUPINFO</span><span class="w">  </span><span class="s1">&#39;完全备份&#39;</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>结合起来就是这样的：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">backup</span><span class="w"> </span><span class="k">database</span><span class="w"> </span><span class="k">full</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="s2">&#34;DB_DAMENG_FULL_2024_09_11_16_12_29&#34;</span><span class="w"> </span><span class="n">backupset</span><span class="w"> </span><span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DAMENG_FULL_2024_09_11_16_12_29&#39;</span><span class="w"> </span><span class="n">backupinfo</span><span class="w"> </span><span class="s1">&#39;全量备份&#39;</span><span class="w"> </span><span class="n">compressed</span><span class="w"> </span><span class="k">level</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">parallel</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="归档备份命令">归档备份命令
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">BACKUP</span><span class="w"> </span><span class="n">ARCHIVE</span><span class="w"> </span><span class="n">LOG</span><span class="w"> </span><span class="k">ALL</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;arch_bak_01&#39;</span><span class="p">;</span><span class="w"> 
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个应该是全备？参数也跟【数据库备份命令】一样</p>
+<h5 id="还原">还原
+</h5><p>达梦的联机还原，只支持表的还原。库、表空间等均不支持。</p>
+<p>不推荐联机还原，当数据库需要还原时，肯定发生了一些大操作，使用脱机更好。</p>
+<p>还原可以还原到指定的备份集（不管是联机备份数据库备份集，还是脱机备份的数据库备份集），也可以还原到指定的归档文件。</p>
+<p>还原操作统一有一个工具 <code>./dmrman</code></p>
+<p><font style="color:rgb(34, 34, 34);">DMRMAN（DM RECOVERY MANAGER）是脱机备份还原命令行工具，无需额外安装，由它来统一负责库级脱机备份、脱机还原、脱机恢复等相关操作，该工具支持命令行指定参数方式和控制台交互方式执行，降低用户的操作难度。</font></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">##启动DMRMAN</span>
+</span></span><span class="line"><span class="cl">./dmrman
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">##退出DMRMAN</span>
+</span></span><span class="line"><span class="cl"><span class="c1">##启动后控制台中输入 exit 命令</span>
+</span></span><span class="line"><span class="cl">RMAN&gt;exit<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="备份还原实践单机版">备份还原实践（单机版）
+</h2><p>本次验证达梦单机版上的备份与还原，以防以后遇到后临时抱佛脚。</p>
+<p>注意：</p>
+<ul>
+<li>请确保开启了归档模式！不然无法备份的。</li>
+<li>联机备份库、脱机还原库</li>
+<li>所有操作没有特定说明，均使用 <code>dmdba</code> 用户进行操作</li>
+</ul>
+<p>本次为 全量备份 + 增量备份 还原数据库的实践</p>
+<p>注意：</p>
+<ul>
+<li>当有全量备份 + 增量备份时，只需要使用最新的增量备份进行还原即可。但是全量备份文件不可删除，必须存在。</li>
+<li>也可以只使用全量，但是会造成期间数据的丢失。</li>
+</ul>
+<h3 id="场景一删表还原全备--增备还原">场景一：删表还原（全备 + 增备还原）
+</h3><ul>
+<li>使用全备 + 增备，通过最新的增备文件进行还原</li>
+</ul>
+<h4 id="备份-1">备份
+</h4><p>因为我的测试库已经有一个 <code>TEST</code> 用户并且具有 <code>DBA</code> 权限，所以此处直接开始造数据，省略了建立表空间、用户、授权的前置步骤。</p>
+<h5 id="在数据库中插入测试数据">在数据库中插入测试数据
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">ID</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">BUSI_DATE</span><span class="w"> </span><span class="nb">DATE</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">DESCRIPTION</span><span class="w"> </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;这是一条测试数据，用于备份还原的验证&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;aoedtl&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>数据如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="mi">1</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">11</span><span class="w"> </span><span class="mi">15</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mi">55</span><span class="w">	</span><span class="err">这是一条测试数据，用于备份还原的验证</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">11</span><span class="w"> </span><span class="mi">15</span><span class="p">:</span><span class="mi">08</span><span class="p">:</span><span class="mi">44</span><span class="w">	</span><span class="n">aoedtl</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>当然也有其他的测试表、数据、SP、表空间、用户等，顺便准备就行。</p>
+<h5 id="执行全备">执行全备
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">FULL</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">DB_DM_FULL_20240911_154700</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dmdba/data/DAMENG/bak&#39;</span><span class="w"> </span><span class="n">COMPRESSED</span><span class="w"> </span><span class="k">LEVEL</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个为啥备份了，名字没有按照命令设置？</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status bak<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">369736</span>
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dm     <span class="m">11264</span> Sep <span class="m">11</span> 16:01 bak_1.bak
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dm <span class="m">378478080</span> Sep <span class="m">11</span> 16:01 bak.bak
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dm    <span class="m">116224</span> Sep <span class="m">11</span> 16:01 bak.meta
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>得这样：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">BACKUP DATABASE FULL TO <span class="s2">&#34;DB_DM_FULL_20240911_1618&#34;</span> BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240911_1618&#39;</span> COMPRESSED LEVEL 1<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="执行增备">执行增备
+</h5><h6 id="第一次增备">第一次增备
+</h6><p>往数据库里添加点新数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;第2条&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;第3条&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>然后执行增备</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">INCREMENT</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s2">&#34;DB_DM_INCREMENT_20240911_1623&#34;</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1623&#39;</span><span class="w"> </span><span class="n">COMPRESSED</span><span class="w"> </span><span class="k">LEVEL</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="第二次增备">第二次增备
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;第4条&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">SYSDATE</span><span class="p">(),</span><span class="w"> </span><span class="s1">&#39;第5条&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BACKUP</span><span class="w"> </span><span class="k">DATABASE</span><span class="w"> </span><span class="k">INCREMENT</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="s2">&#34;DB_DM_INCREMENT_20240911_1625&#34;</span><span class="w"> </span><span class="n">BACKUPSET</span><span class="w"> </span><span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="w"> </span><span class="n">COMPRESSED</span><span class="w"> </span><span class="k">LEVEL</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="查看备份集">查看备份集
+</h5><p>到服务器里看看，备份集</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status bak<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">total <span class="m">12</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> dmdba dm <span class="m">4096</span> Sep <span class="m">11</span> 16:19 DB_DM_FULL_20240911_1618
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> dmdba dm <span class="m">4096</span> Sep <span class="m">11</span> 16:24 DB_DM_INCREMENT_20240911_1623
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> dmdba dm <span class="m">4096</span> Sep <span class="m">11</span> 16:25 DB_DM_INCREMENT_20240911_1625
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="还原-1">还原
+</h4><p>全备 + 增备后还原，看看表数据是否恢复正常</p>
+<h5 id="删除表">删除表
+</h5><p>上边已经备份完成了，直接把上边创建的表删了，然后进行还原操作，看看是否恢复。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DROP</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="还原操作">还原操作
+</h5><p>1）关闭数据库服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status bak<span class="o">]</span><span class="c1"># cd /home/dmdba/dmdbms/bin</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@status bin<span class="o">]</span><span class="c1"># ./DmServiceDASERVER stop</span>
+</span></span><span class="line"><span class="cl">Stopping DmServiceDASERVER:                                <span class="o">[</span> OK <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）启动 ./dmrman 服务进行校验备份集</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@status bin<span class="o">]</span><span class="c1"># ./dmrman </span>
+</span></span><span class="line"><span class="cl">dmrman V8
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 校验最新的增量备份集</span>
+</span></span><span class="line"><span class="cl">RMAN&gt; CHECK BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">CHECK BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:00<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                                 
+</span></span><span class="line"><span class="cl">check backupset successfully.
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 166.999<span class="o">(</span>ms<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）还原</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:0.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:03<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                                   
+</span></span><span class="line"><span class="cl"><span class="o">[</span>-8024<span class="o">]</span>:数据文件读写出错
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这里还原时，报错了 [-8024]</p>
+<p>查看官方文档：<a class="link" href="https://eco.dameng.com/document/dm/zh-cn/faq/faq-backup-restore.html#%E8%BF%98%E5%8E%9F%E6%8A%A5%E9%94%99%EF%BC%9A-8024%20%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99%E5%87%BA%E9%94%99"  target="_blank" rel="noopener"
+    >备份还原 | 达梦技术文档 (dameng.com)</a></p>
+<p>因为用户忘了切换，使用了 root 用户进行操作。需要使用 dmdba 用户进行操作才行，也要注意备份的文件 dmdba 用户是否有权限读写。</p>
+<p>切换dmdba 重新来</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">file dm.key not found, use default license!
+</span></span><span class="line"><span class="cl">os_file_open_low_real error! desc: Permission denied, path: /home/dmdba/data/DAMENG/SYSTEM.DBF, code: <span class="m">13</span>
+</span></span><span class="line"><span class="cl">os_file_open_normal_rw error! path: <span class="s1">&#39;/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165939_295566.ctl&#39;</span>, code: 13, desc: Permission denied
+</span></span><span class="line"><span class="cl">os_file_open_normal_rw error! path: <span class="s1">&#39;/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165845_735048.ctl&#39;</span>, code: 13, desc: Permission denied
+</span></span><span class="line"><span class="cl">os_file_open_low_real error! desc: Permission denied, path: /home/dmdba/data/DAMENG/DAMENG01.log, code: <span class="m">13</span>
+</span></span><span class="line"><span class="cl">os_file_open_low_real error! desc: Permission denied, path: /home/dmdba/data/DAMENG/DAMENG02.log, code: <span class="m">13</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:19<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>os_file_open_normal_rw error! path: <span class="s1">&#39;/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165939_295566.ctl&#39;</span>, code: 13, desc: Permission denied
+</span></span><span class="line"><span class="cl">os_file_open_normal_rw error! path: <span class="s1">&#39;/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165845_735048.ctl&#39;</span>, code: 13, desc: Permission denied
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:19<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                                 
+</span></span><span class="line"><span class="cl">restore successfully.
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:19.990
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>error 报错都是 Permission denied ，挨个看看目录、文件的用户主组是否都是 dmdba</p>
+<p>先不管，往下执行看看最后能不能成功？</p>
+<p>也能成功，使用 dmdba 用户执行的话，是不会有权限拒绝的情况的</p>
+<h5 id="恢复操作">恢复操作
+</h5><p>据库恢复是指重做 REDO 日志，有两种方式：从备份集恢复，即重做备份集中的 REDO 日志；或从归档恢复，即重做归档中的 REDO 日志。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_INCREMENT_20240911_1625&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Database <span class="nv">mode</span> <span class="o">=</span> 2, <span class="nv">oguid</span> <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl">EP<span class="o">[</span>0<span class="o">]</span><span class="err">&#39;</span>s cur_lsn<span class="o">[</span>3756051<span class="o">]</span>, file_lsn<span class="o">[</span>3756051<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00PKG/s<span class="o">][</span>Cost:00:00:00<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                               
+</span></span><span class="line"><span class="cl">recover successfully!
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:02.726
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>恢复成功</p>
+<h5 id="更新操作">更新操作
+</h5><p>数据库更新是指更新数据库的 DB_MAGIC，并将数据库调整为可正常工作状态，与数据库恢复一样使用 RECOVER 命令完成。数据库更新发生在重做 REDO 日志<font style="color:#DF2A3F;">恢复数据库</font>后。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span>  UPDATE DB_MAGIC<span class="p">;</span>
+</span></span><span class="line"><span class="cl">RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> UPDATE DB_MAGIC<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Database <span class="nv">mode</span> <span class="o">=</span> 2, <span class="nv">oguid</span> <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl">EP<span class="o">[</span>0<span class="o">]</span><span class="s1">&#39;s cur_lsn[3756064], file_lsn[3756064]
+</span></span></span><span class="line"><span class="cl"><span class="s1">os_file_open_normal_rw error! path: &#39;</span>/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165939_295566.ctl<span class="s1">&#39;, code: 13, desc: Permission denied
+</span></span></span><span class="line"><span class="cl"><span class="s1">os_file_open_normal_rw error! path: &#39;</span>/home/dmdba/data/DAMENG/ctl_bak/dm_20240911165845_735048.ctl<span class="err">&#39;</span>, code: 13, desc: Permission denied
+</span></span><span class="line"><span class="cl">recover successfully!
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:01.182
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个 DB_MAGIC 就是魔数，魔数，就是每个数据文件、REDO \ UNRO 日志开头的一个标识</p>
+<h5 id="重启数据库验证还原情况">重启数据库验证还原情况
+</h5><p>执行更新操作后，数据库就算还原成功了。这个时候启动数据库实例，进去看看有没有还原【2.1.1】步骤中删除的表。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">SYS</span><span class="p">.</span><span class="n">ALL_OBJECTS</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="k">OWNER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;TEST&#39;</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">OBJECT_NAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;T_BAKUP_TEST&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">TEST</span><span class="p">.</span><span class="n">T_BAKUP_TEST</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>都正常</p>
+<h3 id="场景二删表空间与用户">场景二：删表空间与用户
+</h3><ul>
+<li>新建表空间与用户，并在里边添加点数据，然后进行全量备份，使用全量备份集还原。</li>
+<li>用 <code>SYSDBA</code> 将 <code>TEST</code> <code>BAKUSER</code> 都删掉，然后恢复。具体：删除 TEST 用户，删除 BAKUSER 用户与对应表空间。</li>
+<li>验证表空间、用户、权限是否都恢复。</li>
+</ul>
+<h4 id="准备工作">准备工作
+</h4><h5 id="新建表空间用户授权">新建表空间、用户、授权
+</h5><p>使用 <code>SYSDBA</code> 创建测试的表空间、用户，并给 4 个权限</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 创建表空间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="n">TABLESPACE</span><span class="w"> </span><span class="s2">&#34;TS_BACKUP_TEST&#34;</span><span class="w"> </span><span class="n">DATAFILE</span><span class="w"> </span><span class="s1">&#39;/home/dmdba/data/DAMENG/TS_BACKUP_TEST.DBF&#39;</span><span class="w"> </span><span class="k">SIZE</span><span class="w"> </span><span class="mi">128</span><span class="w"> </span><span class="n">AUTOEXTEND</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">NEXT</span><span class="w"> </span><span class="mi">40</span><span class="w"> </span><span class="n">MAXSIZE</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 创建用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">BAKUSER</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s2">&#34;test123456&#34;</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">TABLESPACE</span><span class="w"> </span><span class="n">TS_BACKUP_TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">CREATE</span><span class="w"> </span><span class="k">SESSION</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">GRANT</span><span class="w"> </span><span class="k">INSERT</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>查看它的权限</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">DBA_SYS_PRIVS</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">GRANTEE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;BAKUSER&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-----------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">INSERT</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">INSERT</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">CREATE</span><span class="w"> </span><span class="k">SESSION</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="添加测试数据">添加测试数据
+</h5><p>使用创建好的用户 <code>BAKUSER</code> 造点数据</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">.</span><span class="n">T_TEST</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">ID</span><span class="w"> </span><span class="nb">INT</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">MARK</span><span class="w"> </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">.</span><span class="n">T_TEST</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;用来验证还原操作的数据&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="备份-2">备份
+</h4><p>直接全备，不用增备了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">BACKUP DATABASE FULL TO <span class="s2">&#34;DB_DM_FULL_20240912_093400&#34;</span> BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span> COMPRESSED LEVEL 1<span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="还原-2">还原
+</h4><h5 id="删除表空间用户">删除表空间、用户
+</h5><ul>
+<li>删除 <code>TEST</code> 用户</li>
+<li>删除 <code>BAKUSER</code> 用户、删除它的表空间</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 使用级联删除
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">DROP</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">BAKUSER</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="n">TABLESPACE</span><span class="w"> </span><span class="n">TS_BACKUP_TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">DROP</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">TEST</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="还原操作-1">还原操作
+</h5><p>1）关闭数据库</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>dmdba@status /<span class="o">]</span>$ <span class="nb">cd</span> /home/dmdba/dmdbms/bin
+</span></span><span class="line"><span class="cl"><span class="o">[</span>dmdba@status bin<span class="o">]</span>$ ./DmServiceDASERVER stop
+</span></span><span class="line"><span class="cl">Stopping DmServiceDASERVER:                                <span class="o">[</span> OK <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>2）检验备份集</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>dmdba@status bin<span class="o">]</span>$ ./dmrman 
+</span></span><span class="line"><span class="cl">dmrman V8
+</span></span><span class="line"><span class="cl">RMAN&gt; CHECK BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">CHECK BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:01<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                                 
+</span></span><span class="line"><span class="cl">check backupset successfully.
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:01.752
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>3）还原操作</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">RESTORE DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">file dm.key not found, use default license!
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00M/s<span class="o">][</span>Cost:00:00:18<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                                 
+</span></span><span class="line"><span class="cl">restore successfully.
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:18.930
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="恢复操作-1">恢复操作
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> FROM BACKUPSET <span class="s1">&#39;/home/dmdba/data/DAMENG/bak/DB_DM_FULL_20240912_093400&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">Database <span class="nv">mode</span> <span class="o">=</span> 2, <span class="nv">oguid</span> <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl">EP<span class="o">[</span>0<span class="o">]</span><span class="err">&#39;</span>s cur_lsn<span class="o">[</span>3756229<span class="o">]</span>, file_lsn<span class="o">[</span>3756229<span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>Percent:100.00%<span class="o">][</span>Speed:0.00PKG/s<span class="o">][</span>Cost:00:00:00<span class="o">][</span>Remaining:00:00:00<span class="o">]</span>                               
+</span></span><span class="line"><span class="cl">recover successfully!
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:02.774
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="更新操作-1">更新操作
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">RMAN&gt; RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> UPDATE DB_MAGIC<span class="p">;</span>
+</span></span><span class="line"><span class="cl">RECOVER DATABASE <span class="s1">&#39;/home/dmdba/data/DAMENG/dm.ini&#39;</span> UPDATE DB_MAGIC<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Database <span class="nv">mode</span> <span class="o">=</span> 2, <span class="nv">oguid</span> <span class="o">=</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">Normal of FAST
+</span></span><span class="line"><span class="cl">Normal of DEFAULT
+</span></span><span class="line"><span class="cl">Normal of RECYCLE
+</span></span><span class="line"><span class="cl">Normal of KEEP
+</span></span><span class="line"><span class="cl">Normal of ROLL
+</span></span><span class="line"><span class="cl">EP<span class="o">[</span>0<span class="o">]</span><span class="err">&#39;</span>s cur_lsn<span class="o">[</span>3756333<span class="o">]</span>, file_lsn<span class="o">[</span>3756333<span class="o">]</span>
+</span></span><span class="line"><span class="cl">recover successfully!
+</span></span><span class="line"><span class="cl"><span class="nb">time</span> used: 00:00:01.182
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="重启数据库验证还原情况-1">重启数据库验证还原情况
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>dmdba@status bin<span class="o">]</span>$ ./DmServiceDASERVER start
+</span></span><span class="line"><span class="cl">Starting DmServiceDASERVER:                                <span class="o">[</span> OK <span class="o">]</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 查看用户
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">SYS</span><span class="p">.</span><span class="n">ALL_USERS</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">SYS</span><span class="w">	</span><span class="mi">50331648</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">24</span><span class="w"> </span><span class="mi">16</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">25</span><span class="p">.</span><span class="mi">403980</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">SYSDBA</span><span class="w">	</span><span class="mi">50331649</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">24</span><span class="w"> </span><span class="mi">16</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">25</span><span class="p">.</span><span class="mi">403980</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">SYSAUDITOR</span><span class="w">	</span><span class="mi">50331650</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">24</span><span class="w"> </span><span class="mi">16</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">25</span><span class="p">.</span><span class="mi">403980</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">SYSSSO</span><span class="w">	</span><span class="mi">50331651</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">24</span><span class="w"> </span><span class="mi">16</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span><span class="mi">25</span><span class="p">.</span><span class="mi">403980</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">TEST</span><span class="w">	</span><span class="mi">50331748</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">24</span><span class="w"> </span><span class="mi">17</span><span class="p">:</span><span class="mi">02</span><span class="p">:</span><span class="mi">49</span><span class="p">.</span><span class="mi">225244</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="mi">50331749</span><span class="w">	</span><span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">12</span><span class="w"> </span><span class="mi">09</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mi">08</span><span class="p">.</span><span class="mi">170548</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 查看表空间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">V$TABLESPACE</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">0</span><span class="w">	</span><span class="k">SYSTEM</span><span class="w">		</span><span class="mi">1</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">9472</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">3008</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">404</span><span class="w">	</span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1</span><span class="w">	</span><span class="n">ROLL</span><span class="w">		</span><span class="mi">1</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">16384</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">336</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">1003</span><span class="w">	</span><span class="mi">38</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="w">	</span><span class="n">TEMP</span><span class="w">		</span><span class="mi">2</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">1280</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">48</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">77</span><span class="w">	</span><span class="mi">34</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">4</span><span class="w">	</span><span class="n">MAIN</span><span class="w">		</span><span class="mi">1</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">16384</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">256</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">1008</span><span class="w">	</span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">5</span><span class="w">	</span><span class="n">TS_TEST</span><span class="w">		</span><span class="mi">1</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">197120</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">195904</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">76</span><span class="w">	</span><span class="mi">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">6</span><span class="w">	</span><span class="n">TS_BACKUP_TEST</span><span class="w">		</span><span class="mi">1</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">16384</span><span class="w">	</span><span class="mi">1</span><span class="w">						</span><span class="mi">32</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">0</span><span class="w">	</span><span class="mi">64</span><span class="w">	</span><span class="mi">1022</span><span class="w">	</span><span class="mi">1</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 查看用户权限
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">DBA_SYS_PRIVS</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">A</span><span class="p">.</span><span class="n">GRANTEE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;BAKUSER&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">INSERT</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">INSERT</span><span class="w"> </span><span class="k">ANY</span><span class="w"> </span><span class="k">TABLE</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">BAKUSER</span><span class="w">	</span><span class="k">CREATE</span><span class="w"> </span><span class="k">SESSION</span><span class="w">	</span><span class="k">NO</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 查看测试表数据
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">BAKUSER</span><span class="p">.</span><span class="n">T_TEST</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">---------------------------------------------------
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w">	</span><span class="err">用来验证还原操作的数据</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>都还原成功了。</p>
+<h3 id="实际项目的备份方案">实际项目的备份方案
+</h3><ul>
+<li>每周六全量备份 + 每天晚上 9 点进行增量备份（定时备份）</li>
+<li>保留两周的备份文件，定期删除两周以前的备份文件（定期删除）</li>
+</ul>
+<h4 id="管理工具备份">管理工具备份
+</h4><h5 id="管理控制台全量备份">管理控制台全量备份
+</h5><p>进入达梦管理工具 - 右键代理 - 新建代理环境 - 作业 - 新建作业</p>
+<p>1）填写作业名</p>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111563098-cf756b87-4c05-4493-a729-82d36558af71.png"
+	width="1223"
+	height="325"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111563098-cf756b87-4c05-4493-a729-82d36558af71_hu16495331053504290147.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111563098-cf756b87-4c05-4493-a729-82d36558af71_hu15100513859483699767.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="376"
+		data-flex-basis="903px"
+	
+></p>
+<p>2）设置步骤名称、备份路径、备份方式、压缩级别</p>
+<ul>
+<li>备份路径：填写数据库服务器的路径</li>
+</ul>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111624850-aa5c5767-c82b-45c7-b9ec-6b72b1021911.png"
+	width="797"
+	height="404"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111624850-aa5c5767-c82b-45c7-b9ec-6b72b1021911_hu12341709166861263876.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726111624850-aa5c5767-c82b-45c7-b9ec-6b72b1021911_hu14058992086353516004.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="197"
+		data-flex-basis="473px"
+	
+></p>
+<p>3）设置频率、持续实践</p>
+<ul>
+<li>全量为每周六，中午12点（可以自己定）</li>
+<li>增量可以每天晚上9点</li>
+</ul>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/image-20241014105037232.png"
+	width="802"
+	height="488"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/image-20241014105037232_hu15286491258306024420.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/image-20241014105037232_hu985476865876900456.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="164"
+		data-flex-basis="394px"
+	
+></p>
+<p>4）执行后，在服务里可以看到已经备份了</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@YD-FXQDB01-3-161 bak<span class="o">]</span><span class="c1"># pwd</span>
+</span></span><span class="line"><span class="cl">/u01/amop/AMOP/bak
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@YD-FXQDB01-3-161 bak<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">总用量 <span class="m">0</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> dmdba dinstall <span class="m">141</span>  9月 <span class="m">12</span> 11:21 DB_AMOP_FULL_2024_09_12_11_21_56
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@YD-FXQDB01-3-161 bak<span class="o">]</span><span class="c1"># cd DB_AMOP_FULL_2024_09_12_11_21_56/</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@YD-FXQDB01-3-161 DB_AMOP_FULL_2024_09_12_11_21_56<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">总用量 <span class="m">14004</span>
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dinstall  <span class="m">1312768</span>  9月 <span class="m">12</span> 11:21 DB_AMOP_FULL_2024_09_12_11_21_56_1.bak
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dinstall <span class="m">12913152</span>  9月 <span class="m">12</span> 11:21 DB_AMOP_FULL_2024_09_12_11_21_56.bak
+</span></span><span class="line"><span class="cl">-rw-r--r-- <span class="m">1</span> dmdba dinstall   <span class="m">108032</span>  9月 <span class="m">12</span> 11:21 DB_AMOP_FULL_2024_09_12_11_21_56.meta
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>全量备份的名称是 <code>DB_实例名_FULL_日期</code></li>
+</ul>
+<h5 id="管理控制台增量备份">管理控制台增量备份
+</h5><p>步骤都差不多，区别就是增量备份需要基于一个全量备份集。</p>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726118754762-2c87aabc-0dcf-4a1c-885f-c0b2a9e24d82.png"
+	width="816"
+	height="411"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726118754762-2c87aabc-0dcf-4a1c-885f-c0b2a9e24d82_hu6399693514766399432.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726118754762-2c87aabc-0dcf-4a1c-885f-c0b2a9e24d82_hu6042998824665257167.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="198"
+		data-flex-basis="476px"
+	
+></p>
+<h4 id="sql-备份">SQL 备份
+</h4><h5 id="sql-全量备份">SQL 全量备份
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">call</span><span class="w"> </span><span class="n">SP_CREATE_JOB</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;每周六定时全量备份数据库&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_CONFIG_START</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_ADD_JOB_STEP</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DB_DM_FULL_BACKUP&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;01000000/u01/amop/AMOP/bak&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_ADD_JOB_SCHEDULE</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DB_DM_FULL_BACKUP&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;12:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2024-09-12 11:15:41&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_CONFIG_COMMIT</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_SET_SCHEMA</span><span class="p">(</span><span class="s1">&#39;全量备份_周六&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SYSDBA&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="sp-详解">SP 详解
+</h5><h6 id="sp_create_job">SP_CREATE_JOB
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">SP_CREATE_JOB</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">JOB_NAME</span><span class="p">,</span><span class="w">		</span><span class="c1">-- 作业名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">ENABLED</span><span class="p">,</span><span class="w">		</span><span class="c1">-- 作业是否启用 1-启用，0-不启用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">ENABLE_EMAIL</span><span class="p">,</span><span class="w">		</span><span class="c1">-- 是否开启邮件系统 1-启用，0-不启用
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">EMAIL_OPTR_NAME</span><span class="p">,</span><span class="w">		</span><span class="c1">-- 操作员名称，没有为 &#39;&#39; 空
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">EMAIL_TYPE</span><span class="p">,</span><span class="w">					</span><span class="c1">-- 什么情况下发邮件 0-成功后发 1-失败发 2-结束就发
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">ENABLED_ENTSEND</span><span class="p">,</span><span class="w">		</span><span class="c1">-- 是否开启网络作业 1-开 0-不开
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">NETSEND_OPTR_NAME</span><span class="p">,</span><span class="w">	</span><span class="c1">-- 操作员，没有为 &#39;&#39; 空
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="n">ENTSEND_TYPE</span><span class="p">,</span><span class="w">				</span><span class="c1">-- 什么情况下发消息，0-成功发 1-失败发 2-结束就发
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">  </span><span class="k">DESCRIBE</span><span class="w">		</span><span class="c1">-- 作业描述，可以为 &#39;&#39; 空
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h6 id="sp_job_config_start">SP_JOB_CONFIG_START
+</h6><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">SP_JOB_CONFIG_START</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">JOB_NAME</span><span class="w">		</span><span class="c1">-- 开始配置某个作业，传作业名称
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p>额，具体详见《DM8作业系统使用手册.pdf》，不再看了，用达梦管理工具就行了。</p>
+<h5 id="sql-增量备份">SQL 增量备份
+</h5><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">call</span><span class="w"> </span><span class="n">SP_CREATE_JOB</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_CONFIG_START</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_ADD_JOB_STEP</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DayBackup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;11000000/u01/amop/AMOP/bak/|/u01/amop/AMOP/bak&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_ADD_JOB_SCHEDULE</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DayBackup&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;21:00:00&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;2024-09-12 13:09:05&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_CONFIG_COMMIT</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">call</span><span class="w"> </span><span class="n">SP_JOB_SET_SCHEMA</span><span class="p">(</span><span class="s1">&#39;增量备份_每日&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;SYSDBA&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h4 id="定期删除旧备份文件">定期删除旧备份文件
+</h4><p>删除旧备份，确保不会把所有的备份都删除，要确保一个最新的增量备份以及它的基备份存在（反正就是留着最新的全量 + 增量备份集）</p>
+<ul>
+<li>加一个删除备份的作业步骤</li>
+<li>在上一个作业步骤设置，执行成功后继续执行下一步：删除备份的作业</li>
+</ul>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120675899-48fa3458-ca84-4877-aa09-a6f8ede72425.png"
+	width="1181"
+	height="223"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120675899-48fa3458-ca84-4877-aa09-a6f8ede72425_hu8985436392411276047.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120675899-48fa3458-ca84-4877-aa09-a6f8ede72425_hu1345191967560600809.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="529"
+		data-flex-basis="1271px"
+	
+></p>
+<p><img src="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120720728-a248ac93-b735-423a-9999-7f4f9b7c9280.png"
+	width="813"
+	height="328"
+	srcset="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120720728-a248ac93-b735-423a-9999-7f4f9b7c9280_hu16966036028596586518.png 480w, /posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/index/1726120720728-a248ac93-b735-423a-9999-7f4f9b7c9280_hu2018911956873108360.png 1024w"
+	loading="lazy"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="247"
+		data-flex-basis="594px"
+	
+></p>
+<p>删除备份的SP如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="c1">-- 添加备份目录
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">SF_BAKSET_BACKUP_DIR_ADD</span><span class="p">(</span><span class="s1">&#39;DISK&#39;</span><span class="p">,</span><span class="s1">&#39;/u01/amop/AMOP/bak&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">-- 删 30 天前的备份文件
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">CALL</span><span class="w"> </span><span class="n">SP_DB_BAKSET_REMOVE_BATCH</span><span class="p">(</span><span class="s1">&#39;DISK&#39;</span><span class="p">,</span><span class="n">SYSDATE</span><span class="o">-</span><span class="mi">30</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="总结">总结
+</h2><ul>
+<li>还原就是使用 全量 + 增量 备份集进行还原</li>
+<li>还原操作 <code>RESTORE DATABASE</code> 后，数据库还不能操作，需要使用 <code>RECOVER</code> 恢复数据库工作，最后更新数据库的 <code>DB_MAGIC</code> 魔数</li>
+<li>实际项目上的方案：每周全量 + 每天增量 + 保留 14 天备份集</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/%E4%BF%A1%E5%88%9B/">信创</a>
+        
+            <a href="/tags/%E8%BE%BE%E6%A2%A6/">达梦</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    <section class="article-lastmod">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+        <span>
+            最后更新于 2024年10月14号 13:33
+        </span>
+    </section></footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-新增达梦实例并配置实时主备集群（三）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E5%AE%9E%E8%B7%B5%E4%BA%8C/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦实时主备集群搭建与主备切换实践（二）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">主备集群-达梦数据库数据守护（一）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">实施部署-信创项目环境搭建准备（一）</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2024 Wei Qi
+    </section>
+    
+    <section class="powerby">
+        
+
+        
+
+        
+        
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+
+        
+        
+        
+        
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
+        <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
+
+
+        <section class="powerby">
+            <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
+        </section>
+
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/js/nprogress.min.js"
+    integrity="sha384-bHDlAEUFxsRI7JfULv3DTpL2IXbbgn4JHQJibgo5iiXSK6Iu8muwqHANhun74Cqg"
+    crossorigin="anonymous"
+></script>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/zhixuan2333/gh-blog@v0.1.0/css/nprogress.css"
+    integrity="sha384-KJyhr2syt5+4M9Pz5dipCvTrtvOmLk/olWVdfhAp858UCa64Ia5GFpTN7+G4BWpE"
+    crossorigin="anonymous"
+/>
+<script>
+    NProgress.start();
+    document.addEventListener("readystatechange", () => {
+        if (document.readyState === "interactive") NProgress.inc(0.8);
+        if (document.readyState === "complete") NProgress.done();
+    });
+</script>
+<script defer src="https://cn.vercount.one/js"></script>
+    </body>
+</html>

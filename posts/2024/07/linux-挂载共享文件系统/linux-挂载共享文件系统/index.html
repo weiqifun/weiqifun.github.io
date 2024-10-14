@@ -6,7 +6,7 @@
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/07/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/'>
 
-<link rel="stylesheet" href="/scss/style.min.be353e5c54ed9aae4505c4c45a7ceeab11156a6e8978ac10b80dc94e7a09c229.css"><meta property='og:title' content="Linux-挂载共享文件系统">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="Linux-挂载共享文件系统">
 <meta property='og:description' content="\u200b\n挂载 windows 共享目录\r在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）\n在 Linux 服务器进行挂载操作：\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 # 创建一个挂载目录 mkdir /home/aml # 挂载 - 方式一 mount -t cifs -o username=@user, password=@password //IP/share_dir /home/aml # 挂载 - 方式二 mount -t cifs -v -o credentials=/var/pwd //IP/d/data/output /home/aml/ Password for gmjjb,password=sxzq@123@//10.xxx.xxx.65/d/data/output: ******** # 验证 df -h # 自动挂载 vi /etc/fstab # 加入以下内容 //IP/share_dir /home/aml cifs username=@user, password=@password 0 0 # 或者 //IP/share_dir /home/aml cifs credentials=/var/pwd 0 0 # 然后给目录读取的权限 # chown -R aml:aml /home/aml chmod -R 444 /home/aml 一般发行版Linux都默认装了 cifs 或者 samba ，可以这么查：\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/07/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/linux-%E6%8C%82%E8%BD%BD%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/'>
 <meta property='og:site_name' content='阿琦同学'>
@@ -354,9 +354,6 @@
         
         
 
-        <section>
-            <a>页面浏览量: </a><span id="busuanzi_value_page_pv">Loading</span>
-        </section>
     </footer>
     
 
@@ -372,421 +369,421 @@
 <h2 id="挂载-windows-共享目录">挂载 windows 共享目录
 </h2><p>在 windows 服务器里选择需要共享的文件夹，右键 - 属性 - 共享（需开启网络共享）</p>
 <p>在 Linux 服务器进行挂载操作：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 创建一个挂载目录</span>
-</span></span><span style="display:flex;"><span> mkdir /home/aml
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 挂载 - 方式一</span>
-</span></span><span style="display:flex;"><span> mount -t cifs -o username<span style="color:#f92672">=</span>@user, password<span style="color:#f92672">=</span>@password //IP/share_dir /home/aml
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 挂载 - 方式二</span>
-</span></span><span style="display:flex;"><span> mount -t cifs -v -o credentials<span style="color:#f92672">=</span>/var/pwd //IP/d/data/output /home/aml/                                                                                                                               Password <span style="color:#66d9ef">for</span> gmjjb,password<span style="color:#f92672">=</span>sxzq@123@//10.xxx.xxx.65/d/data/output:  ********
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 验证</span>
-</span></span><span style="display:flex;"><span> df -h
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 自动挂载</span>
-</span></span><span style="display:flex;"><span> vi /etc/fstab
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 加入以下内容</span>
-</span></span><span style="display:flex;"><span> //IP/share_dir /home/aml cifs username<span style="color:#f92672">=</span>@user, password<span style="color:#f92672">=</span>@password <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 或者</span>
-</span></span><span style="display:flex;"><span> //IP/share_dir /home/aml cifs credentials<span style="color:#f92672">=</span>/var/pwd <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 然后给目录读取的权限</span>
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># chown -R aml:aml /home/aml</span>
-</span></span><span style="display:flex;"><span> chmod -R <span style="color:#ae81ff">444</span> /home/aml
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 创建一个挂载目录</span>
+</span></span><span class="line"><span class="cl"> mkdir /home/aml
+</span></span><span class="line"><span class="cl"><span class="c1"># 挂载 - 方式一</span>
+</span></span><span class="line"><span class="cl"> mount -t cifs -o <span class="nv">username</span><span class="o">=</span>@user, <span class="nv">password</span><span class="o">=</span>@password //IP/share_dir /home/aml
+</span></span><span class="line"><span class="cl"><span class="c1"># 挂载 - 方式二</span>
+</span></span><span class="line"><span class="cl"> mount -t cifs -v -o <span class="nv">credentials</span><span class="o">=</span>/var/pwd //IP/d/data/output /home/aml/                                                                                                                               Password <span class="k">for</span> gmjjb,password<span class="o">=</span>sxzq@123@//10.xxx.xxx.65/d/data/output:  ********
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> <span class="c1"># 验证</span>
+</span></span><span class="line"><span class="cl"> df -h
+</span></span><span class="line"><span class="cl"> <span class="c1"># 自动挂载</span>
+</span></span><span class="line"><span class="cl"> vi /etc/fstab
+</span></span><span class="line"><span class="cl"> <span class="c1"># 加入以下内容</span>
+</span></span><span class="line"><span class="cl"> //IP/share_dir /home/aml cifs <span class="nv">username</span><span class="o">=</span>@user, <span class="nv">password</span><span class="o">=</span>@password <span class="m">0</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl"> <span class="c1"># 或者</span>
+</span></span><span class="line"><span class="cl"> //IP/share_dir /home/aml cifs <span class="nv">credentials</span><span class="o">=</span>/var/pwd <span class="m">0</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="c1"># 然后给目录读取的权限</span>
+</span></span><span class="line"><span class="cl"> <span class="c1"># chown -R aml:aml /home/aml</span>
+</span></span><span class="line"><span class="cl"> chmod -R <span class="m">444</span> /home/aml
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>一般发行版Linux都默认装了 cifs 或者 samba ，可以这么查：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@FXQ-YWYY-57-81 ~<span style="color:#f92672">]</span><span style="color:#75715e"># rpm -qa | grep samba</span>
-</span></span><span style="display:flex;"><span> samba-common-4.11.12-3.p01.ky10.aarch64
-</span></span><span style="display:flex;"><span> samba-client-4.11.12-3.p01.ky10.aarch64
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@FXQ-YWYY-57-81 ~<span style="color:#f92672">]</span><span style="color:#75715e"># rpm -qa | grep cifs</span>
-</span></span><span style="display:flex;"><span> cifs-utils-6.10-0.ky10.aarch64
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@FXQ-YWYY-57-81 ~<span class="o">]</span><span class="c1"># rpm -qa | grep samba</span>
+</span></span><span class="line"><span class="cl"> samba-common-4.11.12-3.p01.ky10.aarch64
+</span></span><span class="line"><span class="cl"> samba-client-4.11.12-3.p01.ky10.aarch64
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@FXQ-YWYY-57-81 ~<span class="o">]</span><span class="c1"># rpm -qa | grep cifs</span>
+</span></span><span class="line"><span class="cl"> cifs-utils-6.10-0.ky10.aarch64
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>卸载共享目录</p>
 <p>umount /home/aml</p>
 <h2 id="挂载-nfs-文件系统">挂载 NFS 文件系统
-</h2><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</h2><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># 创建一个共享目录</span>
-</span></span><span style="display:flex;"><span> mkdir /mnt/nfs
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 挂载</span>
-</span></span><span style="display:flex;"><span> mount -t nfs ip:/path/to/share /mnt/nfs
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 验证 </span>
-</span></span><span style="display:flex;"><span> df -h
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 自动挂载</span>
-</span></span><span style="display:flex;"><span> ip:/path/to/share /mnt/nfs nfs defaults <span style="color:#ae81ff">0</span> <span style="color:#ae81ff">0</span>
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 卸载</span>
-</span></span><span style="display:flex;"><span> umount /mnt/nfs
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># 创建一个共享目录</span>
+</span></span><span class="line"><span class="cl"> mkdir /mnt/nfs
+</span></span><span class="line"><span class="cl"> <span class="c1"># 挂载</span>
+</span></span><span class="line"><span class="cl"> mount -t nfs ip:/path/to/share /mnt/nfs
+</span></span><span class="line"><span class="cl"> <span class="c1"># 验证 </span>
+</span></span><span class="line"><span class="cl"> df -h
+</span></span><span class="line"><span class="cl"> <span class="c1"># 自动挂载</span>
+</span></span><span class="line"><span class="cl"> ip:/path/to/share /mnt/nfs nfs defaults <span class="m">0</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="c1"># 卸载</span>
+</span></span><span class="line"><span class="cl"> umount /mnt/nfs
 </span></span></code></pre></td></tr></table>
 </div>
-</div><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">63
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">64
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">65
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">66
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">67
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">68
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">69
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">70
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">71
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">72
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">73
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">74
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">75
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -o username=gmjjb,password=sxzq@123,vers=2.0 //10.xxx.xxx.65/d/data/output /home/aml/99</span>
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># dmesg | grep mount</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    3.424827<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>dm-0<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    5.906981<span style="color:#f92672">]</span> audit: type<span style="color:#f92672">=</span><span style="color:#ae81ff">1130</span> audit<span style="color:#f92672">(</span>1717645025.410:51<span style="color:#f92672">)</span>: pid<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> uid<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> auid<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> ses<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    6.702559<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>vda2<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2777460.243716<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2778936.002401<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>Invalid argument
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>sudo mount -t cifs -v -o <span style="color:#e6db74">&#39;username=gmjjb,password=sxzq@123,vers=2.0&#39;</span> //10.xxx.xxx.65/d/data/output /home/aml/99/
-</span></span><span style="display:flex;"><span>mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>,vers<span style="color:#f92672">=</span>2.0,user<span style="color:#f92672">=</span>gmjjb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看内核日志</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># sudo mount -t cifs -v -o &#39;username=gmjjb,password=sxzq@123,vers=1.0&#39; //10.xxx.xxx.65/d/data/output /home/aml/99/</span>
-</span></span><span style="display:flex;"><span>mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>,vers<span style="color:#f92672">=</span>1.0,user<span style="color:#f92672">=</span>gmjjb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># dmesg | grep mount</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    3.424827<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>dm-0<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    5.906981<span style="color:#f92672">]</span> audit: type<span style="color:#f92672">=</span><span style="color:#ae81ff">1130</span> audit<span style="color:#f92672">(</span>1717645025.410:51<span style="color:#f92672">)</span>: pid<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> uid<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> auid<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> ses<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    6.702559<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>vda2<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2777460.243716<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2778936.002401<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2781999.432132<span style="color:#f92672">]</span> CIFS: Unknown mount option <span style="color:#e6db74">&#34;passowrd=sxzq@123&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o credentials=/var/pwd.txt //10.xxx.xxx.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.xxx.xxx.65/d/data/output:  ********</span>
-</span></span><span style="display:flex;"><span>mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>,user<span style="color:#f92672">=</span>gmjjb,password<span style="color:#f92672">=</span>sxzq@123,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># dmesg | grep mount</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    3.424827<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>dm-0<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    5.906981<span style="color:#f92672">]</span> audit: type<span style="color:#f92672">=</span><span style="color:#ae81ff">1130</span> audit<span style="color:#f92672">(</span>1717645025.410:51<span style="color:#f92672">)</span>: pid<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> uid<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> auid<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> ses<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    6.702559<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>vda2<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2777460.243716<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2778936.002401<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2781999.432132<span style="color:#f92672">]</span> CIFS: Unknown mount option <span style="color:#e6db74">&#34;passowrd=sxzq@123&#34;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2783009.282175<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2783282.433585<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2783470.189648<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># </span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># vi /etc/samba/smb.conf</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># global 加入</span>
-</span></span><span style="display:flex;"><span>client min protocol <span style="color:#f92672">=</span> CORE
-</span></span><span style="display:flex;"><span>client max protocol <span style="color:#f92672">=</span> SMB3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># smbclient -L //10.xxx.xxx.65/</span>
-</span></span><span style="display:flex;"><span>do_connect: Connection to 10.xxx.xxx.65 failed <span style="color:#f92672">(</span>Error NT_STATUS_IO_TIMEOUT<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># ping 10.xxx.xxx.65</span>
-</span></span><span style="display:flex;"><span>PING 10.xxx.xxx.65 <span style="color:#f92672">(</span>10.xxx.xxx.65<span style="color:#f92672">)</span> 56<span style="color:#f92672">(</span>84<span style="color:#f92672">)</span> bytes of data.
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.xxx.xxx.65: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">125</span> time<span style="color:#f92672">=</span>1.77 ms
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.xxx.xxx.65: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">125</span> time<span style="color:#f92672">=</span>1.11 ms
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.xxx.xxx.65: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">125</span> time<span style="color:#f92672">=</span>0.870 ms
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.xxx.xxx.65: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">125</span> time<span style="color:#f92672">=</span>0.906 ms
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">64</span> bytes from 10.xxx.xxx.65: icmp_seq<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span> ttl<span style="color:#f92672">=</span><span style="color:#ae81ff">125</span> time<span style="color:#f92672">=</span>0.897 ms
-</span></span><span style="display:flex;"><span>^C
-</span></span><span style="display:flex;"><span>--- 10.xxx.xxx.65 ping statistics ---
-</span></span><span style="display:flex;"><span><span style="color:#ae81ff">5</span> packets transmitted, <span style="color:#ae81ff">5</span> received, 0% packet loss, time 4111ms
-</span></span><span style="display:flex;"><span>rtt min/avg/max/mdev <span style="color:#f92672">=</span> 0.870/1.109/1.765/0.338 ms
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e">#</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -o username=gmjjb,password=sxzq@123,vers=2.0 //10.xxx.xxx.65/d/data/output /home/aml/99</span>
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># dmesg | grep mount</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    3.424827<span class="o">]</span> XFS <span class="o">(</span>dm-0<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    5.906981<span class="o">]</span> audit: <span class="nv">type</span><span class="o">=</span><span class="m">1130</span> audit<span class="o">(</span>1717645025.410:51<span class="o">)</span>: <span class="nv">pid</span><span class="o">=</span><span class="m">1</span> <span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">auid</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">ses</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">msg</span><span class="o">=</span><span class="s1">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    6.702559<span class="o">]</span> XFS <span class="o">(</span>vda2<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2777460.243716<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2778936.002401<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Invalid argument
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">sudo mount -t cifs -v -o <span class="s1">&#39;username=gmjjb,password=sxzq@123,vers=2.0&#39;</span> //10.xxx.xxx.65/d/data/output /home/aml/99/
+</span></span><span class="line"><span class="cl">mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>,vers<span class="o">=</span>2.0,user<span class="o">=</span>gmjjb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看内核日志</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># sudo mount -t cifs -v -o &#39;username=gmjjb,password=sxzq@123,vers=1.0&#39; //10.xxx.xxx.65/d/data/output /home/aml/99/</span>
+</span></span><span class="line"><span class="cl">mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>,vers<span class="o">=</span>1.0,user<span class="o">=</span>gmjjb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># dmesg | grep mount</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    3.424827<span class="o">]</span> XFS <span class="o">(</span>dm-0<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    5.906981<span class="o">]</span> audit: <span class="nv">type</span><span class="o">=</span><span class="m">1130</span> audit<span class="o">(</span>1717645025.410:51<span class="o">)</span>: <span class="nv">pid</span><span class="o">=</span><span class="m">1</span> <span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">auid</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">ses</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">msg</span><span class="o">=</span><span class="s1">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    6.702559<span class="o">]</span> XFS <span class="o">(</span>vda2<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2777460.243716<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2778936.002401<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2781999.432132<span class="o">]</span> CIFS: Unknown mount option <span class="s2">&#34;passowrd=sxzq@123&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1">#</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -v -o credentials=/var/pwd.txt //10.xxx.xxx.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.xxx.xxx.65/d/data/output:  ********</span>
+</span></span><span class="line"><span class="cl">mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>,user<span class="o">=</span>gmjjb,password<span class="o">=</span>sxzq@123,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># dmesg | grep mount</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    3.424827<span class="o">]</span> XFS <span class="o">(</span>dm-0<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    5.906981<span class="o">]</span> audit: <span class="nv">type</span><span class="o">=</span><span class="m">1130</span> audit<span class="o">(</span>1717645025.410:51<span class="o">)</span>: <span class="nv">pid</span><span class="o">=</span><span class="m">1</span> <span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">auid</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">ses</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">msg</span><span class="o">=</span><span class="s1">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    6.702559<span class="o">]</span> XFS <span class="o">(</span>vda2<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2777460.243716<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2778936.002401<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2781999.432132<span class="o">]</span> CIFS: Unknown mount option <span class="s2">&#34;passowrd=sxzq@123&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2783009.282175<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2783282.433585<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2783470.189648<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1">#</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># </span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># vi /etc/samba/smb.conf</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># global 加入</span>
+</span></span><span class="line"><span class="cl">client min <span class="nv">protocol</span> <span class="o">=</span> CORE
+</span></span><span class="line"><span class="cl">client max <span class="nv">protocol</span> <span class="o">=</span> SMB3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># smbclient -L //10.xxx.xxx.65/</span>
+</span></span><span class="line"><span class="cl">do_connect: Connection to 10.xxx.xxx.65 failed <span class="o">(</span>Error NT_STATUS_IO_TIMEOUT<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># ping 10.xxx.xxx.65</span>
+</span></span><span class="line"><span class="cl">PING 10.xxx.xxx.65 <span class="o">(</span>10.xxx.xxx.65<span class="o">)</span> 56<span class="o">(</span>84<span class="o">)</span> bytes of data.
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.xxx.xxx.65: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">1</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">125</span> <span class="nv">time</span><span class="o">=</span>1.77 ms
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.xxx.xxx.65: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">2</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">125</span> <span class="nv">time</span><span class="o">=</span>1.11 ms
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.xxx.xxx.65: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">3</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">125</span> <span class="nv">time</span><span class="o">=</span>0.870 ms
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.xxx.xxx.65: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">4</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">125</span> <span class="nv">time</span><span class="o">=</span>0.906 ms
+</span></span><span class="line"><span class="cl"><span class="m">64</span> bytes from 10.xxx.xxx.65: <span class="nv">icmp_seq</span><span class="o">=</span><span class="m">5</span> <span class="nv">ttl</span><span class="o">=</span><span class="m">125</span> <span class="nv">time</span><span class="o">=</span>0.897 ms
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl">--- 10.xxx.xxx.65 ping statistics ---
+</span></span><span class="line"><span class="cl"><span class="m">5</span> packets transmitted, <span class="m">5</span> received, 0% packet loss, <span class="nb">time</span> 4111ms
+</span></span><span class="line"><span class="cl">rtt min/avg/max/mdev <span class="o">=</span> 0.870/1.109/1.765/0.338 ms
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1">#</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="生产实践-挂载-windows-共享目录">生产实践-挂载 windows 共享目录
 </h2><p>因为密码中含有特殊字符 <code>@</code> ，所以建立了一个存放 Windows 共享目录的用户密码的文件，在命令中使用：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 mnt<span style="color:#f92672">]</span><span style="color:#75715e"># cat /var/pwd </span>
-</span></span><span style="display:flex;"><span>user<span style="color:#f92672">=</span>gmjjb
-</span></span><span style="display:flex;"><span>pass<span style="color:#f92672">=</span>sxzq@123
-</span></span><span style="display:flex;"><span>vers<span style="color:#f92672">=</span>1.0
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 mnt<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o credentials=/var/pwd //10.xxx.xxx.195/d/data/output /mnt/B9/  </span>
-</span></span><span style="display:flex;"><span>Credential formatted incorrectly: 1.0
-</span></span><span style="display:flex;"><span>mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.195,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.195<span style="color:#ae81ff">\d</span>,user<span style="color:#f92672">=</span>gmjjb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 mnt<span style="color:#f92672">]</span><span style="color:#75715e"># df -h</span>
-</span></span><span style="display:flex;"><span>Filesystem                   Size  Used Avail Use% Mounted on
-</span></span><span style="display:flex;"><span>devtmpfs                      32G     <span style="color:#ae81ff">0</span>   32G   0% /dev
-</span></span><span style="display:flex;"><span>tmpfs                         32G  192K   32G   1% /dev/shm
-</span></span><span style="display:flex;"><span>tmpfs                         32G  1.5G   30G   5% /run
-</span></span><span style="display:flex;"><span>tmpfs                         32G     <span style="color:#ae81ff">0</span>   32G   0% /sys/fs/cgroup
-</span></span><span style="display:flex;"><span>/dev/mapper/klas-root        483G   38G  446G   8% /
-</span></span><span style="display:flex;"><span>tmpfs                         32G  2.1M   32G   1% /tmp
-</span></span><span style="display:flex;"><span>/dev/vda2                   1014M  222M  793M  22% /boot
-</span></span><span style="display:flex;"><span>/dev/vda1                    599M  6.5M  593M   2% /boot/efi
-</span></span><span style="display:flex;"><span>tmpfs                        6.3G     <span style="color:#ae81ff">0</span>  6.3G   0% /run/user/993
-</span></span><span style="display:flex;"><span>tmpfs                        6.3G     <span style="color:#ae81ff">0</span>  6.3G   0% /run/user/0
-</span></span><span style="display:flex;"><span>//10.xxx.xxx.195/d/data/output  500G  392G  109G  79% /mnt/B9		<span style="color:#75715e"># 已经挂载好了</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 mnt<span class="o">]</span><span class="c1"># cat /var/pwd </span>
+</span></span><span class="line"><span class="cl"><span class="nv">user</span><span class="o">=</span>gmjjb
+</span></span><span class="line"><span class="cl"><span class="nv">pass</span><span class="o">=</span>sxzq@123
+</span></span><span class="line"><span class="cl"><span class="nv">vers</span><span class="o">=</span>1.0
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 mnt<span class="o">]</span><span class="c1"># mount -t cifs -v -o credentials=/var/pwd //10.xxx.xxx.195/d/data/output /mnt/B9/  </span>
+</span></span><span class="line"><span class="cl">Credential formatted incorrectly: 1.0
+</span></span><span class="line"><span class="cl">mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.195,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.195<span class="se">\d</span>,user<span class="o">=</span>gmjjb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 mnt<span class="o">]</span><span class="c1"># df -h</span>
+</span></span><span class="line"><span class="cl">Filesystem                   Size  Used Avail Use% Mounted on
+</span></span><span class="line"><span class="cl">devtmpfs                      32G     <span class="m">0</span>   32G   0% /dev
+</span></span><span class="line"><span class="cl">tmpfs                         32G  192K   32G   1% /dev/shm
+</span></span><span class="line"><span class="cl">tmpfs                         32G  1.5G   30G   5% /run
+</span></span><span class="line"><span class="cl">tmpfs                         32G     <span class="m">0</span>   32G   0% /sys/fs/cgroup
+</span></span><span class="line"><span class="cl">/dev/mapper/klas-root        483G   38G  446G   8% /
+</span></span><span class="line"><span class="cl">tmpfs                         32G  2.1M   32G   1% /tmp
+</span></span><span class="line"><span class="cl">/dev/vda2                   1014M  222M  793M  22% /boot
+</span></span><span class="line"><span class="cl">/dev/vda1                    599M  6.5M  593M   2% /boot/efi
+</span></span><span class="line"><span class="cl">tmpfs                        6.3G     <span class="m">0</span>  6.3G   0% /run/user/993
+</span></span><span class="line"><span class="cl">tmpfs                        6.3G     <span class="m">0</span>  6.3G   0% /run/user/0
+</span></span><span class="line"><span class="cl">//10.xxx.xxx.195/d/data/output  500G  392G  109G  79% /mnt/B9		<span class="c1"># 已经挂载好了</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>然后到 <code>/mnt/B9</code> 目录下查看就行了</p>
 <p>卸载共享目录</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>umount /home/aml
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">umount /home/aml
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="强制取消挂载时出现-busy-问题">强制取消挂载时出现 Busy 问题
 </h3><p>我使用 <code>umount -f /home/aml/B9</code> 后，B9目录就变成了这样：</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>d????????? ? ?    ?       ?            ? B9
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 aml<span style="color:#f92672">]</span><span style="color:#75715e"># ll</span>
-</span></span><span style="display:flex;"><span>ls: cannot access <span style="color:#e6db74">&#39;B9&#39;</span>: No such device
-</span></span><span style="display:flex;"><span>total <span style="color:#ae81ff">8</span>
-</span></span><span style="display:flex;"><span>drwxr-xr-x <span style="color:#ae81ff">2</span> root root <span style="color:#ae81ff">4096</span> Jul <span style="color:#ae81ff">12</span> 10:10 3K
-</span></span><span style="display:flex;"><span>drwxr-xr-x <span style="color:#ae81ff">2</span> root root <span style="color:#ae81ff">4096</span> Jul <span style="color:#ae81ff">12</span> 10:12 <span style="color:#ae81ff">99</span>
-</span></span><span style="display:flex;"><span>d????????? ? ?    ?       ?            ? B9
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">d????????? ? ?    ?       ?            ? B9
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 aml<span class="o">]</span><span class="c1"># ll</span>
+</span></span><span class="line"><span class="cl">ls: cannot access <span class="s1">&#39;B9&#39;</span>: No such device
+</span></span><span class="line"><span class="cl">total <span class="m">8</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> root root <span class="m">4096</span> Jul <span class="m">12</span> 10:10 3K
+</span></span><span class="line"><span class="cl">drwxr-xr-x <span class="m">2</span> root root <span class="m">4096</span> Jul <span class="m">12</span> 10:12 <span class="m">99</span>
+</span></span><span class="line"><span class="cl">d????????? ? ?    ?       ?            ? B9
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>对这块盘进行重新取消挂载即可</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 aml<span style="color:#f92672">]</span><span style="color:#75715e"># umount -l B9</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 aml<span class="o">]</span><span class="c1"># umount -l B9</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="报错-operation-now-in-progress">报错 Operation now in progress
-</h3><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</h3><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -o username=gmjjb,password=sxzq@123,vers=1.0 //10.xxx.xxx.65/d/data/output /home/aml/99</span>
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># dmesg | grep mount</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    3.424827<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>dm-0<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    5.906981<span style="color:#f92672">]</span> audit: type<span style="color:#f92672">=</span><span style="color:#ae81ff">1130</span> audit<span style="color:#f92672">(</span>1717645025.410:51<span style="color:#f92672">)</span>: pid<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> uid<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span> auid<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> ses<span style="color:#f92672">=</span><span style="color:#ae81ff">4294967295</span> msg<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>    6.702559<span style="color:#f92672">]</span> XFS <span style="color:#f92672">(</span>vda2<span style="color:#f92672">)</span>: Ending clean mount
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2777460.243716<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>2778936.002401<span style="color:#f92672">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span style="color:#f92672">(</span>e.g. SMB3<span style="color:#f92672">)</span>, from CIFS <span style="color:#f92672">(</span>SMB1<span style="color:#f92672">)</span>. To use the less secure SMB1 dialect to access old servers which <span style="color:#66d9ef">do</span> not support SMB3 <span style="color:#f92672">(</span>or SMB2.1<span style="color:#f92672">)</span> specify vers<span style="color:#f92672">=</span>1.0 on mount.
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 使用文件的形式也是报错</span>
-</span></span><span style="display:flex;"><span>vi /var/pwd
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># 加入</span>
-</span></span><span style="display:flex;"><span>user<span style="color:#f92672">=</span>&lt;username&gt;
-</span></span><span style="display:flex;"><span>pass<span style="color:#f92672">=</span>&lt;password&gt;
-</span></span><span style="display:flex;"><span>vers<span style="color:#f92672">=</span>1.0
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>chown root:root /var/pwd
-</span></span><span style="display:flex;"><span>chmod <span style="color:#ae81ff">600</span> /etc/pwd
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o credentials=/var/pwd //10.xxx.xxx.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.xxx.xxx.65/d/data/output:  ********</span>
-</span></span><span style="display:flex;"><span>mount error<span style="color:#f92672">(</span>115<span style="color:#f92672">)</span>: Operation now in progress
-</span></span><span style="display:flex;"><span>Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -o username=gmjjb,password=sxzq@123,vers=1.0 //10.xxx.xxx.65/d/data/output /home/aml/99</span>
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># dmesg | grep mount</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    3.424827<span class="o">]</span> XFS <span class="o">(</span>dm-0<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    5.906981<span class="o">]</span> audit: <span class="nv">type</span><span class="o">=</span><span class="m">1130</span> audit<span class="o">(</span>1717645025.410:51<span class="o">)</span>: <span class="nv">pid</span><span class="o">=</span><span class="m">1</span> <span class="nv">uid</span><span class="o">=</span><span class="m">0</span> <span class="nv">auid</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">ses</span><span class="o">=</span><span class="m">4294967295</span> <span class="nv">msg</span><span class="o">=</span><span class="s1">&#39;unit=systemd-remount-fs comm=&#34;systemd&#34; exe=&#34;/usr/lib/systemd/systemd&#34; hostname=? addr=? terminal=? res=success&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>    6.702559<span class="o">]</span> XFS <span class="o">(</span>vda2<span class="o">)</span>: Ending clean mount
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2777460.243716<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2778936.002401<span class="o">]</span> No dialect specified on mount. Default has changed to a more secure dialect, SMB2.1 or later <span class="o">(</span>e.g. SMB3<span class="o">)</span>, from CIFS <span class="o">(</span>SMB1<span class="o">)</span>. To use the less secure SMB1 dialect to access old servers which <span class="k">do</span> not support SMB3 <span class="o">(</span>or SMB2.1<span class="o">)</span> specify <span class="nv">vers</span><span class="o">=</span>1.0 on mount.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 使用文件的形式也是报错</span>
+</span></span><span class="line"><span class="cl">vi /var/pwd
+</span></span><span class="line"><span class="cl"><span class="c1"># 加入</span>
+</span></span><span class="line"><span class="cl"><span class="nv">user</span><span class="o">=</span>&lt;username&gt;
+</span></span><span class="line"><span class="cl"><span class="nv">pass</span><span class="o">=</span>&lt;password&gt;
+</span></span><span class="line"><span class="cl"><span class="nv">vers</span><span class="o">=</span>1.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">chown root:root /var/pwd
+</span></span><span class="line"><span class="cl">chmod <span class="m">600</span> /etc/pwd
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -v -o credentials=/var/pwd //10.xxx.xxx.65/d/data/output /home/aml/99/                                                                                                                               Password for gmjjb,password=sxzq@123@//10.xxx.xxx.65/d/data/output:  ********</span>
+</span></span><span class="line"><span class="cl">mount error<span class="o">(</span>115<span class="o">)</span>: Operation now in progress
+</span></span><span class="line"><span class="cl">Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p><code>ping ip</code>能通，但<code>telnet ip 445</code>也不通，故该服务器访问<code>Windows</code>服务器的共享目录端口是不通的，需要在防火墙上开启端口，需要负责管理网络这块的去开通。</p>
 <h3 id="挂载另一台报错排查及解决">挂载另一台报错排查及解决
 </h3><h4 id="permission-denied">Permission denied
-</h4><div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</h4><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o &#39;username=gmjjb,password=sxzq@123,sec=ntlmssp,vers=1.0&#39; //10.xxx.xxx.65/d/data/output /mnt/99/</span>
-</span></span><span style="display:flex;"><span> mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>,sec<span style="color:#f92672">=</span>ntlmssp,vers<span style="color:#f92672">=</span>1.0,user<span style="color:#f92672">=</span>gmjjb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span> mount error<span style="color:#f92672">(</span>13<span style="color:#f92672">)</span>: Permission denied
-</span></span><span style="display:flex;"><span> Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -v -o &#39;username=gmjjb,password=sxzq@123,sec=ntlmssp,vers=1.0&#39; //10.xxx.xxx.65/d/data/output /mnt/99/</span>
+</span></span><span class="line"><span class="cl"> mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>,sec<span class="o">=</span>ntlmssp,vers<span class="o">=</span>1.0,user<span class="o">=</span>gmjjb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl"> mount error<span class="o">(</span>13<span class="o">)</span>: Permission denied
+</span></span><span class="line"><span class="cl"> Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
@@ -799,134 +796,134 @@
 <ul>
 <li>确认共享目录是什么盘，这里共享的是 <code>d$/data/output</code> 不是 <code>d/data/output</code></li>
 </ul>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># cat /var/pwd_65 </span>
-</span></span><span style="display:flex;"><span> username<span style="color:#f92672">=</span>zgyyb
-</span></span><span style="display:flex;"><span> password<span style="color:#f92672">=</span>sxzq@123
-</span></span><span style="display:flex;"><span> vers<span style="color:#f92672">=</span>1.0
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o credentials=/var/pwd_65 //10.xxx.xxx.65/d/data/output /mnt/99/</span>
-</span></span><span style="display:flex;"><span> Credential formatted incorrectly: 1.0
-</span></span><span style="display:flex;"><span> mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>,user<span style="color:#f92672">=</span>zgyyb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span> mount error<span style="color:#f92672">(</span>2<span style="color:#f92672">)</span>: No such file or directory
-</span></span><span style="display:flex;"><span> Refer to the mount.cifs<span style="color:#f92672">(</span>8<span style="color:#f92672">)</span> manual page <span style="color:#f92672">(</span>e.g. man mount.cifs<span style="color:#f92672">)</span> and kernel log messages <span style="color:#f92672">(</span>dmesg<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 查看共享目录的盘 注意这里的盘是 d$  不是 d</span>
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># smbclient -L //10.xxx.xxx.65/ -U zgyyb</span>
-</span></span><span style="display:flex;"><span> Enter SAMBA<span style="color:#ae81ff">\z</span>gyyb<span style="color:#ae81ff">\&#39;</span>s password: 
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span>     Sharename       Type      Comment
-</span></span><span style="display:flex;"><span>     ---------       ----      -------
-</span></span><span style="display:flex;"><span>     ADMIN$          Disk      远程管理
-</span></span><span style="display:flex;"><span>     C$              Disk      默认共享
-</span></span><span style="display:flex;"><span>     D$              Disk      默认共享
-</span></span><span style="display:flex;"><span>     E盘            Disk      
-</span></span><span style="display:flex;"><span>     I$              Disk      默认共享
-</span></span><span style="display:flex;"><span>     IPC$            IPC       远程 IPC
-</span></span><span style="display:flex;"><span> Reconnecting with SMB1 <span style="color:#66d9ef">for</span> workgroup listing.
-</span></span><span style="display:flex;"><span> do_connect: Connection to 10.xxx.xxx.65 failed <span style="color:#f92672">(</span>Error NT_STATUS_IO_TIMEOUT<span style="color:#f92672">)</span>
-</span></span><span style="display:flex;"><span> Unable to connect with SMB1 -- no workgroup available
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span> <span style="color:#75715e"># 把路径换成 d$ 就可以了</span>
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># mount -t cifs -v -o credentials=/var/pwd_65 //10.xxx.xxx.65/d$/data/output /mnt/99/</span>
-</span></span><span style="display:flex;"><span> Credential formatted incorrectly: 1.0
-</span></span><span style="display:flex;"><span> mount.cifs kernel mount options: ip<span style="color:#f92672">=</span>10.xxx.xxx.65,unc<span style="color:#f92672">=</span><span style="color:#ae81ff">\\</span>10.xxx.xxx.65<span style="color:#ae81ff">\d</span>$,user<span style="color:#f92672">=</span>zgyyb,prefixpath<span style="color:#f92672">=</span>data/output,pass<span style="color:#f92672">=</span>********
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e"># df -h</span>
-</span></span><span style="display:flex;"><span> Filesystem                   Size  Used Avail Use% Mounted on
-</span></span><span style="display:flex;"><span> devtmpfs                      32G     <span style="color:#ae81ff">0</span>   32G   0% /dev
-</span></span><span style="display:flex;"><span> tmpfs                         32G  192K   32G   1% /dev/shm
-</span></span><span style="display:flex;"><span> tmpfs                         32G  1.8G   30G   6% /run
-</span></span><span style="display:flex;"><span> tmpfs                         32G     <span style="color:#ae81ff">0</span>   32G   0% /sys/fs/cgroup
-</span></span><span style="display:flex;"><span> /dev/mapper/klas-root        483G   38G  446G   8% /
-</span></span><span style="display:flex;"><span> tmpfs                         32G  2.2M   32G   1% /tmp
-</span></span><span style="display:flex;"><span> /dev/vda2                   1014M  222M  793M  22% /boot
-</span></span><span style="display:flex;"><span> /dev/vda1                    599M  6.5M  593M   2% /boot/efi
-</span></span><span style="display:flex;"><span> tmpfs                        6.3G     <span style="color:#ae81ff">0</span>  6.3G   0% /run/user/993
-</span></span><span style="display:flex;"><span> tmpfs                        6.3G     <span style="color:#ae81ff">0</span>  6.3G   0% /run/user/0
-</span></span><span style="display:flex;"><span> //10.xxx.xxx.195/d/data/output  500G  395G  106G  79% /mnt/B9
-</span></span><span style="display:flex;"><span> //10.xxx.xxx.65/d$/data/output  200G  169G   32G  85% /mnt/99
-</span></span><span style="display:flex;"><span> <span style="color:#f92672">[</span>root@kylinV10arm162 ~<span style="color:#f92672">]</span><span style="color:#75715e">#</span>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># cat /var/pwd_65 </span>
+</span></span><span class="line"><span class="cl"> <span class="nv">username</span><span class="o">=</span>zgyyb
+</span></span><span class="line"><span class="cl"> <span class="nv">password</span><span class="o">=</span>sxzq@123
+</span></span><span class="line"><span class="cl"> <span class="nv">vers</span><span class="o">=</span>1.0
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -v -o credentials=/var/pwd_65 //10.xxx.xxx.65/d/data/output /mnt/99/</span>
+</span></span><span class="line"><span class="cl"> Credential formatted incorrectly: 1.0
+</span></span><span class="line"><span class="cl"> mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>,user<span class="o">=</span>zgyyb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl"> mount error<span class="o">(</span>2<span class="o">)</span>: No such file or directory
+</span></span><span class="line"><span class="cl"> Refer to the mount.cifs<span class="o">(</span>8<span class="o">)</span> manual page <span class="o">(</span>e.g. man mount.cifs<span class="o">)</span> and kernel log messages <span class="o">(</span>dmesg<span class="o">)</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="c1"># 查看共享目录的盘 注意这里的盘是 d$  不是 d</span>
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># smbclient -L //10.xxx.xxx.65/ -U zgyyb</span>
+</span></span><span class="line"><span class="cl"> Enter SAMBA<span class="se">\z</span>gyyb<span class="se">\&#39;</span>s password: 
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">     Sharename       Type      Comment
+</span></span><span class="line"><span class="cl">     ---------       ----      -------
+</span></span><span class="line"><span class="cl">     ADMIN$          Disk      远程管理
+</span></span><span class="line"><span class="cl">     C$              Disk      默认共享
+</span></span><span class="line"><span class="cl">     D$              Disk      默认共享
+</span></span><span class="line"><span class="cl">     E盘            Disk      
+</span></span><span class="line"><span class="cl">     I$              Disk      默认共享
+</span></span><span class="line"><span class="cl">     IPC$            IPC       远程 IPC
+</span></span><span class="line"><span class="cl"> Reconnecting with SMB1 <span class="k">for</span> workgroup listing.
+</span></span><span class="line"><span class="cl"> do_connect: Connection to 10.xxx.xxx.65 failed <span class="o">(</span>Error NT_STATUS_IO_TIMEOUT<span class="o">)</span>
+</span></span><span class="line"><span class="cl"> Unable to connect with SMB1 -- no workgroup available
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"> <span class="c1"># 把路径换成 d$ 就可以了</span>
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># mount -t cifs -v -o credentials=/var/pwd_65 //10.xxx.xxx.65/d$/data/output /mnt/99/</span>
+</span></span><span class="line"><span class="cl"> Credential formatted incorrectly: 1.0
+</span></span><span class="line"><span class="cl"> mount.cifs kernel mount options: <span class="nv">ip</span><span class="o">=</span>10.xxx.xxx.65,unc<span class="o">=</span><span class="se">\\</span>10.xxx.xxx.65<span class="se">\d</span>$,user<span class="o">=</span>zgyyb,prefixpath<span class="o">=</span>data/output,pass<span class="o">=</span>********
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1"># df -h</span>
+</span></span><span class="line"><span class="cl"> Filesystem                   Size  Used Avail Use% Mounted on
+</span></span><span class="line"><span class="cl"> devtmpfs                      32G     <span class="m">0</span>   32G   0% /dev
+</span></span><span class="line"><span class="cl"> tmpfs                         32G  192K   32G   1% /dev/shm
+</span></span><span class="line"><span class="cl"> tmpfs                         32G  1.8G   30G   6% /run
+</span></span><span class="line"><span class="cl"> tmpfs                         32G     <span class="m">0</span>   32G   0% /sys/fs/cgroup
+</span></span><span class="line"><span class="cl"> /dev/mapper/klas-root        483G   38G  446G   8% /
+</span></span><span class="line"><span class="cl"> tmpfs                         32G  2.2M   32G   1% /tmp
+</span></span><span class="line"><span class="cl"> /dev/vda2                   1014M  222M  793M  22% /boot
+</span></span><span class="line"><span class="cl"> /dev/vda1                    599M  6.5M  593M   2% /boot/efi
+</span></span><span class="line"><span class="cl"> tmpfs                        6.3G     <span class="m">0</span>  6.3G   0% /run/user/993
+</span></span><span class="line"><span class="cl"> tmpfs                        6.3G     <span class="m">0</span>  6.3G   0% /run/user/0
+</span></span><span class="line"><span class="cl"> //10.xxx.xxx.195/d/data/output  500G  395G  106G  79% /mnt/B9
+</span></span><span class="line"><span class="cl"> //10.xxx.xxx.65/d$/data/output  200G  169G   32G  85% /mnt/99
+</span></span><span class="line"><span class="cl"> <span class="o">[</span>root@kylinV10arm162 ~<span class="o">]</span><span class="c1">#</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="总结">总结
 </h2><p>99 挂载</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mount -t cifs -v -o credentials<span style="color:#f92672">=</span>/var/pwd_65 //10.xxx.xxx.65/d$/data/output /mnt/99/
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mount -t cifs -v -o <span class="nv">credentials</span><span class="o">=</span>/var/pwd_65 //10.xxx.xxx.65/d$/data/output /mnt/99/
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>B9 挂载</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mount -t cifs -v -o credentials<span style="color:#f92672">=</span>/var/pwd //10.xxx.xxx.195/d/data/output /mnt/B9/
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">mount -t cifs -v -o <span class="nv">credentials</span><span class="o">=</span>/var/pwd //10.xxx.xxx.195/d/data/output /mnt/B9/
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>取消挂载</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>umount /mnt/99
-</span></span><span style="display:flex;"><span>umount /mnt/B9
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">umount /mnt/99
+</span></span><span class="line"><span class="cl">umount /mnt/B9
 </span></span></code></pre></td></tr></table>
 </div>
 </div>
@@ -983,6 +980,19 @@
             
                 
 <article class="">
+    <a href="/posts/2024/07/shell-%E7%9B%91%E6%8E%A7%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9C%8D%E5%8A%A1%E6%97%A5%E5%BF%97%E7%9B%91%E6%8E%A7%E7%8A%B6%E6%80%81/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Shell 监控达梦数据库服务、日志健康状态</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
     <a href="/posts/2024/07/linux-%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86%E5%85%A8/">
         
         
@@ -1002,6 +1012,19 @@
 
         <div class="article-details">
             <h2 class="article-title">Linux-工作中常用命令总结与常见错误</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/posts/2024/07/linux-%E6%9B%B4%E6%94%B9swap%E5%88%86%E5%8C%BA/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Linux 更改swap分区</h2>
         </div>
     </a>
 </article>
@@ -1107,12 +1130,28 @@
         
             
         
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
 
         
         
         
         
-        <a>发布了 21 篇文章 | 共 48.1K 字</a></br>
+        <a>发布了 26 篇文章 | 共 81.0K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
 
