@@ -2,16 +2,16 @@
 <html lang="zh-cn" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="新增实例与数据守护、监视器\r说明\r在原先的 A 、B 机器搭建好的实时主备集群已有实例的基础上，新增一个实例，即一个集群，多个实例的效果\n并且，一定要事先规划好端口配置、实例名、路径、数据守护组名\n1.规划的端口是否与现有的实例端口冲突\n2.主备机器端口之间是否打通\n3.实例路径、数据守护组都要配置端口的\n">
-<meta name="keywords" content="达梦, 数据库, DM, 主备集群, 数据库安装"><title>主备集群-新增达梦实例并配置实时主备集群（三）</title>
+<meta name="keywords" content="达梦, 数据库, DM, 主备集群, 数据库安装"><title>主备集群 新增达梦实例并配置实时主备集群（三）</title>
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/'>
 
-<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="主备集群-新增达梦实例并配置实时主备集群（三）">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="主备集群 新增达梦实例并配置实时主备集群（三）">
 <meta property='og:description' content="新增实例与数据守护、监视器\r说明\r在原先的 A 、B 机器搭建好的实时主备集群已有实例的基础上，新增一个实例，即一个集群，多个实例的效果\n并且，一定要事先规划好端口配置、实例名、路径、数据守护组名\n1.规划的端口是否与现有的实例端口冲突\n2.主备机器端口之间是否打通\n3.实例路径、数据守护组都要配置端口的\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/'>
 <meta property='og:site_name' content='阿琦同学'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-08-19T20:02:15&#43;08:00'/><meta property='article:modified_time' content='2024-10-09T21:33:01&#43;08:00'/>
-<meta name="twitter:title" content="主备集群-新增达梦实例并配置实时主备集群（三）">
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-08-19T20:02:15&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T22:37:20&#43;08:00'/>
+<meta name="twitter:title" content="主备集群 新增达梦实例并配置实时主备集群（三）">
 <meta name="twitter:description" content="新增实例与数据守护、监视器\r说明\r在原先的 A 、B 机器搭建好的实时主备集群已有实例的基础上，新增一个实例，即一个集群，多个实例的效果\n并且，一定要事先规划好端口配置、实例名、路径、数据守护组名\n1.规划的端口是否与现有的实例端口冲突\n2.主备机器端口之间是否打通\n3.实例路径、数据守护组都要配置端口的\n">
     <link rel="shortcut icon" href="/favicon.ico" />
 
@@ -356,7 +356,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">主备集群-新增达梦实例并配置实时主备集群（三）</a>
+            <a href="/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/">主备集群 新增达梦实例并配置实时主备集群（三）</a>
         </h2>
     
         
@@ -1835,7 +1835,7 @@
 
 
         <span>
-            最后更新于 2024年10月9号 21:33
+            最后更新于 2024年10月14号 22:37
         </span>
     </section></footer>
 
@@ -1859,7 +1859,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-达梦数据库备份还原实践（四）</h2>
+            <h2 class="article-title">主备集群 达梦数据库备份还原实践（四）</h2>
         </div>
     </a>
 </article>
@@ -1872,7 +1872,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-达梦实时主备集群搭建与主备切换实践（二）</h2>
+            <h2 class="article-title">主备集群 达梦实时主备集群搭建与主备切换实践（二）</h2>
         </div>
     </a>
 </article>
@@ -1885,7 +1885,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-达梦数据库数据守护（一）</h2>
+            <h2 class="article-title">主备集群 达梦数据库数据守护（一）</h2>
         </div>
     </a>
 </article>
@@ -1898,7 +1898,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
+            <h2 class="article-title">实施部署 达梦数据库linux版的安装（二）</h2>
         </div>
     </a>
 </article>
@@ -1911,7 +1911,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">实施部署-信创项目环境搭建准备（一）</h2>
+            <h2 class="article-title">实施部署 信创项目环境搭建准备（一）</h2>
         </div>
     </a>
 </article>

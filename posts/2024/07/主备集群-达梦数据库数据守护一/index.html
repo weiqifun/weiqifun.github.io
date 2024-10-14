@@ -2,16 +2,16 @@
 <html lang="zh-cn" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
-<meta name="keywords" content="达梦, 数据库, DM, 数据守护, 主备搭建"><title>主备集群-达梦数据库数据守护（一）</title>
+<meta name="keywords" content="达梦, 数据库, DM, 数据守护, 主备搭建"><title>主备集群 达梦数据库数据守护（一）</title>
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/'>
 
-<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="主备集群-达梦数据库数据守护（一）">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="主备集群 达梦数据库数据守护（一）">
 <meta property='og:description' content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/'>
 <meta property='og:site_name' content='阿琦同学'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-07-20T22:00:31&#43;08:00'/><meta property='article:modified_time' content='2024-10-09T21:49:49&#43;08:00'/>
-<meta name="twitter:title" content="主备集群-达梦数据库数据守护（一）">
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='信创' /><meta property='article:tag' content='达梦' /><meta property='article:published_time' content='2024-07-20T22:00:31&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T22:36:31&#43;08:00'/>
+<meta name="twitter:title" content="主备集群 达梦数据库数据守护（一）">
 <meta name="twitter:description" content="为了弄清达梦的数据守护，实操主备集群搭建实践，做概念的基本了解。\n总结一篇数据守护的概念，包括数据库模式、数据库状态、归档等概念，在搭建主备集群时，能清楚的知道自己是在做什么，为什么这么做。\n">
     <link rel="shortcut icon" href="/favicon.ico" />
 
@@ -350,7 +350,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/">主备集群-达梦数据库数据守护（一）</a>
+            <a href="/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/">主备集群 达梦数据库数据守护（一）</a>
         </h2>
     
         
@@ -658,7 +658,7 @@
 
 
         <span>
-            最后更新于 2024年10月9号 21:49
+            最后更新于 2024年10月14号 22:36
         </span>
     </section></footer>
 
@@ -682,7 +682,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-达梦数据库备份还原实践（四）</h2>
+            <h2 class="article-title">主备集群 达梦数据库备份还原实践（四）</h2>
         </div>
     </a>
 </article>
@@ -695,7 +695,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-新增达梦实例并配置实时主备集群（三）</h2>
+            <h2 class="article-title">主备集群 新增达梦实例并配置实时主备集群（三）</h2>
         </div>
     </a>
 </article>
@@ -708,7 +708,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">主备集群-达梦实时主备集群搭建与主备切换实践（二）</h2>
+            <h2 class="article-title">主备集群 达梦实时主备集群搭建与主备切换实践（二）</h2>
         </div>
     </a>
 </article>
@@ -721,7 +721,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">实施部署-达梦数据库linux版的安装（二）</h2>
+            <h2 class="article-title">实施部署 达梦数据库linux版的安装（二）</h2>
         </div>
     </a>
 </article>
@@ -734,7 +734,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">实施部署-信创项目环境搭建准备（一）</h2>
+            <h2 class="article-title">实施部署 信创项目环境搭建准备（一）</h2>
         </div>
     </a>
 </article>

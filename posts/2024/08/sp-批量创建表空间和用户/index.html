@@ -2,16 +2,16 @@
 <html lang="zh-cn" dir="ltr">
     <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="某证券的异常交易项目的测试环境已经早没了，只有生产环境。因为都是稳定运行的项目，一般开发完直接上生产，具体遇到问题在生产上排查。但是由于流程逐渐严格，所有发包必须走流程，经测试部验证后才能上产线，所以需要搭个测试环境。但是这个项目已经很早了，关于项目的数据库用户，有框架用户、产品用户，还有客户给自己创建的用户，总共 100 + 。当时看着客户提供过来的需创建的用户，头大。所以就有了批量创建的想法。\n">
-<meta name="keywords" content="存储过程, SP, ORACLE, SQL"><title>SP-批量创建表空间和用户</title>
+<meta name="keywords" content="存储过程, SP, ORACLE, SQL"><title>SP 批量创建表空间和用户</title>
 
 <link rel='canonical' href='http://localhost:1313/posts/2024/08/sp-%E6%89%B9%E9%87%8F%E5%88%9B%E5%BB%BA%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7/'>
 
-<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="SP-批量创建表空间和用户">
+<link rel="stylesheet" href="/scss/style.min.0e91ddc078dc4644ec4ec4682d50203275b3e0e9aa37379162c31686c778c042.css"><meta property='og:title' content="SP 批量创建表空间和用户">
 <meta property='og:description' content="某证券的异常交易项目的测试环境已经早没了，只有生产环境。因为都是稳定运行的项目，一般开发完直接上生产，具体遇到问题在生产上排查。但是由于流程逐渐严格，所有发包必须走流程，经测试部验证后才能上产线，所以需要搭个测试环境。但是这个项目已经很早了，关于项目的数据库用户，有框架用户、产品用户，还有客户给自己创建的用户，总共 100 + 。当时看着客户提供过来的需创建的用户，头大。所以就有了批量创建的想法。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/08/sp-%E6%89%B9%E9%87%8F%E5%88%9B%E5%BB%BA%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7/'>
 <meta property='og:site_name' content='阿琦同学'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='SQL' /><meta property='article:published_time' content='2024-08-28T21:02:51&#43;08:00'/><meta property='article:modified_time' content='2024-10-09T20:53:37&#43;08:00'/>
-<meta name="twitter:title" content="SP-批量创建表空间和用户">
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='SQL' /><meta property='article:published_time' content='2024-08-28T21:02:51&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T22:36:41&#43;08:00'/>
+<meta name="twitter:title" content="SP 批量创建表空间和用户">
 <meta name="twitter:description" content="某证券的异常交易项目的测试环境已经早没了，只有生产环境。因为都是稳定运行的项目，一般开发完直接上生产，具体遇到问题在生产上排查。但是由于流程逐渐严格，所有发包必须走流程，经测试部验证后才能上产线，所以需要搭个测试环境。但是这个项目已经很早了，关于项目的数据库用户，有框架用户、产品用户，还有客户给自己创建的用户，总共 100 + 。当时看着客户提供过来的需创建的用户，头大。所以就有了批量创建的想法。\n">
     <link rel="shortcut icon" href="/favicon.ico" />
 
@@ -289,7 +289,7 @@
 
     <div class="article-title-wrapper">
         <h2 class="article-title">
-            <a href="/posts/2024/08/sp-%E6%89%B9%E9%87%8F%E5%88%9B%E5%BB%BA%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7/">SP-批量创建表空间和用户</a>
+            <a href="/posts/2024/08/sp-%E6%89%B9%E9%87%8F%E5%88%9B%E5%BB%BA%E8%A1%A8%E7%A9%BA%E9%97%B4%E5%92%8C%E7%94%A8%E6%88%B7/">SP 批量创建表空间和用户</a>
         </h2>
     
         
@@ -717,7 +717,7 @@
 
 
         <span>
-            最后更新于 2024年10月9号 20:53
+            最后更新于 2024年10月14号 22:36
         </span>
     </section></footer>
 
@@ -754,7 +754,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">SQL-达梦DATE类型自动转换为TIMESTAMP类型的解决方法</h2>
+            <h2 class="article-title">SQL 达梦DATE类型自动转换为TIMESTAMP类型的解决方法</h2>
         </div>
     </a>
 </article>
@@ -767,7 +767,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">SQL-日期时间转换问题</h2>
+            <h2 class="article-title">SQL 日期时间转换问题</h2>
         </div>
     </a>
 </article>
@@ -780,7 +780,7 @@
         
 
         <div class="article-details">
-            <h2 class="article-title">SQL-违反表的唯一约束条件（主键冲突）问题</h2>
+            <h2 class="article-title">SQL 违反表的唯一约束条件（主键冲突）问题</h2>
         </div>
     </a>
 </article>
