@@ -7,8 +7,8 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
         <copyright>Wei Qi</copyright>
-        <lastBuildDate>Mon, 14 Oct 2024 16:06:26 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/%E5%AE%B9%E5%99%A8/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>Docker-dockerfile构建镜像与network实践</title>
+        <lastBuildDate>Mon, 14 Oct 2024 22:37:45 +0800</lastBuildDate><atom:link href="http://localhost:1313/categories/%E5%AE%B9%E5%99%A8/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Docker dockerfile构建镜像与network实践</title>
         <link>http://localhost:1313/posts/2024/09/docker-dockerfile%E4%B8%8Enetwork%E5%AE%9E%E8%B7%B5/</link>
         <pubDate>Fri, 13 Sep 2024 13:56:41 +0800</pubDate>
         
@@ -1585,7 +1585,7 @@
 </description>
         </item>
         <item>
-        <title>Docker-基础</title>
+        <title>Docker 基础与入门</title>
         <link>http://localhost:1313/posts/2024/09/docker-%E5%9F%BA%E7%A1%80/</link>
         <pubDate>Sun, 01 Sep 2024 13:56:41 +0800</pubDate>
         

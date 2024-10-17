@@ -7,8 +7,8 @@
         <generator>Hugo -- gohugo.io</generator>
         <language>zh-cn</language>
         <copyright>Wei Qi</copyright>
-        <lastBuildDate>Mon, 14 Oct 2024 13:33:58 +0800</lastBuildDate><atom:link href="http://localhost:1313/tags/%E8%BE%BE%E6%A2%A6/index.xml" rel="self" type="application/rss+xml" /><item>
-        <title>主备集群-达梦数据库备份还原实践（四）</title>
+        <lastBuildDate>Mon, 14 Oct 2024 22:37:20 +0800</lastBuildDate><atom:link href="http://localhost:1313/tags/%E8%BE%BE%E6%A2%A6/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>主备集群 达梦数据库备份还原实践（四）</title>
         <link>http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E5%A4%87%E4%BB%BD%E8%BF%98%E5%8E%9F%E5%AE%9E%E8%B7%B5%E5%9B%9B/</link>
         <pubDate>Wed, 28 Aug 2024 13:56:41 +0800</pubDate>
         
@@ -1084,7 +1084,7 @@
 </description>
         </item>
         <item>
-        <title>主备集群-新增达梦实例并配置实时主备集群（三）</title>
+        <title>主备集群 新增达梦实例并配置实时主备集群（三）</title>
         <link>http://localhost:1313/posts/2024/08/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E6%96%B0%E5%A2%9E%E8%BE%BE%E6%A2%A6%E5%AE%9E%E4%BE%8B%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E4%B8%89/</link>
         <pubDate>Mon, 19 Aug 2024 20:02:15 +0800</pubDate>
         
@@ -2471,7 +2471,7 @@
 &lt;/div&gt;</description>
         </item>
         <item>
-        <title>主备集群-达梦实时主备集群搭建与主备切换实践（二）</title>
+        <title>主备集群 达梦实时主备集群搭建与主备切换实践（二）</title>
         <link>http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E5%AE%9E%E6%97%B6%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%B8%BB%E5%A4%87%E5%88%87%E6%8D%A2%E5%AE%9E%E8%B7%B5%E4%BA%8C/</link>
         <pubDate>Sun, 21 Jul 2024 22:10:12 +0800</pubDate>
         
@@ -4626,7 +4626,7 @@
 &lt;/div&gt;&lt;p&gt;是因为没有启动数据库，并到数据库里修改 &lt;code&gt;OGUID&lt;/code&gt; 参数导致。看上边启动服务步骤。&lt;/p&gt;</description>
         </item>
         <item>
-        <title>主备集群-达梦数据库数据守护（一）</title>
+        <title>主备集群 达梦数据库数据守护（一）</title>
         <link>http://localhost:1313/posts/2024/07/%E4%B8%BB%E5%A4%87%E9%9B%86%E7%BE%A4-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE%E5%AE%88%E6%8A%A4%E4%B8%80/</link>
         <pubDate>Sat, 20 Jul 2024 22:00:31 +0800</pubDate>
         
@@ -4842,7 +4842,7 @@
 &lt;p&gt;监视器是能在故障发生时自动切换主备的&lt;/p&gt;</description>
         </item>
         <item>
-        <title>实施部署-达梦数据库linux版的安装（二）</title>
+        <title>实施部署 达梦数据库linux版的安装（二）</title>
         <link>http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E8%BE%BE%E6%A2%A6%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E5%AE%89%E8%A3%85/</link>
         <pubDate>Thu, 06 Jun 2024 23:22:03 +0800</pubDate>
         
@@ -5257,7 +5257,7 @@
 &lt;/table&gt;</description>
         </item>
         <item>
-        <title>实施部署-信创项目环境搭建准备（一）</title>
+        <title>实施部署 信创项目环境搭建准备（一）</title>
         <link>http://localhost:1313/posts/2024/06/%E5%AE%9E%E6%96%BD%E9%83%A8%E7%BD%B2-%E4%BF%A1%E5%88%9B%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%96%BD%E5%87%86%E5%A4%87/</link>
         <pubDate>Sat, 01 Jun 2024 21:41:26 +0800</pubDate>
         
