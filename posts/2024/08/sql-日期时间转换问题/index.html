@@ -10,7 +10,7 @@
 <meta property='og:description' content="问题一：非正常时间格式转换问题\r背景\r最近在项目上，使用ETL工具配置任务，将上游数据直接推送到kafka topic 中，让另一个系统去消费这些实时成交的数据。\n之前经验的不足，没有对推送的数据做限制，导致每次推送到topic 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到kafka，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。\n并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。\n">
 <meta property='og:url' content='http://localhost:1313/posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/'>
 <meta property='og:site_name' content='阿琦同学'>
-<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='SQL' /><meta property='article:published_time' content='2024-08-15T21:02:51&#43;08:00'/><meta property='article:modified_time' content='2024-10-14T22:37:04&#43;08:00'/>
+<meta property='og:type' content='article'><meta property='article:section' content='Posts' /><meta property='article:tag' content='SQL' /><meta property='article:published_time' content='2024-08-15T21:02:51&#43;08:00'/><meta property='article:modified_time' content='2024-10-22T19:14:33&#43;08:00'/>
 <meta name="twitter:title" content="SQL 日期时间转换问题">
 <meta name="twitter:description" content="问题一：非正常时间格式转换问题\r背景\r最近在项目上，使用ETL工具配置任务，将上游数据直接推送到kafka topic 中，让另一个系统去消费这些实时成交的数据。\n之前经验的不足，没有对推送的数据做限制，导致每次推送到topic 里都是全量数据，几百万的数据被反复推送到topic里。需要对推送的任务进行修改，增量推送数据到kafka，经过咨询，使用单调递增的流水字段去配置，推送过的数据就不再反复推送。\n并且为了避免数据的重复，还需要设置主键，确保每一条数据都是为唯一。\n">
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -378,8 +378,6 @@
 	srcset="/posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806_hu3233433178372569112.png 480w, /posts/2024/08/sql-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/SQL-%E6%97%A5%E6%9C%9F%E6%97%B6%E9%97%B4%E8%BD%AC%E6%8D%A2%E9%97%AE%E9%A2%98/image-20240602222340806_hu5423520085145925225.png 1024w"
 	loading="lazy"
 	
-		alt="image-20240602222340806"
-	
 	
 		class="gallery-image" 
 		data-flex-grow="187"
@@ -643,7 +641,7 @@
 
 
         <span>
-            最后更新于 2024年10月14号 22:37
+            最后更新于 2024年10月22号 19:14
         </span>
     </section></footer>
 
@@ -844,10 +842,12 @@
         <a>发布了 28 篇文章 | 共 88.8K 字</a></br>
         <a>总访客数: </a><span id='busuanzi_value_site_uv'>Loading</span> <a> | </a> <a>总访问量: </a><span id='busuanzi_value_site_pv'>Loading</span></br>
 
-
         <section class="powerby">
             <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.27.0">Stack</a></b> <a>designed by Jimmy</a>
         </section>
+
+        <a href="https://beian.miit.gov.cn/" target="_blank">桂ICP备2024044843号-1</a> <br/>
+        
 
     </section>
 </footer>
